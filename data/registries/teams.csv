@@ -1,0 +1,78 @@
+id,school,mascot,conference
+BSB_EAST_CAROLINA,East Carolina,Pirates,AAC
+BSB_BOSTON_COLLEGE,Boston College,Eagles,ACC
+BSB_CAL,Cal,Golden Bears,ACC
+BSB_CLEMSON,Clemson,Tigers,ACC
+BSB_DUKE,Duke,Blue Devils,ACC
+BSB_FLORIDA_STATE,Florida State,Seminoles,ACC
+BSB_GEORGIA_TECH,Georgia Tech,Yellow Jackets,ACC
+BSB_LOUISVILLE,Louisville,Cardinals,ACC
+BSB_MIAMI,Miami,Hurricanes,ACC
+BSB_NC_STATE,NC State,Wolfpack,ACC
+BSB_NORTH_CAROLINA,North Carolina,Tar Heels,ACC
+BSB_NOTRE_DAME,Notre Dame,Fighting Irish,ACC
+BSB_PITT,Pitt,Panthers,ACC
+BSB_SMU,SMU,Mustangs,ACC
+BSB_STANFORD,Stanford,Cardinal,ACC
+BSB_SYRACUSE,Syracuse,Orange,ACC
+BSB_VIRGINIA,Virginia,Cavaliers,ACC
+BSB_VIRGINIA_TECH,Virginia Tech,Hokies,ACC
+BSB_WAKE_FOREST,Wake Forest,Demon Deacons,ACC
+BSB_LIBERTY,Liberty,Flames,ASUN
+BSB_ARIZONA,Arizona,Wildcats,Big 12
+BSB_ARIZONA_STATE,Arizona State,Sun Devils,Big 12
+BSB_BYU,BYU,Cougars,Big 12
+BSB_BAYLOR,Baylor,Bears,Big 12
+BSB_CINCINNATI,Cincinnati,Bearcats,Big 12
+BSB_COLORADO,Colorado,Buffaloes,Big 12
+BSB_HOUSTON,Houston,Cougars,Big 12
+BSB_IOWA_STATE,Iowa State,Cyclones,Big 12
+BSB_KANSAS,Kansas,Jayhawks,Big 12
+BSB_KANSAS_STATE,Kansas State,Wildcats,Big 12
+BSB_OKLAHOMA_STATE,Oklahoma State,Cowboys,Big 12
+BSB_TCU,TCU,Horned Frogs,Big 12
+BSB_TEXAS_TECH,Texas Tech,Red Raiders,Big 12
+BSB_UCF,UCF,Knights,Big 12
+BSB_UTAH,Utah,Utes,Big 12
+BSB_WEST_VIRGINIA,West Virginia,Mountaineers,Big 12
+BSB_ILLINOIS,Illinois,Fighting Illini,Big Ten
+BSB_INDIANA,Indiana,Hoosiers,Big Ten
+BSB_IOWA,Iowa,Hawkeyes,Big Ten
+BSB_MARYLAND,Maryland,Terrapins,Big Ten
+BSB_MICHIGAN,Michigan,Wolverines,Big Ten
+BSB_MICHIGAN_STATE,Michigan State,Spartans,Big Ten
+BSB_MINNESOTA,Minnesota,Golden Gophers,Big Ten
+BSB_NEBRASKA,Nebraska,Cornhuskers,Big Ten
+BSB_NORTHWESTERN,Northwestern,Wildcats,Big Ten
+BSB_OHIO_STATE,Ohio State,Buckeyes,Big Ten
+BSB_OREGON,Oregon,Ducks,Big Ten
+BSB_PENN_STATE,Penn State,Nittany Lions,Big Ten
+BSB_PURDUE,Purdue,Boilermakers,Big Ten
+BSB_RUTGERS,Rutgers,Scarlet Knights,Big Ten
+BSB_UCLA,UCLA,Bruins,Big Ten
+BSB_USC,USC,Trojans,Big Ten
+BSB_WASHINGTON,Washington,Huskies,Big Ten
+BSB_WISCONSIN,Wisconsin,Badgers,Big Ten
+BSB_UC_SANTA_BARBARA,UC Santa Barbara,Gauchos,Big West
+BSB_DALLAS_BAPTIST,Dallas Baptist,Patriots,C-USA
+BSB_OREGON_STATE,Oregon State,Beavers,Pac-12
+BSB_ALABAMA,Alabama,Crimson Tide,SEC
+BSB_ARKANSAS,Arkansas,Razorbacks,SEC
+BSB_AUBURN,Auburn,Tigers,SEC
+BSB_FLORIDA,Florida,Gators,SEC
+BSB_GEORGIA,Georgia,Bulldogs,SEC
+BSB_KENTUCKY,Kentucky,Wildcats,SEC
+BSB_LSU,LSU,Tigers,SEC
+BSB_MISS_STATE,Mississippi State,Bulldogs,SEC
+BSB_MISSOURI,Missouri,Tigers,SEC
+BSB_OKLAHOMA,Oklahoma,Sooners,SEC
+BSB_OLE_MISS,Ole Miss,Rebels,SEC
+BSB_SOUTH_CAROLINA,South Carolina,Gamecocks,SEC
+BSB_TENNESSEE,Tennessee,Volunteers,SEC
+BSB_TEXAS,Texas,Longhorns,SEC
+BSB_TEXAS_AM,Texas A&M,Aggies,SEC
+BSB_VANDERBILT,Vanderbilt,Commodores,SEC
+BSB_COASTAL_CAROLINA,Coastal Carolina,Chanticleers,Sun Belt
+BSB_LOUISIANA,Louisiana,Ragin' Cajuns,Sun Belt
+BSB_GONZAGA,Gonzaga,Bulldogs,WCC
+BSB_SAN_DIEGO,San Diego,Toreros,WCC

@@ -1,0 +1,1543 @@
+# Auto-generated from stats.ncaa.org team list
+# Generated at: 2026-02-15T22:31:08Z
+meta:
+  academic_year: 2025
+  division: 1
+  sport_code: MBA
+  source_url: "https://stats.ncaa.org/team/inst_team_list"
+teams:
+  - id: "NCAA_596496"
+    ncaa_teams_id: 596496
+    school: "Boston College"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596511"
+    ncaa_teams_id: 596511
+    school: "California"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596523"
+    ncaa_teams_id: 596523
+    school: "Clemson"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596708"
+    ncaa_teams_id: 596708
+    school: "Duke"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596545"
+    ncaa_teams_id: 596545
+    school: "Florida St."
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596553"
+    ncaa_teams_id: 596553
+    school: "Georgia Tech"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596585"
+    ncaa_teams_id: 596585
+    school: "Louisville"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596600"
+    ncaa_teams_id: 596600
+    school: "Miami (FL)"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596628"
+    ncaa_teams_id: 596628
+    school: "NC State"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596614"
+    ncaa_teams_id: 596614
+    school: "North Carolina"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596637"
+    ncaa_teams_id: 596637
+    school: "Notre Dame"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596649"
+    ncaa_teams_id: 596649
+    school: "Pittsburgh"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596688"
+    ncaa_teams_id: 596688
+    school: "Stanford"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596439"
+    ncaa_teams_id: 596439
+    school: "Virginia"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596438"
+    ncaa_teams_id: 596438
+    school: "Virginia Tech"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596441"
+    ncaa_teams_id: 596441
+    school: "Wake Forest"
+    conference: "ACC"
+    conference_id: 821
+  - id: "NCAA_596490"
+    ncaa_teams_id: 596490
+    school: "Austin Peay"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596693"
+    ncaa_teams_id: 596693
+    school: "Bellarmine"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596457"
+    ncaa_teams_id: 596457
+    school: "Central Ark."
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596538"
+    ncaa_teams_id: 596538
+    school: "Eastern Ky."
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596473"
+    ncaa_teams_id: 596473
+    school: "FGCU"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596572"
+    ncaa_teams_id: 596572
+    school: "Jacksonville"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596472"
+    ncaa_teams_id: 596472
+    school: "Lipscomb"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596475"
+    ncaa_teams_id: 596475
+    school: "North Ala."
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596467"
+    ncaa_teams_id: 596467
+    school: "North Florida"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596696"
+    ncaa_teams_id: 596696
+    school: "Queens (NC)"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596720"
+    ncaa_teams_id: 596720
+    school: "Stetson"
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596947"
+    ncaa_teams_id: 596947
+    school: "West Ga."
+    conference: "ASUN"
+    conference_id: 920
+  - id: "NCAA_596495"
+    ncaa_teams_id: 596495
+    school: "Binghamton"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596501"
+    ncaa_teams_id: 596501
+    school: "Bryant"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596588"
+    ncaa_teams_id: 596588
+    school: "Maine"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596621"
+    ncaa_teams_id: 596621
+    school: "NJIT"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596482"
+    ncaa_teams_id: 596482
+    school: "UAlbany"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596592"
+    ncaa_teams_id: 596592
+    school: "UMBC"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596586"
+    ncaa_teams_id: 596586
+    school: "UMass Lowell"
+    conference: "America East"
+    conference_id: 845
+  - id: "NCAA_596615"
+    ncaa_teams_id: 596615
+    school: "Charlotte"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596535"
+    ncaa_teams_id: 596535
+    school: "East Carolina"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596543"
+    ncaa_teams_id: 596543
+    school: "Fla. Atlantic"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596597"
+    ncaa_teams_id: 596597
+    school: "Memphis"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596657"
+    ncaa_teams_id: 596657
+    school: "Rice"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596679"
+    ncaa_teams_id: 596679
+    school: "South Fla."
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596701"
+    ncaa_teams_id: 596701
+    school: "Tulane"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596481"
+    ncaa_teams_id: 596481
+    school: "UAB"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596426"
+    ncaa_teams_id: 596426
+    school: "UTSA"
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596449"
+    ncaa_teams_id: 596449
+    school: "Wichita St."
+    conference: "American"
+    conference_id: 823
+  - id: "NCAA_596531"
+    ncaa_teams_id: 596531
+    school: "Davidson"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596532"
+    ncaa_teams_id: 596532
+    school: "Dayton"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596547"
+    ncaa_teams_id: 596547
+    school: "Fordham"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596548"
+    ncaa_teams_id: 596548
+    school: "George Mason"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596549"
+    ncaa_teams_id: 596549
+    school: "George Washington"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596595"
+    ncaa_teams_id: 596595
+    school: "Massachusetts"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596656"
+    ncaa_teams_id: 596656
+    school: "Rhode Island"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596658"
+    ncaa_teams_id: 596658
+    school: "Richmond"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596663"
+    ncaa_teams_id: 596663
+    school: "Saint Joseph&#39;s"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596664"
+    ncaa_teams_id: 596664
+    school: "Saint Louis"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596662"
+    ncaa_teams_id: 596662
+    school: "St. Bonaventure"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596436"
+    ncaa_teams_id: 596436
+    school: "VCU"
+    conference: "Atlantic 10"
+    conference_id: 820
+  - id: "NCAA_596706"
+    ncaa_teams_id: 596706
+    school: "Arizona"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596485"
+    ncaa_teams_id: 596485
+    school: "Arizona St."
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596499"
+    ncaa_teams_id: 596499
+    school: "BYU"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596493"
+    ncaa_teams_id: 596493
+    school: "Baylor"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596521"
+    ncaa_teams_id: 596521
+    school: "Cincinnati"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596561"
+    ncaa_teams_id: 596561
+    school: "Houston"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596575"
+    ncaa_teams_id: 596575
+    school: "Kansas"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596574"
+    ncaa_teams_id: 596574
+    school: "Kansas St."
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596714"
+    ncaa_teams_id: 596714
+    school: "Oklahoma St."
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596421"
+    ncaa_teams_id: 596421
+    school: "TCU"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596423"
+    ncaa_teams_id: 596423
+    school: "Texas Tech"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596519"
+    ncaa_teams_id: 596519
+    school: "UCF"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596432"
+    ncaa_teams_id: 596432
+    school: "Utah"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596444"
+    ncaa_teams_id: 596444
+    school: "West Virginia"
+    conference: "Big 12"
+    conference_id: 25354
+  - id: "NCAA_596503"
+    ncaa_teams_id: 596503
+    school: "Butler"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596529"
+    ncaa_teams_id: 596529
+    school: "Creighton"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596550"
+    ncaa_teams_id: 596550
+    school: "Georgetown"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596674"
+    ncaa_teams_id: 596674
+    school: "Seton Hall"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596717"
+    ncaa_teams_id: 596717
+    school: "St. John&#39;s (NY)"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596526"
+    ncaa_teams_id: 596526
+    school: "UConn"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596435"
+    ncaa_teams_id: 596435
+    school: "Villanova"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596454"
+    ncaa_teams_id: 596454
+    school: "Xavier"
+    conference: "Big East"
+    conference_id: 30184
+  - id: "NCAA_596492"
+    ncaa_teams_id: 596492
+    school: "Charleston So."
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596461"
+    ncaa_teams_id: 596461
+    school: "Gardner-Webb"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596705"
+    ncaa_teams_id: 596705
+    school: "High Point"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596582"
+    ncaa_teams_id: 596582
+    school: "Longwood"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596464"
+    ncaa_teams_id: 596464
+    school: "Presbyterian"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596655"
+    ncaa_teams_id: 596655
+    school: "Radford"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596613"
+    ncaa_teams_id: 596613
+    school: "UNC Asheville"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596469"
+    ncaa_teams_id: 596469
+    school: "USC Upstate"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596451"
+    ncaa_teams_id: 596451
+    school: "Winthrop"
+    conference: "Big South"
+    conference_id: 826
+  - id: "NCAA_596563"
+    ncaa_teams_id: 596563
+    school: "Illinois"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596566"
+    ncaa_teams_id: 596566
+    school: "Indiana"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596569"
+    ncaa_teams_id: 596569
+    school: "Iowa"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596593"
+    ncaa_teams_id: 596593
+    school: "Maryland"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596602"
+    ncaa_teams_id: 596602
+    school: "Michigan"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596601"
+    ncaa_teams_id: 596601
+    school: "Michigan St."
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596604"
+    ncaa_teams_id: 596604
+    school: "Minnesota"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596712"
+    ncaa_teams_id: 596712
+    school: "Nebraska"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596636"
+    ncaa_teams_id: 596636
+    school: "Northwestern"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596639"
+    ncaa_teams_id: 596639
+    school: "Ohio St."
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596644"
+    ncaa_teams_id: 596644
+    school: "Oregon"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596647"
+    ncaa_teams_id: 596647
+    school: "Penn St."
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596653"
+    ncaa_teams_id: 596653
+    school: "Purdue"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596660"
+    ncaa_teams_id: 596660
+    school: "Rutgers"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596681"
+    ncaa_teams_id: 596681
+    school: "Southern California"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596514"
+    ncaa_teams_id: 596514
+    school: "UCLA"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596443"
+    ncaa_teams_id: 596443
+    school: "Washington"
+    conference: "Big Ten"
+    conference_id: 827
+  - id: "NCAA_596505"
+    ncaa_teams_id: 596505
+    school: "CSU Bakersfield"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596508"
+    ncaa_teams_id: 596508
+    school: "CSUN"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596504"
+    ncaa_teams_id: 596504
+    school: "Cal Poly"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596506"
+    ncaa_teams_id: 596506
+    school: "Cal St. Fullerton"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596557"
+    ncaa_teams_id: 596557
+    school: "Hawaii"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596507"
+    ncaa_teams_id: 596507
+    school: "Long Beach St."
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596512"
+    ncaa_teams_id: 596512
+    school: "UC Davis"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596513"
+    ncaa_teams_id: 596513
+    school: "UC Irvine"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596515"
+    ncaa_teams_id: 596515
+    school: "UC Riverside"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596694"
+    ncaa_teams_id: 596694
+    school: "UC San Diego"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596510"
+    ncaa_teams_id: 596510
+    school: "UC Santa Barbara"
+    conference: "Big West"
+    conference_id: 904
+  - id: "NCAA_596516"
+    ncaa_teams_id: 596516
+    school: "Campbell"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596459"
+    ncaa_teams_id: 596459
+    school: "Col. of Charleston"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596534"
+    ncaa_teams_id: 596534
+    school: "Delaware"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596460"
+    ncaa_teams_id: 596460
+    school: "Elon"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596558"
+    ncaa_teams_id: 596558
+    school: "Hofstra"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596609"
+    ncaa_teams_id: 596609
+    school: "Monmouth"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596627"
+    ncaa_teams_id: 596627
+    school: "N.C. A&amp;T"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596631"
+    ncaa_teams_id: 596631
+    school: "Northeastern"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596690"
+    ncaa_teams_id: 596690
+    school: "Stony Brook"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596428"
+    ncaa_teams_id: 596428
+    school: "Towson"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596617"
+    ncaa_teams_id: 596617
+    school: "UNCW"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596450"
+    ncaa_teams_id: 596450
+    school: "William &amp; Mary"
+    conference: "CAA"
+    conference_id: 837
+  - id: "NCAA_596703"
+    ncaa_teams_id: 596703
+    school: "DBU"
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596544"
+    ncaa_teams_id: 596544
+    school: "FIU"
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596571"
+    ncaa_teams_id: 596571
+    school: "Jacksonville St."
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596463"
+    ncaa_teams_id: 596463
+    school: "Kennesaw St."
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596581"
+    ncaa_teams_id: 596581
+    school: "Liberty"
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596584"
+    ncaa_teams_id: 596584
+    school: "Louisiana Tech"
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596603"
+    ncaa_teams_id: 596603
+    school: "Middle Tenn."
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596622"
+    ncaa_teams_id: 596622
+    school: "New Mexico St."
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596667"
+    ncaa_teams_id: 596667
+    school: "Sam Houston"
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596447"
+    ncaa_teams_id: 596447
+    school: "Western Ky."
+    conference: "CUSA"
+    conference_id: 24312
+  - id: "NCAA_596643"
+    ncaa_teams_id: 596643
+    school: "Oregon St."
+    conference: "DI Independent"
+    conference_id: 99000
+  - id: "NCAA_596452"
+    ncaa_teams_id: 596452
+    school: "Milwaukee"
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596634"
+    ncaa_teams_id: 596634
+    school: "Northern Ky."
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596638"
+    ncaa_teams_id: 596638
+    school: "Oakland"
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596567"
+    ncaa_teams_id: 596567
+    school: "Purdue Fort Wayne"
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596453"
+    ncaa_teams_id: 596453
+    school: "Wright St."
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596456"
+    ncaa_teams_id: 596456
+    school: "Youngstown St."
+    conference: "Horizon"
+    conference_id: 881
+  - id: "NCAA_596500"
+    ncaa_teams_id: 596500
+    school: "Brown"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596525"
+    ncaa_teams_id: 596525
+    school: "Columbia"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596528"
+    ncaa_teams_id: 596528
+    school: "Cornell"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596530"
+    ncaa_teams_id: 596530
+    school: "Dartmouth"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596556"
+    ncaa_teams_id: 596556
+    school: "Harvard"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596716"
+    ncaa_teams_id: 596716
+    school: "Penn"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596652"
+    ncaa_teams_id: 596652
+    school: "Princeton"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596455"
+    ncaa_teams_id: 596455
+    school: "Yale"
+    conference: "Ivy League"
+    conference_id: 865
+  - id: "NCAA_596517"
+    ncaa_teams_id: 596517
+    school: "Canisius"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596540"
+    ncaa_teams_id: 596540
+    school: "Fairfield"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596568"
+    ncaa_teams_id: 596568
+    school: "Iona"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596589"
+    ncaa_teams_id: 596589
+    school: "Manhattan"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596590"
+    ncaa_teams_id: 596590
+    school: "Marist"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596458"
+    ncaa_teams_id: 596458
+    school: "Merrimack"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596611"
+    ncaa_teams_id: 596611
+    school: "Mount St. Mary&#39;s"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596625"
+    ncaa_teams_id: 596625
+    school: "Niagara"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596654"
+    ncaa_teams_id: 596654
+    school: "Quinnipiac"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596659"
+    ncaa_teams_id: 596659
+    school: "Rider"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596661"
+    ncaa_teams_id: 596661
+    school: "Sacred Heart"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596666"
+    ncaa_teams_id: 596666
+    school: "Saint Peter&#39;s"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596675"
+    ncaa_teams_id: 596675
+    school: "Siena"
+    conference: "MAAC"
+    conference_id: 871
+  - id: "NCAA_596419"
+    ncaa_teams_id: 596419
+    school: "Akron"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596491"
+    ncaa_teams_id: 596491
+    school: "Ball St."
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596497"
+    ncaa_teams_id: 596497
+    school: "Bowling Green"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596520"
+    ncaa_teams_id: 596520
+    school: "Central Mich."
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596539"
+    ncaa_teams_id: 596539
+    school: "Eastern Mich."
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596576"
+    ncaa_teams_id: 596576
+    school: "Kent St."
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596599"
+    ncaa_teams_id: 596599
+    school: "Miami (OH)"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596633"
+    ncaa_teams_id: 596633
+    school: "NIU"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596640"
+    ncaa_teams_id: 596640
+    school: "Ohio"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596427"
+    ncaa_teams_id: 596427
+    school: "Toledo"
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596448"
+    ncaa_teams_id: 596448
+    school: "Western Mich."
+    conference: "MAC"
+    conference_id: 875
+  - id: "NCAA_596470"
+    ncaa_teams_id: 596470
+    school: "Belmont"
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596498"
+    ncaa_teams_id: 596498
+    school: "Bradley"
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596709"
+    ncaa_teams_id: 596709
+    school: "Evansville"
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596562"
+    ncaa_teams_id: 596562
+    school: "Illinois St."
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596565"
+    ncaa_teams_id: 596565
+    school: "Indiana St."
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596685"
+    ncaa_teams_id: 596685
+    school: "Missouri St."
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596612"
+    ncaa_teams_id: 596612
+    school: "Murray St."
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596682"
+    ncaa_teams_id: 596682
+    school: "Southern Ill."
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596564"
+    ncaa_teams_id: 596564
+    school: "UIC"
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596433"
+    ncaa_teams_id: 596433
+    school: "Valparaiso"
+    conference: "MVC"
+    conference_id: 884
+  - id: "NCAA_596430"
+    ncaa_teams_id: 596430
+    school: "Air Force"
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596707"
+    ncaa_teams_id: 596707
+    school: "Fresno St."
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596620"
+    ncaa_teams_id: 596620
+    school: "Nevada"
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596623"
+    ncaa_teams_id: 596623
+    school: "New Mexico"
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596669"
+    ncaa_teams_id: 596669
+    school: "San Diego St."
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596672"
+    ncaa_teams_id: 596672
+    school: "San Jose St."
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596619"
+    ncaa_teams_id: 596619
+    school: "UNLV"
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596442"
+    ncaa_teams_id: 596442
+    school: "Washington St."
+    conference: "Mountain West"
+    conference_id: 5486
+  - id: "NCAA_596518"
+    ncaa_teams_id: 596518
+    school: "Central Conn. St."
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596527"
+    ncaa_teams_id: 596527
+    school: "Coppin St."
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596533"
+    ncaa_teams_id: 596533
+    school: "Delaware St."
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596541"
+    ncaa_teams_id: 596541
+    school: "FDU"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596711"
+    ncaa_teams_id: 596711
+    school: "LIU"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596699"
+    ncaa_teams_id: 596699
+    school: "Le Moyne"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596906"
+    ncaa_teams_id: 596906
+    school: "Mercyhurst"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596626"
+    ncaa_teams_id: 596626
+    school: "Norfolk St."
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596698"
+    ncaa_teams_id: 596698
+    school: "Stonehill"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596594"
+    ncaa_teams_id: 596594
+    school: "UMES"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596440"
+    ncaa_teams_id: 596440
+    school: "Wagner"
+    conference: "NEC"
+    conference_id: 846
+  - id: "NCAA_596537"
+    ncaa_teams_id: 596537
+    school: "Eastern Ill."
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596695"
+    ncaa_teams_id: 596695
+    school: "Lindenwood"
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596488"
+    ncaa_teams_id: 596488
+    school: "Little Rock"
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596610"
+    ncaa_teams_id: 596610
+    school: "Morehead St."
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596683"
+    ncaa_teams_id: 596683
+    school: "SIUE"
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596718"
+    ncaa_teams_id: 596718
+    school: "Southeast Mo. St."
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596697"
+    ncaa_teams_id: 596697
+    school: "Southern Ind."
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596691"
+    ncaa_teams_id: 596691
+    school: "Tennessee Tech"
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596692"
+    ncaa_teams_id: 596692
+    school: "UT Martin"
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596446"
+    ncaa_teams_id: 596446
+    school: "Western Ill."
+    conference: "OVC"
+    conference_id: 902
+  - id: "NCAA_596702"
+    ncaa_teams_id: 596702
+    school: "Army West Point"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596502"
+    ncaa_teams_id: 596502
+    school: "Bucknell"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596559"
+    ncaa_teams_id: 596559
+    school: "Holy Cross"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596578"
+    ncaa_teams_id: 596578
+    school: "Lafayette"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596580"
+    ncaa_teams_id: 596580
+    school: "Lehigh"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596431"
+    ncaa_teams_id: 596431
+    school: "Navy"
+    conference: "Patriot"
+    conference_id: 838
+  - id: "NCAA_596480"
+    ncaa_teams_id: 596480
+    school: "Alabama"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596487"
+    ncaa_teams_id: 596487
+    school: "Arkansas"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596489"
+    ncaa_teams_id: 596489
+    school: "Auburn"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596546"
+    ncaa_teams_id: 596546
+    school: "Florida"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596554"
+    ncaa_teams_id: 596554
+    school: "Georgia"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596577"
+    ncaa_teams_id: 596577
+    school: "Kentucky"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596583"
+    ncaa_teams_id: 596583
+    school: "LSU"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596605"
+    ncaa_teams_id: 596605
+    school: "Mississippi St."
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596608"
+    ncaa_teams_id: 596608
+    school: "Missouri"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596641"
+    ncaa_teams_id: 596641
+    school: "Oklahoma"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596607"
+    ncaa_teams_id: 596607
+    school: "Ole Miss"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596677"
+    ncaa_teams_id: 596677
+    school: "South Carolina"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596721"
+    ncaa_teams_id: 596721
+    school: "Tennessee"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596425"
+    ncaa_teams_id: 596425
+    school: "Texas"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596420"
+    ncaa_teams_id: 596420
+    school: "Texas A&amp;M"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596434"
+    ncaa_teams_id: 596434
+    school: "Vanderbilt"
+    conference: "SEC"
+    conference_id: 911
+  - id: "NCAA_596478"
+    ncaa_teams_id: 596478
+    school: "Alabama A&amp;M"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596479"
+    ncaa_teams_id: 596479
+    school: "Alabama St."
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596483"
+    ncaa_teams_id: 596483
+    school: "Alcorn"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596466"
+    ncaa_teams_id: 596466
+    school: "Ark.-Pine Bluff"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596494"
+    ncaa_teams_id: 596494
+    school: "Bethune-Cookman"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596542"
+    ncaa_teams_id: 596542
+    school: "Florida A&amp;M"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596710"
+    ncaa_teams_id: 596710
+    school: "Grambling"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596570"
+    ncaa_teams_id: 596570
+    school: "Jackson St."
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596606"
+    ncaa_teams_id: 596606
+    school: "Mississippi Val."
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596651"
+    ncaa_teams_id: 596651
+    school: "Prairie View"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596684"
+    ncaa_teams_id: 596684
+    school: "Southern U."
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596422"
+    ncaa_teams_id: 596422
+    school: "Texas Southern"
+    conference: "SWAC"
+    conference_id: 916
+  - id: "NCAA_596536"
+    ncaa_teams_id: 596536
+    school: "ETSU"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596598"
+    ncaa_teams_id: 596598
+    school: "Mercer"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596668"
+    ncaa_teams_id: 596668
+    school: "Samford"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596522"
+    ncaa_teams_id: 596522
+    school: "The Citadel"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596616"
+    ncaa_teams_id: 596616
+    school: "UNC Greensboro"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596437"
+    ncaa_teams_id: 596437
+    school: "VMI"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596445"
+    ncaa_teams_id: 596445
+    school: "Western Caro."
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596704"
+    ncaa_teams_id: 596704
+    school: "Wofford"
+    conference: "SoCon"
+    conference_id: 912
+  - id: "NCAA_596471"
+    ncaa_teams_id: 596471
+    school: "A&amp;M-Corpus Christi"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596560"
+    ncaa_teams_id: 596560
+    school: "Houston Christian"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596579"
+    ncaa_teams_id: 596579
+    school: "Lamar University"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596596"
+    ncaa_teams_id: 596596
+    school: "McNeese"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596624"
+    ncaa_teams_id: 596624
+    school: "New Orleans"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596713"
+    ncaa_teams_id: 596713
+    school: "Nicholls"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596635"
+    ncaa_teams_id: 596635
+    school: "Northwestern St."
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596689"
+    ncaa_teams_id: 596689
+    school: "SFA"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596680"
+    ncaa_teams_id: 596680
+    school: "Southeastern La."
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596468"
+    ncaa_teams_id: 596468
+    school: "UIW"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596646"
+    ncaa_teams_id: 596646
+    school: "UTRGV"
+    conference: "Southland"
+    conference_id: 914
+  - id: "NCAA_596629"
+    ncaa_teams_id: 596629
+    school: "North Dakota St."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596632"
+    ncaa_teams_id: 596632
+    school: "Northern Colo."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596618"
+    ncaa_teams_id: 596618
+    school: "Omaha"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596715"
+    ncaa_teams_id: 596715
+    school: "Oral Roberts"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596678"
+    ncaa_teams_id: 596678
+    school: "South Dakota St."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596417"
+    ncaa_teams_id: 596417
+    school: "St. Thomas (MN)"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_596484"
+    ncaa_teams_id: 596484
+    school: "App State"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596486"
+    ncaa_teams_id: 596486
+    school: "Arkansas St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596524"
+    ncaa_teams_id: 596524
+    school: "Coastal Carolina"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596551"
+    ncaa_teams_id: 596551
+    school: "Ga. Southern"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596552"
+    ncaa_teams_id: 596552
+    school: "Georgia St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596573"
+    ncaa_teams_id: 596573
+    school: "James Madison"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596687"
+    ncaa_teams_id: 596687
+    school: "Louisiana"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596591"
+    ncaa_teams_id: 596591
+    school: "Marshall"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596642"
+    ncaa_teams_id: 596642
+    school: "Old Dominion"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596676"
+    ncaa_teams_id: 596676
+    school: "South Alabama"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596719"
+    ncaa_teams_id: 596719
+    school: "Southern Miss."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596686"
+    ncaa_teams_id: 596686
+    school: "Texas St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596429"
+    ncaa_teams_id: 596429
+    school: "Troy"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596630"
+    ncaa_teams_id: 596630
+    school: "ULM"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_596477"
+    ncaa_teams_id: 596477
+    school: "Abilene Christian"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596476"
+    ncaa_teams_id: 596476
+    school: "California Baptist"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596462"
+    ncaa_teams_id: 596462
+    school: "Grand Canyon"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596509"
+    ncaa_teams_id: 596509
+    school: "Sacramento St."
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596465"
+    ncaa_teams_id: 596465
+    school: "Seattle U"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596700"
+    ncaa_teams_id: 596700
+    school: "Tarleton St."
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596424"
+    ncaa_teams_id: 596424
+    school: "UT Arlington"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596418"
+    ncaa_teams_id: 596418
+    school: "Utah Tech"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596474"
+    ncaa_teams_id: 596474
+    school: "Utah Valley"
+    conference: "WAC"
+    conference_id: 923
+  - id: "NCAA_596555"
+    ncaa_teams_id: 596555
+    school: "Gonzaga"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596587"
+    ncaa_teams_id: 596587
+    school: "LMU (CA)"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596645"
+    ncaa_teams_id: 596645
+    school: "Pacific"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596648"
+    ncaa_teams_id: 596648
+    school: "Pepperdine"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596650"
+    ncaa_teams_id: 596650
+    school: "Portland"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596665"
+    ncaa_teams_id: 596665
+    school: "Saint Mary&#39;s (CA)"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596670"
+    ncaa_teams_id: 596670
+    school: "San Diego"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596671"
+    ncaa_teams_id: 596671
+    school: "San Francisco"
+    conference: "WCC"
+    conference_id: 922
+  - id: "NCAA_596673"
+    ncaa_teams_id: 596673
+    school: "Santa Clara"
+    conference: "WCC"
+    conference_id: 922

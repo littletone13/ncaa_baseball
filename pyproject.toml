@@ -1,0 +1,30 @@
+[project]
+name = "ncaa-baseball"
+version = "0.0.1"
+description = "NCAA D1 baseball data pipeline (teams, odds, performance)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=2.0",
+  "pandas>=2.0",
+  "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

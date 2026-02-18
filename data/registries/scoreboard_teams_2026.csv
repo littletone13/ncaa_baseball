@@ -1,0 +1,286 @@
+academic_year,team_ncaa_id,team_name_canonical,n_name_variants
+2026,614563,Bucknell,1
+2026,614564,Butler,1
+2026,614565,Cal Poly,1
+2026,614566,CSU Bakersfield,1
+2026,614567,Cal St. Fullerton,1
+2026,614568,Long Beach St.,1
+2026,614569,CSUN,1
+2026,614570,Sacramento St.,1
+2026,614571,UC Santa Barbara,1
+2026,614572,California,1
+2026,614573,UC Davis,1
+2026,614574,UC Irvine,1
+2026,614575,UCLA,1
+2026,614576,UC Riverside,1
+2026,614577,Campbell,1
+2026,614578,Canisius,1
+2026,614580,UCF,1
+2026,614581,Central Mich.,1
+2026,614582,Cincinnati,1
+2026,614583,The Citadel,1
+2026,614584,Clemson,1
+2026,614585,Coastal Carolina,1
+2026,614587,UConn,1
+2026,614590,Creighton,1
+2026,614592,Davidson,1
+2026,614593,Dayton,1
+2026,614594,Delaware St.,1
+2026,614595,Delaware,1
+2026,614596,East Carolina,1
+2026,614597,ETSU,1
+2026,614598,Eastern Ill.,1
+2026,614599,Eastern Ky.,1
+2026,614600,Eastern Mich.,1
+2026,614601,Fairfield,1
+2026,614603,Florida A&M,1
+2026,614604,Fla. Atlantic,1
+2026,614605,FIU,1
+2026,614606,Florida St.,1
+2026,614607,Florida,1
+2026,614608,Fordham,1
+2026,614609,George Mason,1
+2026,614610,George Washington,1
+2026,614611,Georgetown,1
+2026,614612,Ga. Southern,1
+2026,614613,Georgia St.,1
+2026,614614,Georgia Tech,1
+2026,614615,Georgia,1
+2026,614616,Gonzaga,1
+2026,614618,Hawaii,1
+2026,614619,Hofstra,1
+2026,614620,Holy Cross,1
+2026,614621,Houston Christian,1
+2026,614622,Houston,1
+2026,614623,Illinois St.,1
+2026,614624,Illinois,1
+2026,614625,UIC,1
+2026,614626,Indiana St.,1
+2026,614627,Indiana,1
+2026,614629,Iona,1
+2026,614630,Iowa,1
+2026,614631,Jackson St.,1
+2026,614632,Jacksonville St.,1
+2026,614633,Jacksonville,1
+2026,614634,James Madison,1
+2026,614635,Kansas St.,1
+2026,614636,Kansas,1
+2026,614637,Kent St.,1
+2026,614638,Kentucky,1
+2026,614640,Lamar University,1
+2026,614641,Lehigh,1
+2026,614642,Liberty,1
+2026,614643,Longwood,1
+2026,614644,LSU,1
+2026,614645,Louisiana Tech,1
+2026,614646,Louisville,1
+2026,614647,UMass Lowell,1
+2026,614648,LMU (CA),1
+2026,614649,Maine,1
+2026,614650,Manhattan,1
+2026,614651,Marist,1
+2026,614652,Marshall,1
+2026,614654,Maryland,1
+2026,614655,UMES,1
+2026,614657,McNeese,1
+2026,614658,Memphis,1
+2026,614659,Mercer,1
+2026,614660,Miami (OH),1
+2026,614661,Miami (FL),1
+2026,614662,Michigan St.,1
+2026,614663,Michigan,1
+2026,614664,Middle Tenn.,1
+2026,614665,Minnesota,1
+2026,614666,Mississippi St.,1
+2026,614667,Mississippi Val.,1
+2026,614668,Ole Miss,1
+2026,614669,Missouri,1
+2026,614670,Monmouth,1
+2026,614671,Morehead St.,1
+2026,614672,Mount St. Mary's,1
+2026,614673,Murray St.,1
+2026,614674,UNC Asheville,1
+2026,614675,North Carolina,1
+2026,614676,Charlotte,1
+2026,614677,UNC Greensboro,1
+2026,614678,UNCW,1
+2026,614679,Omaha,1
+2026,614680,UNLV,1
+2026,614681,Nevada,1
+2026,614682,NJIT,1
+2026,614683,New Mexico St.,1
+2026,614684,New Mexico,1
+2026,614685,New Orleans,1
+2026,614686,Niagara,1
+2026,614687,Norfolk St.,1
+2026,614688,N.C. A&T,1
+2026,614689,NC State,1
+2026,614690,North Dakota St.,1
+2026,614691,ULM,1
+2026,614692,Northeastern,1
+2026,614693,Northern Colo.,1
+2026,614694,NIU,1
+2026,614695,Northern Ky.,1
+2026,614696,Northwestern St.,1
+2026,614697,Northwestern,1
+2026,614698,Notre Dame,1
+2026,614699,Oakland,1
+2026,614700,Ohio St.,1
+2026,614701,Ohio,1
+2026,614702,Oklahoma,1
+2026,614703,Old Dominion,1
+2026,614704,Oregon St.,1
+2026,614705,Oregon,1
+2026,614706,Pacific,1
+2026,614707,UTRGV,1
+2026,614708,Penn St.,1
+2026,614709,Pepperdine,1
+2026,614710,Pittsburgh,1
+2026,614711,Portland,1
+2026,614712,Prairie View,1
+2026,614714,Purdue,1
+2026,614715,Quinnipiac,1
+2026,614716,Radford,1
+2026,614717,Rhode Island,1
+2026,614718,Rice,1
+2026,614719,Richmond,1
+2026,614721,Rutgers,1
+2026,614722,Sacred Heart,1
+2026,614723,St. Bonaventure,1
+2026,614724,Saint Joseph's,1
+2026,614725,Saint Louis,1
+2026,614726,Saint Mary's (CA),1
+2026,614728,Sam Houston,1
+2026,614729,Samford,1
+2026,614730,San Diego St.,1
+2026,614731,San Diego,1
+2026,614732,San Francisco,1
+2026,614733,San Jose St.,1
+2026,614734,Santa Clara,1
+2026,614735,Seton Hall,1
+2026,614736,Siena,1
+2026,614737,South Alabama,1
+2026,614738,South Carolina,1
+2026,614739,South Dakota St.,1
+2026,614740,South Fla.,1
+2026,614741,Southeastern La.,1
+2026,614742,Southern California,1
+2026,614743,Southern Ill.,1
+2026,614744,SIUE,1
+2026,614745,Southern U.,1
+2026,614746,Missouri St.,1
+2026,614747,Texas St.,1
+2026,614748,Louisiana,1
+2026,614749,Stanford,1
+2026,614750,SFA,1
+2026,614751,Stony Brook,1
+2026,614752,Tennessee Tech,1
+2026,614753,UT Martin,1
+2026,614754,Bellarmine,1
+2026,614755,UC San Diego,1
+2026,614756,Lindenwood,1
+2026,614757,Queens (NC),1
+2026,614758,Southern Ind.,1
+2026,614759,Stonehill,1
+2026,614760,Le Moyne,1
+2026,614761,Tarleton St.,1
+2026,614762,Tulane,1
+2026,614763,Army West Point,1
+2026,614764,DBU,1
+2026,614765,Wofford,1
+2026,614766,High Point,1
+2026,614767,Arizona,1
+2026,614768,Fresno St.,1
+2026,614769,Duke,1
+2026,614770,Evansville,1
+2026,614771,Grambling,1
+2026,614772,LIU,1
+2026,614773,Nebraska,1
+2026,614774,Nicholls,1
+2026,614775,Oklahoma St.,1
+2026,614776,Oral Roberts,1
+2026,614778,St. John's (NY),1
+2026,614779,Southeast Mo. St.,1
+2026,614780,Southern Miss.,1
+2026,614781,Stetson,1
+2026,614782,Tennessee,1
+2026,614783,Mercyhurst,1
+2026,614784,West Ga.,1
+2026,614785,St. Thomas (MN),1
+2026,614786,Utah Tech,1
+2026,614788,Texas A&M,1
+2026,614789,TCU,1
+2026,614790,Texas Southern,1
+2026,614791,Texas Tech,1
+2026,614792,UT Arlington,1
+2026,614793,Texas,1
+2026,614794,UTSA,1
+2026,614795,Toledo,1
+2026,614796,Towson,1
+2026,614797,Troy,1
+2026,614798,Air Force,1
+2026,614799,Navy,1
+2026,614800,Utah,1
+2026,614801,Valparaiso,1
+2026,614802,Vanderbilt,1
+2026,614803,Villanova,1
+2026,614804,VCU,1
+2026,614805,VMI,1
+2026,614806,Virginia Tech,1
+2026,614807,Virginia,1
+2026,614808,Wagner,1
+2026,614809,Wake Forest,1
+2026,614810,Washington St.,1
+2026,614811,Washington,1
+2026,614812,West Virginia,1
+2026,614813,Western Caro.,1
+2026,614814,Western Ill.,1
+2026,614815,Western Ky.,1
+2026,614816,Western Mich.,1
+2026,614817,Wichita St.,1
+2026,614818,William & Mary,1
+2026,614819,Winthrop,1
+2026,614820,Milwaukee,1
+2026,614821,Wright St.,1
+2026,614822,Xavier,1
+2026,614824,Youngstown St.,1
+2026,614825,Central Ark.,1
+2026,614827,Col. of Charleston,1
+2026,614828,Elon,1
+2026,614829,Gardner-Webb,1
+2026,614830,Grand Canyon,1
+2026,614831,Kennesaw St.,1
+2026,614833,Seattle U,1
+2026,614834,Ark.-Pine Bluff,1
+2026,614835,North Florida,1
+2026,614836,UIW,1
+2026,614837,USC Upstate,1
+2026,614838,Belmont,1
+2026,614839,A&M-Corpus Christi,1
+2026,614840,Lipscomb,1
+2026,614841,FGCU,1
+2026,614842,Utah Valley,1
+2026,614843,North Ala.,1
+2026,614844,California Baptist,1
+2026,614845,Abilene Christian,1
+2026,614846,Alabama A&M,1
+2026,614847,Alabama St.,1
+2026,614848,Alabama,1
+2026,614849,UAB,1
+2026,614851,Alcorn,1
+2026,614852,App State,1
+2026,614853,Arizona St.,1
+2026,614854,Arkansas St.,1
+2026,614855,Arkansas,1
+2026,614856,Little Rock,1
+2026,614857,Auburn,1
+2026,614858,Austin Peay,1
+2026,614859,Ball St.,1
+2026,614860,Charleston So.,1
+2026,614861,Baylor,1
+2026,614863,Binghamton,1
+2026,614864,Boston College,1
+2026,614865,Bowling Green,1
+2026,614867,BYU,1
+2026,614869,Bryant,1
+2026,621265,La Salle,1

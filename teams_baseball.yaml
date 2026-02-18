@@ -1,0 +1,407 @@
+# NCAA Division I Baseball Teams - 2025-26 Season
+# Major conference teams + select mid-majors for betting markets
+# Total: 77 teams
+
+teams:
+  # ============================================================
+  # SEC (16 teams)
+  # ============================================================
+  - id: "BSB_ALABAMA"
+    school: "Alabama"
+    mascot: "Crimson Tide"
+    conference: "SEC"
+
+  - id: "BSB_ARKANSAS"
+    school: "Arkansas"
+    mascot: "Razorbacks"
+    conference: "SEC"
+
+  - id: "BSB_AUBURN"
+    school: "Auburn"
+    mascot: "Tigers"
+    conference: "SEC"
+
+  - id: "BSB_FLORIDA"
+    school: "Florida"
+    mascot: "Gators"
+    conference: "SEC"
+
+  - id: "BSB_GEORGIA"
+    school: "Georgia"
+    mascot: "Bulldogs"
+    conference: "SEC"
+
+  - id: "BSB_KENTUCKY"
+    school: "Kentucky"
+    mascot: "Wildcats"
+    conference: "SEC"
+
+  - id: "BSB_LSU"
+    school: "LSU"
+    mascot: "Tigers"
+    conference: "SEC"
+
+  - id: "BSB_MISS_STATE"
+    school: "Mississippi State"
+    mascot: "Bulldogs"
+    conference: "SEC"
+
+  - id: "BSB_MISSOURI"
+    school: "Missouri"
+    mascot: "Tigers"
+    conference: "SEC"
+
+  - id: "BSB_OKLAHOMA"
+    school: "Oklahoma"
+    mascot: "Sooners"
+    conference: "SEC"
+
+  - id: "BSB_OLE_MISS"
+    school: "Ole Miss"
+    mascot: "Rebels"
+    conference: "SEC"
+
+  - id: "BSB_SOUTH_CAROLINA"
+    school: "South Carolina"
+    mascot: "Gamecocks"
+    conference: "SEC"
+
+  - id: "BSB_TENNESSEE"
+    school: "Tennessee"
+    mascot: "Volunteers"
+    conference: "SEC"
+
+  - id: "BSB_TEXAS"
+    school: "Texas"
+    mascot: "Longhorns"
+    conference: "SEC"
+
+  - id: "BSB_TEXAS_AM"
+    school: "Texas A&M"
+    mascot: "Aggies"
+    conference: "SEC"
+
+  - id: "BSB_VANDERBILT"
+    school: "Vanderbilt"
+    mascot: "Commodores"
+    conference: "SEC"
+
+  # ============================================================
+  # ACC (18 teams)
+  # ============================================================
+  - id: "BSB_BOSTON_COLLEGE"
+    school: "Boston College"
+    mascot: "Eagles"
+    conference: "ACC"
+
+  - id: "BSB_CAL"
+    school: "Cal"
+    mascot: "Golden Bears"
+    conference: "ACC"
+
+  - id: "BSB_CLEMSON"
+    school: "Clemson"
+    mascot: "Tigers"
+    conference: "ACC"
+
+  - id: "BSB_DUKE"
+    school: "Duke"
+    mascot: "Blue Devils"
+    conference: "ACC"
+
+  - id: "BSB_FLORIDA_STATE"
+    school: "Florida State"
+    mascot: "Seminoles"
+    conference: "ACC"
+
+  - id: "BSB_GEORGIA_TECH"
+    school: "Georgia Tech"
+    mascot: "Yellow Jackets"
+    conference: "ACC"
+
+  - id: "BSB_LOUISVILLE"
+    school: "Louisville"
+    mascot: "Cardinals"
+    conference: "ACC"
+
+  - id: "BSB_MIAMI"
+    school: "Miami"
+    mascot: "Hurricanes"
+    conference: "ACC"
+
+  - id: "BSB_NORTH_CAROLINA"
+    school: "North Carolina"
+    mascot: "Tar Heels"
+    conference: "ACC"
+
+  - id: "BSB_NC_STATE"
+    school: "NC State"
+    mascot: "Wolfpack"
+    conference: "ACC"
+
+  - id: "BSB_NOTRE_DAME"
+    school: "Notre Dame"
+    mascot: "Fighting Irish"
+    conference: "ACC"
+
+  - id: "BSB_PITT"
+    school: "Pitt"
+    mascot: "Panthers"
+    conference: "ACC"
+
+  - id: "BSB_SMU"
+    school: "SMU"
+    mascot: "Mustangs"
+    conference: "ACC"
+
+  - id: "BSB_STANFORD"
+    school: "Stanford"
+    mascot: "Cardinal"
+    conference: "ACC"
+
+  - id: "BSB_SYRACUSE"
+    school: "Syracuse"
+    mascot: "Orange"
+    conference: "ACC"
+
+  - id: "BSB_VIRGINIA"
+    school: "Virginia"
+    mascot: "Cavaliers"
+    conference: "ACC"
+
+  - id: "BSB_VIRGINIA_TECH"
+    school: "Virginia Tech"
+    mascot: "Hokies"
+    conference: "ACC"
+
+  - id: "BSB_WAKE_FOREST"
+    school: "Wake Forest"
+    mascot: "Demon Deacons"
+    conference: "ACC"
+
+  # ============================================================
+  # Big 12 (16 teams)
+  # ============================================================
+  - id: "BSB_ARIZONA"
+    school: "Arizona"
+    mascot: "Wildcats"
+    conference: "Big 12"
+
+  - id: "BSB_ARIZONA_STATE"
+    school: "Arizona State"
+    mascot: "Sun Devils"
+    conference: "Big 12"
+
+  - id: "BSB_BYU"
+    school: "BYU"
+    mascot: "Cougars"
+    conference: "Big 12"
+
+  - id: "BSB_BAYLOR"
+    school: "Baylor"
+    mascot: "Bears"
+    conference: "Big 12"
+
+  - id: "BSB_CINCINNATI"
+    school: "Cincinnati"
+    mascot: "Bearcats"
+    conference: "Big 12"
+
+  - id: "BSB_COLORADO"
+    school: "Colorado"
+    mascot: "Buffaloes"
+    conference: "Big 12"
+
+  - id: "BSB_HOUSTON"
+    school: "Houston"
+    mascot: "Cougars"
+    conference: "Big 12"
+
+  - id: "BSB_IOWA_STATE"
+    school: "Iowa State"
+    mascot: "Cyclones"
+    conference: "Big 12"
+
+  - id: "BSB_KANSAS"
+    school: "Kansas"
+    mascot: "Jayhawks"
+    conference: "Big 12"
+
+  - id: "BSB_KANSAS_STATE"
+    school: "Kansas State"
+    mascot: "Wildcats"
+    conference: "Big 12"
+
+  - id: "BSB_OKLAHOMA_STATE"
+    school: "Oklahoma State"
+    mascot: "Cowboys"
+    conference: "Big 12"
+
+  - id: "BSB_TCU"
+    school: "TCU"
+    mascot: "Horned Frogs"
+    conference: "Big 12"
+
+  - id: "BSB_TEXAS_TECH"
+    school: "Texas Tech"
+    mascot: "Red Raiders"
+    conference: "Big 12"
+
+  - id: "BSB_UCF"
+    school: "UCF"
+    mascot: "Knights"
+    conference: "Big 12"
+
+  - id: "BSB_UTAH"
+    school: "Utah"
+    mascot: "Utes"
+    conference: "Big 12"
+
+  - id: "BSB_WEST_VIRGINIA"
+    school: "West Virginia"
+    mascot: "Mountaineers"
+    conference: "Big 12"
+
+  # ============================================================
+  # Big Ten (18 teams)
+  # ============================================================
+  - id: "BSB_ILLINOIS"
+    school: "Illinois"
+    mascot: "Fighting Illini"
+    conference: "Big Ten"
+
+  - id: "BSB_INDIANA"
+    school: "Indiana"
+    mascot: "Hoosiers"
+    conference: "Big Ten"
+
+  - id: "BSB_IOWA"
+    school: "Iowa"
+    mascot: "Hawkeyes"
+    conference: "Big Ten"
+
+  - id: "BSB_MARYLAND"
+    school: "Maryland"
+    mascot: "Terrapins"
+    conference: "Big Ten"
+
+  - id: "BSB_MICHIGAN"
+    school: "Michigan"
+    mascot: "Wolverines"
+    conference: "Big Ten"
+
+  - id: "BSB_MICHIGAN_STATE"
+    school: "Michigan State"
+    mascot: "Spartans"
+    conference: "Big Ten"
+
+  - id: "BSB_MINNESOTA"
+    school: "Minnesota"
+    mascot: "Golden Gophers"
+    conference: "Big Ten"
+
+  - id: "BSB_NEBRASKA"
+    school: "Nebraska"
+    mascot: "Cornhuskers"
+    conference: "Big Ten"
+
+  - id: "BSB_NORTHWESTERN"
+    school: "Northwestern"
+    mascot: "Wildcats"
+    conference: "Big Ten"
+
+  - id: "BSB_OHIO_STATE"
+    school: "Ohio State"
+    mascot: "Buckeyes"
+    conference: "Big Ten"
+
+  - id: "BSB_OREGON"
+    school: "Oregon"
+    mascot: "Ducks"
+    conference: "Big Ten"
+
+  - id: "BSB_PENN_STATE"
+    school: "Penn State"
+    mascot: "Nittany Lions"
+    conference: "Big Ten"
+
+  - id: "BSB_PURDUE"
+    school: "Purdue"
+    mascot: "Boilermakers"
+    conference: "Big Ten"
+
+  - id: "BSB_RUTGERS"
+    school: "Rutgers"
+    mascot: "Scarlet Knights"
+    conference: "Big Ten"
+
+  - id: "BSB_UCLA"
+    school: "UCLA"
+    mascot: "Bruins"
+    conference: "Big Ten"
+
+  - id: "BSB_USC"
+    school: "USC"
+    mascot: "Trojans"
+    conference: "Big Ten"
+
+  - id: "BSB_WASHINGTON"
+    school: "Washington"
+    mascot: "Huskies"
+    conference: "Big Ten"
+
+  - id: "BSB_WISCONSIN"
+    school: "Wisconsin"
+    mascot: "Badgers"
+    conference: "Big Ten"
+
+  # ============================================================
+  # Other Strong Programs (3 teams)
+  # ============================================================
+  - id: "BSB_OREGON_STATE"
+    school: "Oregon State"
+    mascot: "Beavers"
+    conference: "Pac-12"
+
+  - id: "BSB_GONZAGA"
+    school: "Gonzaga"
+    mascot: "Bulldogs"
+    conference: "WCC"
+
+  - id: "BSB_SAN_DIEGO"
+    school: "San Diego"
+    mascot: "Toreros"
+    conference: "WCC"
+
+  # ============================================================
+  # Top Mid-Majors (6 teams)
+  # ============================================================
+  - id: "BSB_EAST_CAROLINA"
+    school: "East Carolina"
+    mascot: "Pirates"
+    conference: "AAC"
+
+  - id: "BSB_DALLAS_BAPTIST"
+    school: "Dallas Baptist"
+    mascot: "Patriots"
+    conference: "C-USA"
+
+  - id: "BSB_UC_SANTA_BARBARA"
+    school: "UC Santa Barbara"
+    mascot: "Gauchos"
+    conference: "Big West"
+
+  - id: "BSB_COASTAL_CAROLINA"
+    school: "Coastal Carolina"
+    mascot: "Chanticleers"
+    conference: "Sun Belt"
+
+  - id: "BSB_LIBERTY"
+    school: "Liberty"
+    mascot: "Flames"
+    conference: "ASUN"
+
+  - id: "BSB_LOUISIANA"
+    school: "Louisiana"
+    mascot: "Ragin' Cajuns"
+    conference: "Sun Belt"

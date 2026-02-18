@@ -1,0 +1,108 @@
+# Auto-generated from stats.ncaa.org team list
+# Generated at: 2026-02-15T22:12:54Z
+meta:
+  academic_year: 2024
+  division: 1
+  sport_code: MBA
+  source_url: "https://stats.ncaa.org/team/inst_team_list"
+teams:
+  - id: "NCAA_574156"
+    ncaa_teams_id: 574156
+    school: "North Dakota St."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_574159"
+    ncaa_teams_id: 574159
+    school: "Northern Colo."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_574144"
+    ncaa_teams_id: 574144
+    school: "Omaha"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_574171"
+    ncaa_teams_id: 574171
+    school: "Oral Roberts"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_574209"
+    ncaa_teams_id: 574209
+    school: "South Dakota St."
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_573909"
+    ncaa_teams_id: 573909
+    school: "St. Thomas (MN)"
+    conference: "Summit League"
+    conference_id: 819
+  - id: "NCAA_574002"
+    ncaa_teams_id: 574002
+    school: "App State"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574005"
+    ncaa_teams_id: 574005
+    school: "Arkansas St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574044"
+    ncaa_teams_id: 574044
+    school: "Coastal Carolina"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574073"
+    ncaa_teams_id: 574073
+    school: "Ga. Southern"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574074"
+    ncaa_teams_id: 574074
+    school: "Georgia St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574097"
+    ncaa_teams_id: 574097
+    school: "James Madison"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574220"
+    ncaa_teams_id: 574220
+    school: "Louisiana"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574116"
+    ncaa_teams_id: 574116
+    school: "Marshall"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574170"
+    ncaa_teams_id: 574170
+    school: "Old Dominion"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574207"
+    ncaa_teams_id: 574207
+    school: "South Alabama"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574216"
+    ncaa_teams_id: 574216
+    school: "Southern Miss."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574219"
+    ncaa_teams_id: 574219
+    school: "Texas St."
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_573922"
+    ncaa_teams_id: 573922
+    school: "Troy"
+    conference: "Sun Belt"
+    conference_id: 818
+  - id: "NCAA_574157"
+    ncaa_teams_id: 574157
+    school: "ULM"
+    conference: "Sun Belt"
+    conference_id: 818

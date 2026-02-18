@@ -1,0 +1,346 @@
+academic_year,team_ncaa_id,team_name_canonical,n_name_variants
+2025,596417,St. Thomas (MN),1
+2025,596418,Utah Tech,1
+2025,596419,Akron,1
+2025,596420,Texas A&M,1
+2025,596421,TCU,1
+2025,596422,Texas Southern,1
+2025,596423,Texas Tech,1
+2025,596424,UT Arlington,1
+2025,596425,Texas,1
+2025,596426,UTSA,1
+2025,596427,Toledo,1
+2025,596428,Towson,1
+2025,596429,Troy,1
+2025,596430,Air Force,1
+2025,596431,Navy,1
+2025,596432,Utah,1
+2025,596433,Valparaiso,1
+2025,596434,Vanderbilt,1
+2025,596435,Villanova,1
+2025,596436,VCU,1
+2025,596437,VMI,1
+2025,596438,Virginia Tech,1
+2025,596439,Virginia,1
+2025,596440,Wagner,1
+2025,596441,Wake Forest,1
+2025,596442,Washington St.,1
+2025,596443,Washington,1
+2025,596444,West Virginia,1
+2025,596445,Western Caro.,1
+2025,596446,Western Ill.,1
+2025,596447,Western Ky.,1
+2025,596448,Western Mich.,1
+2025,596449,Wichita St.,1
+2025,596450,William & Mary,1
+2025,596451,Winthrop,1
+2025,596452,Milwaukee,1
+2025,596453,Wright St.,1
+2025,596454,Xavier,1
+2025,596455,Yale,1
+2025,596456,Youngstown St.,1
+2025,596457,Central Ark.,1
+2025,596458,Merrimack,1
+2025,596459,Col. of Charleston,1
+2025,596460,Elon,1
+2025,596461,Gardner-Webb,1
+2025,596462,Grand Canyon,1
+2025,596463,Kennesaw St.,1
+2025,596464,Presbyterian,1
+2025,596465,Seattle U,1
+2025,596466,Ark.-Pine Bluff,1
+2025,596467,North Florida,1
+2025,596468,UIW,1
+2025,596469,USC Upstate,1
+2025,596470,Belmont,1
+2025,596471,A&M-Corpus Christi,1
+2025,596472,Lipscomb,1
+2025,596473,FGCU,1
+2025,596474,Utah Valley,1
+2025,596475,North Ala.,1
+2025,596476,California Baptist,1
+2025,596477,Abilene Christian,1
+2025,596478,Alabama A&M,1
+2025,596479,Alabama St.,1
+2025,596480,Alabama,1
+2025,596481,UAB,1
+2025,596482,UAlbany,1
+2025,596483,Alcorn,1
+2025,596484,App State,1
+2025,596485,Arizona St.,1
+2025,596486,Arkansas St.,1
+2025,596487,Arkansas,1
+2025,596488,Little Rock,1
+2025,596489,Auburn,1
+2025,596490,Austin Peay,1
+2025,596491,Ball St.,1
+2025,596492,Charleston So.,1
+2025,596493,Baylor,1
+2025,596494,Bethune-Cookman,1
+2025,596495,Binghamton,1
+2025,596496,Boston College,1
+2025,596497,Bowling Green,1
+2025,596498,Bradley,1
+2025,596499,BYU,1
+2025,596500,Brown,1
+2025,596501,Bryant,1
+2025,596502,Bucknell,1
+2025,596503,Butler,1
+2025,596504,Cal Poly,1
+2025,596505,CSU Bakersfield,1
+2025,596506,Cal St. Fullerton,1
+2025,596507,Long Beach St.,1
+2025,596508,CSUN,1
+2025,596509,Sacramento St.,1
+2025,596510,UC Santa Barbara,1
+2025,596511,California,1
+2025,596512,UC Davis,1
+2025,596513,UC Irvine,1
+2025,596514,UCLA,1
+2025,596515,UC Riverside,1
+2025,596516,Campbell,1
+2025,596517,Canisius,1
+2025,596518,Central Conn. St.,1
+2025,596519,UCF,1
+2025,596520,Central Mich.,1
+2025,596521,Cincinnati,1
+2025,596522,The Citadel,1
+2025,596523,Clemson,1
+2025,596524,Coastal Carolina,1
+2025,596525,Columbia,1
+2025,596526,UConn,1
+2025,596527,Coppin St.,1
+2025,596528,Cornell,1
+2025,596529,Creighton,1
+2025,596530,Dartmouth,1
+2025,596531,Davidson,1
+2025,596532,Dayton,1
+2025,596533,Delaware St.,1
+2025,596534,Delaware,1
+2025,596535,East Carolina,1
+2025,596536,ETSU,1
+2025,596537,Eastern Ill.,1
+2025,596538,Eastern Ky.,1
+2025,596539,Eastern Mich.,1
+2025,596540,Fairfield,1
+2025,596541,FDU,1
+2025,596542,Florida A&M,1
+2025,596543,Fla. Atlantic,1
+2025,596544,FIU,1
+2025,596545,Florida St.,1
+2025,596546,Florida,1
+2025,596547,Fordham,1
+2025,596548,George Mason,1
+2025,596549,George Washington,1
+2025,596550,Georgetown,1
+2025,596551,Ga. Southern,1
+2025,596552,Georgia St.,1
+2025,596553,Georgia Tech,1
+2025,596554,Georgia,1
+2025,596555,Gonzaga,1
+2025,596556,Harvard,1
+2025,596557,Hawaii,1
+2025,596558,Hofstra,1
+2025,596559,Holy Cross,1
+2025,596560,Houston Christian,1
+2025,596561,Houston,1
+2025,596562,Illinois St.,1
+2025,596563,Illinois,1
+2025,596564,UIC,1
+2025,596565,Indiana St.,1
+2025,596566,Indiana,1
+2025,596567,Purdue Fort Wayne,1
+2025,596568,Iona,1
+2025,596569,Iowa,1
+2025,596570,Jackson St.,1
+2025,596571,Jacksonville St.,1
+2025,596572,Jacksonville,1
+2025,596573,James Madison,1
+2025,596574,Kansas St.,1
+2025,596575,Kansas,1
+2025,596576,Kent St.,1
+2025,596577,Kentucky,1
+2025,596578,Lafayette,1
+2025,596579,Lamar University,1
+2025,596580,Lehigh,1
+2025,596581,Liberty,1
+2025,596582,Longwood,1
+2025,596583,LSU,1
+2025,596584,Louisiana Tech,1
+2025,596585,Louisville,1
+2025,596586,UMass Lowell,1
+2025,596587,LMU (CA),1
+2025,596588,Maine,1
+2025,596589,Manhattan,1
+2025,596590,Marist,1
+2025,596591,Marshall,1
+2025,596592,UMBC,1
+2025,596593,Maryland,1
+2025,596594,UMES,1
+2025,596595,Massachusetts,1
+2025,596596,McNeese,1
+2025,596597,Memphis,1
+2025,596598,Mercer,1
+2025,596599,Miami (OH),1
+2025,596600,Miami (FL),1
+2025,596601,Michigan St.,1
+2025,596602,Michigan,1
+2025,596603,Middle Tenn.,1
+2025,596604,Minnesota,1
+2025,596605,Mississippi St.,1
+2025,596606,Mississippi Val.,1
+2025,596607,Ole Miss,1
+2025,596608,Missouri,1
+2025,596609,Monmouth,1
+2025,596610,Morehead St.,1
+2025,596611,Mount St. Mary's,1
+2025,596612,Murray St.,1
+2025,596613,UNC Asheville,1
+2025,596614,North Carolina,1
+2025,596615,Charlotte,1
+2025,596616,UNC Greensboro,1
+2025,596617,UNCW,1
+2025,596618,Omaha,1
+2025,596619,UNLV,1
+2025,596620,Nevada,1
+2025,596621,NJIT,1
+2025,596622,New Mexico St.,1
+2025,596623,New Mexico,1
+2025,596624,New Orleans,1
+2025,596625,Niagara,1
+2025,596626,Norfolk St.,1
+2025,596627,N.C. A&T,1
+2025,596628,NC State,1
+2025,596629,North Dakota St.,1
+2025,596630,ULM,1
+2025,596631,Northeastern,1
+2025,596632,Northern Colo.,1
+2025,596633,NIU,1
+2025,596634,Northern Ky.,1
+2025,596635,Northwestern St.,1
+2025,596636,Northwestern,1
+2025,596637,Notre Dame,1
+2025,596638,Oakland,1
+2025,596639,Ohio St.,1
+2025,596640,Ohio,1
+2025,596641,Oklahoma,1
+2025,596642,Old Dominion,1
+2025,596643,Oregon St.,1
+2025,596644,Oregon,1
+2025,596645,Pacific,1
+2025,596646,UTRGV,1
+2025,596647,Penn St.,1
+2025,596648,Pepperdine,1
+2025,596649,Pittsburgh,1
+2025,596650,Portland,1
+2025,596651,Prairie View,1
+2025,596652,Princeton,1
+2025,596653,Purdue,1
+2025,596654,Quinnipiac,1
+2025,596655,Radford,1
+2025,596656,Rhode Island,1
+2025,596657,Rice,1
+2025,596658,Richmond,1
+2025,596659,Rider,1
+2025,596660,Rutgers,1
+2025,596661,Sacred Heart,1
+2025,596662,St. Bonaventure,1
+2025,596663,Saint Joseph's,1
+2025,596664,Saint Louis,1
+2025,596665,Saint Mary's (CA),1
+2025,596666,Saint Peter's,1
+2025,596667,Sam Houston,1
+2025,596668,Samford,1
+2025,596669,San Diego St.,1
+2025,596670,San Diego,1
+2025,596671,San Francisco,1
+2025,596672,San Jose St.,1
+2025,596673,Santa Clara,1
+2025,596674,Seton Hall,1
+2025,596675,Siena,1
+2025,596676,South Alabama,1
+2025,596677,South Carolina,1
+2025,596678,South Dakota St.,1
+2025,596679,South Fla.,1
+2025,596680,Southeastern La.,1
+2025,596681,Southern California,1
+2025,596682,Southern Ill.,1
+2025,596683,SIUE,1
+2025,596684,Southern U.,1
+2025,596685,Missouri St.,1
+2025,596686,Texas St.,1
+2025,596687,Louisiana,1
+2025,596688,Stanford,1
+2025,596689,SFA,1
+2025,596690,Stony Brook,1
+2025,596691,Tennessee Tech,1
+2025,596692,UT Martin,1
+2025,596693,Bellarmine,1
+2025,596694,UC San Diego,1
+2025,596695,Lindenwood,1
+2025,596696,Queens (NC),1
+2025,596697,Southern Ind.,1
+2025,596698,Stonehill,1
+2025,596699,Le Moyne,1
+2025,596700,Tarleton St.,1
+2025,596701,Tulane,1
+2025,596702,Army West Point,1
+2025,596703,DBU,1
+2025,596704,Wofford,1
+2025,596705,High Point,1
+2025,596706,Arizona,1
+2025,596707,Fresno St.,1
+2025,596708,Duke,1
+2025,596709,Evansville,1
+2025,596710,Grambling,1
+2025,596711,LIU,1
+2025,596712,Nebraska,1
+2025,596713,Nicholls,1
+2025,596714,Oklahoma St.,1
+2025,596715,Oral Roberts,1
+2025,596716,Penn,1
+2025,596717,St. John's (NY),1
+2025,596718,Southeast Mo. St.,1
+2025,596719,Southern Miss.,1
+2025,596720,Stetson,1
+2025,596721,Tennessee,1
+2025,596725,Findlay,1
+2025,596745,Rockhurst,1
+2025,596747,Saint Martin's,1
+2025,596753,Tiffin,1
+2025,596757,Western Ore.,1
+2025,596761,Hawaii Pacific,1
+2025,596762,Hawaii Hilo,1
+2025,596770,Southwest Minn. St.,1
+2025,596799,Trevecca Nazarene,1
+2025,596805,Newman,1
+2025,596817,Cedarville,1
+2025,596829,Union (TN),1
+2025,596843,Davenport,1
+2025,596893,Kentucky St.,1
+2025,596896,Lane,1
+2025,596899,Lincoln (PA),1
+2025,596906,Mercyhurst,1
+2025,596908,Miles,1
+2025,596913,Mo.-St. Louis,1
+2025,596917,New Haven,1
+2025,596924,Pitt.-Johnstown,1
+2025,596941,Tuskegee,1
+2025,596947,West Ga.,1
+2025,596976,Chaminade,1
+2025,596988,North Park,1
+2025,597060,Wash. & Jeff.,1
+2025,597115,Husson,1
+2025,597128,Pacific Lutheran,1
+2025,597150,LeTourneau,1
+2025,597167,MSOE,1
+2025,597211,Albright,1
+2025,597218,Augustana (IL),1
+2025,597219,Aurora,1
+2025,597222,Baldwin Wallace,1
+2025,597243,CWRU,1
+2025,597246,Centenary (LA),1
+2025,597301,Ill. Wesleyan,1
+2025,597318,Loras,1
+2025,597322,Me.-Farmington,1
+2025,601221,UW-River Falls,1
