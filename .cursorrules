@@ -1,0 +1,82 @@
+# NCAA Baseball Betting Model
+
+## Project Overview
+Bayesian log-linear model for NCAA D1 baseball following Andrew Mack's methodology (Chapter 18 MLB approach adapted for college). Goal: generate betable projected lines (moneyline, spread, total) with quantified edge vs. market.
+
+## Architecture Reference
+The full model specification lives in `ncaa_baseball_codex_prompt.md` (741 lines). READ THIS FIRST before writing any model code. It defines:
+- Correlated negative binomial run-scoring model
+- Stan implementation details
+- Walk-forward validation framework
+- Roster continuity adjustments for transfer portal
+- Park effect offsets for aluminum bats
+
+## Data Sources — What Works (as of Feb 2026)
+
+### ESPN API (PRIMARY — no auth required)
+- Endpoint: `https://site.api.espn.com/apis/site/v2/sports/baseball/college-baseball/`
+- Scoreboard: `/scoreboard?dates=YYYYMMDD&limit=200` → all D1 games per day
+- Game summary: `/summary?event={event_id}` → boxscore + PBP + starters + venue
+- Teams list: `/teams?limit=500` → 434 D1 teams with ESPN IDs
+- PBP available for ~23% of games (biased toward major programs sportsbooks line)
+- Boxscore gives: per-player batting (AB,R,H,RBI,HR,BB,K,AVG,OBP,SLG) and pitching (IP,H,R,ER,BB,K,HR,ERA) with starter flags
+- Line scores by inning from header.competitions.competitors.linescores
+
+### the-odds-api (for market odds)
+- API key in `.env` as `ODDS_API_KEY`
+- Sport key: `baseball_ncaa`
+- Markets: h2h, spreads, totals (NO player props for college)
+- Historical data available from May 2023
+- Endpoint: `https://api.the-odds-api.com/v4/sports/baseball_ncaa/odds`
+- Quota: events endpoint FREE, current odds 3 credits/call, historical 10 credits/call
+
+### NCAA API proxy (supplementary team stats)
+- Endpoint: `https://ncaa-api.henrygd.me/`
+- Scoreboard: `/scoreboard/baseball/d1/YYYY/MM/DD/all-conf`
+- Team stats: `/stats/baseball/d1/current/team/{stat_id}` (rate limit: ~2s between calls)
+- Key stat IDs: 210=BA, 211=ERA, 212=FldPct, 213=Scoring, 319=WLPct, 327=SLG, 589=OBP, 597=WHIP, 425=K/9, 591=K/BB
+- Box scores: `/game/{game_id}/boxscore` and `/game/{game_id}/team-stats`
+
+### DEAD — Do Not Use
+- `baseballr` R package NCAA endpoints → 403 blocked by NCAA
+- `sportsdataverse` bulk PBP downloads → 404 for 2024+
+- `stats.ncaa.org` direct scraping → 403 blocked
+- ESPN roster API → 404 for college baseball
+- `64analytics.com` → paywalled, JS-rendered, fragile
+
+## Current State
+
+### Built
+- `scripts/scrape_espn.py` — ESPN scraper (games, boxscores, starters, PBP). JSONL output. Supports `--resume`. Run-event extraction has a bug (double-counts within at-bats — needs to count only at at-bat boundaries).
+- `scripts/scrape_ncaa_scoreboard.py` — legacy NCAA scoreboard scraper (stats.ncaa.org, may be blocked)
+- `scripts/pull_odds_snapshot.py` / `pull_odds_events.py` — odds API scripts
+- `data/registries/` — team registries 2023-2026, conference lists, name crosswalk framework
+
+### Not Built Yet (Priority Order)
+1. Fix run-event extraction bug in `scrape_espn.py`
+2. Run ESPN backfill: 2024 full season, 2025 full season, 2026 to present
+3. Build `scripts/build_game_matrix.py` — transform raw JSONL into model-ready CSV (game_id, date, home_team, away_team, home_runs, away_runs, home_sp, away_sp, run_events, venue)
+4. Stan model: `stan/ncaa_baseball.stan` — correlated negative binomial
+5. Model fitting script: `scripts/fit_model.py` or `scripts/fit_model.R`
+6. Odds pipeline: daily pull of current lines + devig to fair prices
+7. `scripts/find_value.py` — compare model projections to market lines, flag edges
+8. Walk-forward backtesting framework
+
+## Conventions
+- Python for scraping and pipeline orchestration
+- R + Stan for statistical modeling (cmdstanr)
+- Raw data → `data/raw/` (gitignored)
+- Processed data → `data/processed/` (gitignored)
+- Registries/crosswalks → `data/registries/` (tracked)
+- All scripts in `scripts/`
+- Stan models in `stan/`
+- Use JSONL for raw ESPN data, CSV/Parquet for processed tables
+- ESPN `event_id` is the primary game identifier
+- ESPN player `id` is the primary player identifier (no fuzzy matching needed)
+
+## Key Modeling Notes
+- Season is ~56 games per team — much less data than MLB. Priors must be tighter.
+- Transfer portal means ~30% roster turnover annually. Roster continuity adjustment is critical.
+- Aluminum bats + variable park dimensions = stronger park effects than pro ball.
+- Conference strength hierarchy provides additional shrinkage structure.
+- We do NOT need pre-scraped rosters — boxscore appearances build the active roster organically.
