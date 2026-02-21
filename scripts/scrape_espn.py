@@ -88,37 +88,38 @@ def extract_run_events(plays: list[dict]) -> dict:
     A 'run event' is an at-bat where N runs scored (N=1,2,3,4+).
     This is the core input for Mack's log-linear NegBin model.
 
-    Plays are grouped by atBatId so that score changes within a single
-    at-bat are counted exactly once. Within each at-bat we take the max
-    score seen (ESPN can reset scores to 0 on substitution plays) and
-    compare against the running high-water mark.
+    Only "Play Result" plays (type.id == "57") carry reliable running
+    scores.  Other play types (Start/End Batter, pitches) can show the
+    final game score or oscillate between pre/post at-bat values.
+    We take the *last* Play Result score per atBatId (handles ESPN
+    duplicate entries like balks) and walk at-bats in order, registering
+    a delta only when the running high-water mark increases.
     """
     home_runs = {1: 0, 2: 0, 3: 0, 4: 0}
     away_runs = {1: 0, 2: 0, 3: 0, 4: 0}
 
-    ab_max: dict[str, tuple[int, int]] = {}
+    ab_score: dict[str, tuple[int, int]] = {}
     ab_order: list[str] = []
 
     for play in plays:
         ab_id = play.get("atBatId")
         if ab_id is None:
             continue
+        if play.get("type", {}).get("id") != "57":
+            continue
         ab_id = str(ab_id)
         cur_home = play.get("homeScore", 0)
         cur_away = play.get("awayScore", 0)
 
-        if ab_id not in ab_max:
-            ab_max[ab_id] = (cur_home, cur_away)
+        if ab_id not in ab_score:
             ab_order.append(ab_id)
-        else:
-            prev_h, prev_a = ab_max[ab_id]
-            ab_max[ab_id] = (max(prev_h, cur_home), max(prev_a, cur_away))
+        ab_score[ab_id] = (cur_home, cur_away)
 
     max_home = 0
     max_away = 0
 
     for ab_id in ab_order:
-        h, a = ab_max[ab_id]
+        h, a = ab_score[ab_id]
 
         if h > max_home:
             delta = h - max_home
