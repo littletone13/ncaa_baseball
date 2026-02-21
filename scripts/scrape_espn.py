@@ -88,32 +88,49 @@ def extract_run_events(plays: list[dict]) -> dict:
     A 'run event' is an at-bat where N runs scored (N=1,2,3,4+).
     This is the core input for Mack's log-linear NegBin model.
 
-    ESPN quirk: scores reset to 0 on substitution/pinch-hit plays,
-    then jump back on the next at-bat. We track max score seen
-    and only count genuine new highs.
+    Plays are grouped by atBatId so that score changes within a single
+    at-bat are counted exactly once. Within each at-bat we take the max
+    score seen (ESPN can reset scores to 0 on substitution plays) and
+    compare against the running high-water mark.
     """
     home_runs = {1: 0, 2: 0, 3: 0, 4: 0}
     away_runs = {1: 0, 2: 0, 3: 0, 4: 0}
 
-    max_home = 0
-    max_away = 0
+    ab_max: dict[str, tuple[int, int]] = {}
+    ab_order: list[str] = []
 
     for play in plays:
+        ab_id = play.get("atBatId")
+        if ab_id is None:
+            continue
+        ab_id = str(ab_id)
         cur_home = play.get("homeScore", 0)
         cur_away = play.get("awayScore", 0)
 
-        # Only count genuine new highs (ignore resets to 0)
-        if cur_home > max_home:
-            delta = cur_home - max_home
+        if ab_id not in ab_max:
+            ab_max[ab_id] = (cur_home, cur_away)
+            ab_order.append(ab_id)
+        else:
+            prev_h, prev_a = ab_max[ab_id]
+            ab_max[ab_id] = (max(prev_h, cur_home), max(prev_a, cur_away))
+
+    max_home = 0
+    max_away = 0
+
+    for ab_id in ab_order:
+        h, a = ab_max[ab_id]
+
+        if h > max_home:
+            delta = h - max_home
             bucket = min(delta, 4)
             home_runs[bucket] += 1
-            max_home = cur_home
+            max_home = h
 
-        if cur_away > max_away:
-            delta = cur_away - max_away
+        if a > max_away:
+            delta = a - max_away
             bucket = min(delta, 4)
             away_runs[bucket] += 1
-            max_away = cur_away
+            max_away = a
 
     return {
         "home": {f"run_{k}": v for k, v in home_runs.items()},
