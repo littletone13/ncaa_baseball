@@ -174,10 +174,14 @@ def extract_boxscore_players(boxscore: dict) -> dict:
             labels = stat_cat.get("labels", [])
             cat_type = "pitching" if "IP" in labels else "batting"
             for athlete in stat_cat.get("athletes", []):
+                ath = athlete["athlete"]
+                pos = ath.get("position") or {}
+                pos_abbr = pos.get("abbreviation") or pos.get("displayName") or ""
                 row = {
-                    "name": athlete["athlete"]["displayName"],
-                    "espn_id": athlete["athlete"].get("id"),
+                    "name": ath["displayName"],
+                    "espn_id": ath.get("id"),
                     "starter": athlete.get("starter", False),
+                    "position": pos_abbr if pos_abbr and "unspecified" not in (pos_abbr or "").lower() else "",
                     "stats": dict(zip(labels, athlete.get("stats", []))),
                 }
                 team_data[cat_type].append(row)

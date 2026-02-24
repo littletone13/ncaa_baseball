@@ -3,14 +3,23 @@ Odds data pipeline for NCAA baseball using the-odds-api.
 
 Fetches current or historical odds, computes devigged fair probabilities from h2h,
 and writes one JSONL record per game to data/raw/odds/.
+
+Historical (one snapshot per day to limit calls):
+  - Cost: 10 × regions × markets per snapshot (e.g. us+us2, h2h+spreads+totals = 60/call).
+  - Use --from / --to to pull one snapshot per day in that range (default snapshot time 18:00 UTC).
+  - Single day: --mode historical --date YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+# CST = UTC-6 (no DST in winter; used for snapshot-times-cst)
+CST = timezone(timedelta(hours=-6))
 
 import requests
 
@@ -20,6 +29,8 @@ BASE_URL = "https://api.the-odds-api.com"
 SPORT = "baseball_ncaa"
 CURRENT_REGIONS = "uk,us,us2,us_dfs,us_ex,eu,au"
 CURRENT_MARKETS = "h2h,spreads,totals"
+# One snapshot per day at this UTC time (keeps historical call count = 1 per day)
+HISTORICAL_SNAPSHOT_TIME_UTC = "18:00:00"
 
 
 def load_env() -> None:
@@ -44,12 +55,30 @@ def american_to_implied(american: int | float) -> float:
     return abs(american) / (abs(american) + 100.0)
 
 
+def decimal_to_implied(decimal: float) -> float:
+    """Convert decimal odds to implied probability (0-1)."""
+    if decimal <= 0:
+        return 0.0
+    return 1.0 / decimal
+
+
+def price_to_implied(price: int | float, odds_format: str = "american") -> float:
+    """Convert price to implied probability. odds_format: american | decimal."""
+    if odds_format == "decimal" or (isinstance(price, float) and 0 < price < 100 and price != round(price)):
+        return decimal_to_implied(price)
+    return american_to_implied(price)
+
+
 def devig_h2h(
-    outcomes: list[dict[str, Any]], home_team: str, away_team: str
+    outcomes: list[dict[str, Any]],
+    home_team: str,
+    away_team: str,
+    odds_format: str = "american",
 ) -> tuple[float, float] | None:
     """
     Multiplicative devig for a single book's h2h outcomes.
     Returns (fair_home, fair_away) or None if outcomes cannot be matched.
+    Supports american and decimal odds.
     """
     by_team: dict[str, float] = {}
     for o in outcomes:
@@ -57,7 +86,7 @@ def devig_h2h(
         price = o.get("price")
         if name is None or price is None:
             continue
-        by_team[name] = american_to_implied(price)
+        by_team[name] = price_to_implied(price, odds_format)
     home_impl = by_team.get(home_team)
     away_impl = by_team.get(away_team)
     if home_impl is None or away_impl is None:
@@ -119,7 +148,7 @@ def process_events(
                 if m.get("key") != "h2h":
                     continue
                 outcomes = m.get("outcomes") or []
-                devigged = devig_h2h(outcomes, home_team, away_team)
+                devigged = devig_h2h(outcomes, home_team, away_team, odds_format="american")
                 if devigged is not None:
                     fh, fa = devigged
                     fair_homes.append(fh)
@@ -231,7 +260,24 @@ def main() -> int:
     )
     parser.add_argument(
         "--date",
-        help='Historical snapshot date ISO8601, e.g. "2025-05-18T16:00:00Z" (required for historical)',
+        help='Historical snapshot date ISO8601 or YYYY-MM-DD (used with --mode historical if no range)',
+    )
+    parser.add_argument(
+        "--from",
+        dest="from_date",
+        metavar="FROM",
+        help="Start of date range (YYYY-MM-DD). With --to, pull one snapshot per day. Saves calls.",
+    )
+    parser.add_argument(
+        "--to",
+        dest="to_date",
+        metavar="TO",
+        help="End of date range (YYYY-MM-DD). Use with --from.",
+    )
+    parser.add_argument(
+        "--snapshot-times-cst",
+        metavar="TIMES",
+        help="Comma-separated times in CST for historical range, e.g. 8:00,9:00,9:30,14:00,19:00,20:00. Multiple snapshots per day.",
     )
     parser.add_argument(
         "--regions",
@@ -256,21 +302,88 @@ def main() -> int:
         raise SystemExit("Missing ODDS_API_KEY. Set in .env or environment.")
 
     if args.mode == "historical":
-        if not args.date:
-            raise SystemExit("Historical mode requires --date (ISO8601).")
-        events, snapshot_ts, resp = fetch_historical_odds(
-            api_key, args.date, sport=args.sport, regions=args.regions, markets=args.markets
-        )
-        print_quota_headers(resp)
-        stamp = safe_stamp(args.date)
+        if args.from_date and args.to_date:
+            from_d = date.fromisoformat(args.from_date)
+            to_d = date.fromisoformat(args.to_date)
+            if from_d > to_d:
+                raise SystemExit("--from must be <= --to")
+
+            # Parse optional CST times (e.g. "8:00,9:00,9:30,14:00,19:00,20:00")
+            if args.snapshot_times_cst:
+                times_cst: list[tuple[int, int]] = []
+                for part in args.snapshot_times_cst.split(","):
+                    part = part.strip()
+                    if ":" in part:
+                        h, m = part.split(":", 1)
+                        times_cst.append((int(h.strip()), int(m.strip())))
+                    else:
+                        times_cst.append((int(part), 0))
+                snapshot_times_per_day = [
+                    (h, m) for h, m in times_cst
+                ]
+            else:
+                # Single time per day: 18:00 UTC
+                snapshot_times_per_day = [(18, 0)]  # UTC hour, minute
+
+            all_records: list[dict[str, Any]] = []
+            day = from_d
+            while day <= to_d:
+                if args.snapshot_times_cst:
+                    for hour_cst, minute_cst in snapshot_times_per_day:
+                        dt_cst = datetime(
+                            day.year, day.month, day.day,
+                            hour_cst, minute_cst, 0, tzinfo=CST,
+                        )
+                        dt_utc = dt_cst.astimezone(timezone.utc)
+                        snapshot_iso = dt_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+                        events, snapshot_ts, resp = fetch_historical_odds(
+                            api_key,
+                            snapshot_iso,
+                            sport=args.sport,
+                            regions=args.regions,
+                            markets=args.markets,
+                        )
+                        print_quota_headers(resp)
+                        recs = process_events(events, snapshot_ts=snapshot_ts)
+                        all_records.extend(recs)
+                        print(f"  {day} {hour_cst}:{minute_cst:02d} CST -> {snapshot_ts or snapshot_iso}: {len(recs)} games")
+                else:
+                    snapshot_iso = f"{day.isoformat()}T{HISTORICAL_SNAPSHOT_TIME_UTC}Z"
+                    events, snapshot_ts, resp = fetch_historical_odds(
+                        api_key,
+                        snapshot_iso,
+                        sport=args.sport,
+                        regions=args.regions,
+                        markets=args.markets,
+                    )
+                    print_quota_headers(resp)
+                    recs = process_events(events, snapshot_ts=snapshot_ts)
+                    all_records.extend(recs)
+                    print(f"  {day}: {len(recs)} games")
+                day += timedelta(days=1)
+            records = all_records
+            stamp = f"{safe_stamp(args.from_date)}_to_{safe_stamp(args.to_date)}"
+        elif args.date:
+            date_str = args.date.strip()
+            if len(date_str) == 10 and date_str[4] == "-":
+                snapshot_iso = f"{date_str}T{HISTORICAL_SNAPSHOT_TIME_UTC}Z"
+            else:
+                snapshot_iso = date_str
+            events, snapshot_ts, resp = fetch_historical_odds(
+                api_key, snapshot_iso, sport=args.sport, regions=args.regions, markets=args.markets
+            )
+            print_quota_headers(resp)
+            records = process_events(events, snapshot_ts=snapshot_ts)
+            stamp = safe_stamp(snapshot_iso)
+        else:
+            raise SystemExit("Historical mode needs --date or both --from and --to.")
     else:
         events, resp = fetch_current_odds(
             api_key, sport=args.sport, regions=args.regions, markets=args.markets
         )
         print_quota_headers(resp)
-        stamp = utc_now_iso()[:10].replace("-", "")  # YYYYMMDD for today
-
-    records = process_events(events, snapshot_ts=(snapshot_ts if args.mode == "historical" else None))
+        records = process_events(events, snapshot_ts=None)
+        stamp = utc_now_iso()[:10].replace("-", "")
 
     out = args.out or Path("data/raw/odds") / f"odds_{args.sport}_{stamp}.jsonl"
     write_jsonl(out, records)
