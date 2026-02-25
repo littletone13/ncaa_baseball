@@ -27,7 +27,7 @@ import math
 import re
 import unicodedata
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -44,8 +44,6 @@ from ncaa_baseball.phase1 import (
 
 ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports/baseball/college-baseball"
 UA = "Mozilla/5.0 (X11; Linux x86_64)"
-D1_SEED_LINEUP_URL = "https://d1baseball.com/team/michigan/lineup/"
-
 FINAL_STATUSES = {"STATUS_FINAL", "STATUS_FULL_TIME"}
 SCHEDULED_STATUSES = {
     "STATUS_SCHEDULED",
@@ -59,7 +57,6 @@ _PUNCT_RE = re.compile(r"[^a-z0-9 ]+")
 _SPACE_RE = re.compile(r"\s+")
 _GAME_DATE_RE = re.compile(r"\b([A-Z][a-z]{2}),\s*([A-Z][a-z]{2})\s+(\d{1,2})\b")
 _OPP_RE = re.compile(r"\b(?:vs\.?|at)\s+(.+?)(?:\s*\(|$)", re.IGNORECASE)
-_D1_TEAM_HREF_RE = re.compile(r"/team/([^/]+)/lineup/?$")
 
 
 @dataclass
@@ -115,6 +112,121 @@ def team_names_match(a: str, b: str) -> bool:
     if not na or not nb:
         return False
     return na == nb or na.startswith(nb + " ") or nb.startswith(na + " ")
+
+
+def _team_forms_from_norm(norm_name: str) -> set[str]:
+    tokens = norm_name.split()
+    forms = {norm_name}
+    if not tokens:
+        return forms
+    token_alts: dict[str, list[str]] = {
+        "st": ["state", "saint"],
+        "state": ["st"],
+        "saint": ["st"],
+        "fla": ["florida"],
+        "ga": ["georgia"],
+        "ky": ["kentucky"],
+        "intl": ["international"],
+        "ft": ["fort"],
+        "mt": ["mount"],
+    }
+    acronym_alts: dict[str, list[str]] = {
+        "fiu": ["florida international"],
+        "fgcu": ["florida gulf coast"],
+        "ucf": ["central florida"],
+        "uic": ["illinois chicago"],
+        "umbc": ["maryland baltimore county"],
+        "umes": ["maryland eastern shore"],
+        "uncw": ["north carolina wilmington"],
+        "utsa": ["texas san antonio"],
+        "utrgv": ["texas rio grande valley"],
+        "dbu": ["dallas baptist"],
+        "etsu": ["east tennessee state"],
+        "siue": ["southern illinois edwardsville"],
+        "sfa": ["stephen f austin"],
+        "csun": ["cal state northridge"],
+        "liu": ["long island"],
+        "njit": ["new jersey institute of technology"],
+        "usc": ["south carolina", "southern california"],
+    }
+    for i, tok in enumerate(tokens):
+        for alt in token_alts.get(tok, []):
+            forms.add(" ".join(tokens[:i] + alt.split() + tokens[i + 1:]))
+        for alt in acronym_alts.get(tok, []):
+            forms.add(" ".join(tokens[:i] + alt.split() + tokens[i + 1:]))
+    return {f for f in forms if f}
+
+
+def build_canonical_name_index(canonical: pd.DataFrame) -> dict[str, list[tuple[str, int, str]]]:
+    idx: dict[str, list[tuple[str, int, str]]] = {}
+    for _, row in canonical.iterrows():
+        cid = str(row.get("canonical_id") or "").strip()
+        if not cid:
+            continue
+        tname = str(row.get("team_name") or "").strip()
+        try:
+            tid = int(row.get("ncaa_teams_id"))
+        except Exception:
+            continue
+        for form in _team_forms_from_norm(normalize_team_name(tname)):
+            idx.setdefault(form, []).append((cid, tid, tname))
+    return idx
+
+
+def resolve_team_name_to_canonical(
+    team_name: str,
+    canonical: pd.DataFrame,
+    name_to_canonical: dict[str, tuple[str, int]],
+    canonical_name_index: dict[str, list[tuple[str, int, str]]],
+) -> tuple[str, int] | None:
+    n = normalize_team_name(team_name)
+    if n:
+        cand: list[tuple[str, int, str]] = []
+        for form in _team_forms_from_norm(n):
+            cand.extend(canonical_name_index.get(form, []))
+        # De-duplicate by canonical id
+        by_cid: dict[str, tuple[str, int, str]] = {}
+        for c in cand:
+            by_cid[c[0]] = c
+        cand = list(by_cid.values())
+        if len(cand) == 1:
+            c = cand[0]
+            return (c[0], c[1])
+        if len(cand) > 1:
+            # Prefer the longest matching canonical school name.
+            c = sorted(cand, key=lambda x: -len(normalize_team_name(x[2])))[0]
+            return (c[0], c[1])
+
+        # If ESPN appends mascot words, peel trailing tokens and retry.
+        toks = n.split()
+        while len(toks) > 1:
+            toks = toks[:-1]
+            n_trim = " ".join(toks)
+            cand_trim: list[tuple[str, int, str]] = []
+            for form in _team_forms_from_norm(n_trim):
+                cand_trim.extend(canonical_name_index.get(form, []))
+            by_cid_trim: dict[str, tuple[str, int, str]] = {}
+            for c in cand_trim:
+                by_cid_trim[c[0]] = c
+            cand_trim = list(by_cid_trim.values())
+            if len(cand_trim) == 1:
+                c = cand_trim[0]
+                return (c[0], c[1])
+
+    # Fallback to existing odds-style resolver, but reject prefix-only over-matches
+    # (e.g. "Florida International" incorrectly mapping to "Florida").
+    t, _ = resolve_odds_teams(team_name, team_name, canonical, name_to_canonical)
+    if not t:
+        return None
+    cid = str(t[0])
+    row = canonical.loc[canonical["canonical_id"].astype(str) == cid]
+    if row.empty:
+        return t
+    c_name = str(row.iloc[0].get("team_name") or "").strip()
+    c_norm = normalize_team_name(c_name)
+    if c_norm and n.startswith(c_norm + " ") and len(n.split()) > len(c_norm.split()):
+        return None
+    return t
 
 
 def fetch_json(session: requests.Session, url: str, *, retries: int = 3, timeout: int = 20) -> dict | None:
@@ -297,8 +409,9 @@ def infer_probable_starter(team_key: str, game_day: date, starts: pd.DataFrame) 
         if days_since <= 0:
             continue
         starts_n = int(len(grp))
-        rest_series = grp["game_date"].diff().dropna().dt.days
-        med_rest = float(rest_series.median()) if not rest_series.empty else math.nan
+        start_dates = [d for d in grp["game_date"].tolist() if isinstance(d, date)]
+        rests = [(start_dates[i] - start_dates[i - 1]).days for i in range(1, len(start_dates))]
+        med_rest = float(pd.Series(rests).median()) if rests else math.nan
         wk_mode = grp["game_date"].map(lambda d: d.weekday()).mode()
         dom_wk = int(wk_mode.iloc[0]) if not wk_mode.empty else -1
 
@@ -362,37 +475,84 @@ def load_index_map(path: Path, key_col: str, val_col: str) -> dict[str, str]:
     return out
 
 
-def build_d1_slug_map(session: requests.Session) -> dict[str, str]:
-    resp = session.get(D1_SEED_LINEUP_URL, timeout=20, headers={"User-Agent": UA})
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "html.parser")
-    out: dict[str, str] = {}
-    for a in soup.find_all("a", href=True):
-        href = a.get("href") or ""
-        m = _D1_TEAM_HREF_RE.search(href)
-        if not m and href.startswith("https://d1baseball.com"):
-            m = _D1_TEAM_HREF_RE.search(href.replace("https://d1baseball.com", ""))
-        if not m:
-            continue
-        slug = m.group(1).strip()
-        txt = (a.get_text(" ", strip=True) or "").strip()
-        if not txt or not slug:
-            continue
-        key = normalize_team_name(txt)
-        if key and key not in out:
-            out[key] = slug
-    return out
-
-
-def find_d1_slug(team_name: str, d1_name_to_slug: dict[str, str]) -> str:
-    if not team_name or not d1_name_to_slug:
-        return ""
+def d1_slug_candidates(team_name: str) -> list[str]:
     n = normalize_team_name(team_name)
-    if n in d1_name_to_slug:
-        return d1_name_to_slug[n]
-    prefix = [(abs(len(n) - len(k)), v) for k, v in d1_name_to_slug.items() if n.startswith(k) or k.startswith(n)]
-    if prefix:
-        return sorted(prefix, key=lambda x: x[0])[0][1]
+    tokens = n.split()
+    if not tokens:
+        return []
+    candidates = set()
+
+    def add_from_tokens(toks: list[str]) -> None:
+        toks = [t for t in toks if t]
+        if toks:
+            candidates.add("-".join(toks))
+
+    add_from_tokens(tokens)
+
+    repl_sets = [
+        ("st", "state"),
+        ("state", "st"),
+        ("saint", "st"),
+        ("and", ""),
+    ]
+    for old, new in repl_sets:
+        t2 = [new if t == old else t for t in tokens]
+        add_from_tokens(t2)
+
+    # Remove leading "the" and "university" variants.
+    if tokens and tokens[0] == "the":
+        add_from_tokens(tokens[1:])
+    add_from_tokens([t for t in tokens if t != "university"])
+
+    # ESPN sometimes has "n c state"; try condensed two-token form.
+    if len(tokens) >= 3 and tokens[0] == "n" and tokens[1] == "c":
+        add_from_tokens(["nc"] + tokens[2:])
+    if len(tokens) >= 2 and tokens[0] == "u" and len(tokens[1]) == 1:
+        add_from_tokens(["u" + tokens[1]] + tokens[2:])
+
+    return sorted(candidates, key=lambda s: (len(s), s))
+
+
+def fetch_d1_rows_for_slug(
+    session: requests.Session,
+    slug: str,
+    year: int,
+    rows_cache: dict[str, list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    if slug in rows_cache:
+        return rows_cache[slug]
+    try:
+        url = f"https://d1baseball.com/team/{slug}/lineup/"
+        resp = session.get(url, timeout=20, headers={"User-Agent": UA})
+        if resp.status_code != 200:
+            rows_cache[slug] = []
+            return rows_cache[slug]
+        rows_cache[slug] = parse_d1_lineup_rows(resp.text, year=year)
+        return rows_cache[slug]
+    except Exception:
+        rows_cache[slug] = []
+        return rows_cache[slug]
+
+
+def resolve_d1_slug_for_team(
+    session: requests.Session,
+    team_name: str,
+    slug_cache: dict[str, str],
+    rows_cache: dict[str, list[dict[str, Any]]],
+    year: int,
+) -> str:
+    key = normalize_team_name(team_name)
+    if not key:
+        return ""
+    if key in slug_cache:
+        return slug_cache[key]
+    for slug in d1_slug_candidates(team_name):
+        rows = fetch_d1_rows_for_slug(session, slug, year, rows_cache)
+        # Any parsed lineup rows means we found the correct team page.
+        if rows:
+            slug_cache[key] = slug
+            return slug
+    slug_cache[key] = ""
     return ""
 
 
@@ -512,6 +672,7 @@ def build_game_list(
     game_day: date,
     canonical: pd.DataFrame,
     name_to_canonical: dict[str, tuple[str, int]],
+    canonical_name_index: dict[str, list[tuple[str, int, str]]],
     include_final: bool,
 ) -> list[dict[str, Any]]:
     scoreboard_url = f"{ESPN_BASE}/scoreboard?dates={game_day.strftime('%Y%m%d')}&limit=200"
@@ -533,7 +694,8 @@ def build_game_list(
         away_name = str((away.get("team") or {}).get("displayName") or "").strip()
         if not home_name or not away_name:
             continue
-        home_t, away_t = resolve_odds_teams(home_name, away_name, canonical, name_to_canonical)
+        home_t = resolve_team_name_to_canonical(home_name, canonical, name_to_canonical, canonical_name_index)
+        away_t = resolve_team_name_to_canonical(away_name, canonical, name_to_canonical, canonical_name_index)
         home_cid = home_t[0] if home_t else ""
         away_cid = away_t[0] if away_t else ""
         games.append({
@@ -637,6 +799,7 @@ def main() -> int:
 
     canonical = load_canonical_teams(args.canonical)
     name_to_canonical = build_odds_name_to_canonical(canonical)
+    canonical_name_index = build_canonical_name_index(canonical)
     canonical_name_by_id: dict[str, str] = {}
     for _, r in canonical.iterrows():
         cid = str(r.get("canonical_id") or "").strip()
@@ -644,7 +807,14 @@ def main() -> int:
         if cid and nm and cid not in canonical_name_by_id:
             canonical_name_by_id[cid] = nm
 
-    games = build_game_list(session, game_day, canonical, name_to_canonical, args.include_final)
+    games = build_game_list(
+        session=session,
+        game_day=game_day,
+        canonical=canonical,
+        name_to_canonical=name_to_canonical,
+        canonical_name_index=canonical_name_index,
+        include_final=args.include_final,
+    )
     if not games:
         print(f"No ESPN games found for {game_day.isoformat()} (after status filter).")
         return 1
@@ -661,15 +831,10 @@ def main() -> int:
     team_idx_map = load_index_map(args.run_event_team_index, "canonical_id", "team_idx")
 
     use_d1 = not args.disable_d1_lineups
-    d1_name_to_slug: dict[str, str] = {}
+    d1_slug_cache: dict[str, str] = {}
     d1_rows_cache: dict[str, list[dict[str, Any]]] = {}
     if use_d1:
-        try:
-            d1_name_to_slug = build_d1_slug_map(session)
-            print(f"D1 team slug map loaded: {len(d1_name_to_slug)} teams")
-        except Exception as exc:
-            print(f"D1 lineup map unavailable; continuing without D1 source ({exc})")
-            use_d1 = False
+        print("D1 same-day lineup probing enabled (slug candidates from ESPN team names)")
 
     summary_cache: dict[str, dict[str, dict[str, str]]] = {}
     use_summary = not args.disable_espn_summary
@@ -702,17 +867,17 @@ def main() -> int:
                 team_cid = home_cid if side == "home" else away_cid
                 team_name = canonical_name_by_id.get(team_cid, g[f"{side}_team_name"])
                 opp_name = g["away_team_name"] if side == "home" else g["home_team_name"]
-                slug = find_d1_slug(team_name, d1_name_to_slug)
+                slug = resolve_d1_slug_for_team(
+                    session=session,
+                    team_name=team_name,
+                    slug_cache=d1_slug_cache,
+                    rows_cache=d1_rows_cache,
+                    year=game_day.year,
+                )
                 if not slug:
                     continue
-                if slug not in d1_rows_cache:
-                    try:
-                        url = f"https://d1baseball.com/team/{slug}/lineup/"
-                        html_text = session.get(url, timeout=20, headers={"User-Agent": UA}).text
-                        d1_rows_cache[slug] = parse_d1_lineup_rows(html_text, year=game_day.year)
-                    except Exception:
-                        d1_rows_cache[slug] = []
-                pick = choose_d1_starter(d1_rows_cache[slug], game_day, opp_name)
+                rows = fetch_d1_rows_for_slug(session, slug, game_day.year, d1_rows_cache)
+                pick = choose_d1_starter(rows, game_day, opp_name)
                 if pick is None:
                     continue
                 if pick.name and not pick.espn_id:
@@ -844,7 +1009,7 @@ def main() -> int:
             "away_starter_confidence": round(away_pick.confidence, 3),
             "home_starter_note": home_pick.note,
             "away_starter_note": away_pick.note,
-            "generated_at_utc": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+            "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         })
 
     out_df = pd.DataFrame(out_rows)
