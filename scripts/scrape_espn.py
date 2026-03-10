@@ -257,7 +257,7 @@ def process_game(event: dict) -> dict | None:
         hcomps = header.get("competitions", [{}])
         if hcomps:
             for c in hcomps[0].get("competitors", []):
-                ls = [l.get("value", 0) for l in c.get("linescores", [])]
+                ls = [int(float(l.get("displayValue", l.get("value", 0)) or 0)) for l in c.get("linescores", [])]
                 if c.get("homeAway") == "home":
                     record["line_scores"]["home"] = ls
                 else:

@@ -1,0 +1,315 @@
+canonical_id,venue_name,lat,lon,hp_bearing_deg,source
+NCAA_614704,Goss Stadium at Coleman Field,44.5632,-123.281,67,convention_67
+NCAA_614618,Les Murakami Stadium,21.2931,-157.8158,67,convention_67
+NCAA_614822,J. Page Hayden Field,39.1497,-84.4706,67,convention_67
+NCAA_614587,Baggett Stadium,35.3071,-120.6654,67,convention_67
+BSB_FLORIDA,Condron Family Ballpark (Florida Ballpark),29.6367,-82.3627,50,satellite/known
+BSB_LSU,Alex Box Stadium,30.4057,-91.188,67,convention_67
+BSB_VANDERBILT,Hawkins Field,36.1434,-86.8076,67,convention_67
+BSB_TEXAS,UFCU Disch-Falk Field,30.28,-97.7261,67,convention_67
+BSB_WAKE,David F. Couch Ballpark,36.1298,-80.2522,67,convention_67
+BSB_TENNESSEE,Lindsey Nelson Stadium,35.9492,-83.9296,67,convention_67
+BSB_VIRGINIA,Davenport Field at Disharoon Park,38.0458,-78.5135,67,convention_67
+BSB_STANFORD,Klein Field at Sunken Diamond,37.4346,-122.1615,67,convention_67
+BSB_TEXASAM,Olsen Field at Blue Bell Park,30.6058,-96.3413,67,convention_67
+BSB_ARKANSAS,Baum-Walker Stadium,36.0501,-94.1825,67,convention_67
+BSB_OLEMISS,Oxford-University Stadium at Swayze Field,34.3572,-89.524,67,convention_67
+NCAA_614663,Dudy Noble Field,33.4577,-88.79,67,convention_67
+BSB_OREGON,PK Park,44.0589,-123.0653,67,convention_67
+NCAA_614553,Phoenix Municipal Stadium,33.4427,-111.9533,67,convention_67
+BSB_UCLA,Jackie Robinson Stadium,34.0593,-118.4593,67,convention_67
+NCAA_614658,Alex Rodriguez Park at Mark Light Field,25.707,-80.276,67,convention_67
+NCAA_614563,Bucknell Baseball Stadium,40.9589,-76.8819,67,geocoded_nominatim
+NCAA_614564,Butler University Indianapolis,39.8383,-86.1684,67,manual_corrected
+NCAA_614565,Cal Poly Baseball Stadium,35.3075,-120.6646,67,geocoded_nominatim
+NCAA_614566,CSU Bakersfield Baseball Stadium,35.3494,-119.1034,67,geocoded_nominatim
+NCAA_614567,Cal St. Fullerton Baseball Stadium,33.8831,-117.8852,67,geocoded_nominatim
+NCAA_614568,Long Beach St. Baseball Stadium,33.7818,-118.1152,67,geocoded_nominatim
+NCAA_614569,CSUN Baseball Stadium,34.2455,-118.5263,67,geocoded_nominatim
+NCAA_614570,Sacramento St. Baseball Stadium,38.5627,-121.4241,67,geocoded_nominatim
+BSB_UC_SANTA_BARBARA,UC Santa Barbara Baseball Stadium,34.4146,-119.8458,67,geocoded_nominatim
+NCAA_614572,UC Berkeley,37.8716,-122.2727,67,manual_corrected
+NCAA_614573,UC Davis Baseball Stadium,38.5338,-121.7908,67,geocoded_nominatim
+NCAA_614574,UC Irvine Baseball Stadium,33.6418,-117.8432,67,geocoded_nominatim
+NCAA_614576,UC Riverside Baseball Stadium,33.9643,-117.3398,67,geocoded_nominatim
+NCAA_614577,Campbell University Buies Creek NC,35.4067,-78.7379,67,manual_corrected
+NCAA_614578,Canisius Baseball Stadium,42.9274,-78.8535,67,geocoded_nominatim
+NCAA_614579,Central Conn. St. Baseball Stadium,41.6929,-72.7654,67,geocoded_nominatim
+BSB_UCF,UCF Baseball Stadium,28.5996,-81.1971,67,geocoded_nominatim
+NCAA_614581,Central Michigan Mt Pleasant,43.5978,-84.7736,67,manual_corrected
+BSB_CINCINNATI,Cincinnati Baseball Stadium,39.1319,-84.5158,67,geocoded_nominatim
+NCAA_614583,The Citadel Baseball Stadium,32.7964,-79.9612,67,geocoded_nominatim
+BSB_CLEMSON,Clemson University SC,34.6834,-82.8374,67,manual_corrected
+BSB_COASTAL_CAROLINA,Coastal Carolina Conway SC,33.7956,-79.0114,67,manual_corrected
+NCAA_614586,Columbia University NYC,40.8075,-73.9626,67,manual_corrected
+NCAA_614588,Coppin St. Baseball Stadium,39.3111,-76.6585,67,geocoded_nominatim
+NCAA_614589,Cornell University Ithaca NY,42.4534,-76.4735,67,manual_corrected
+NCAA_614590,Creighton University Omaha NE,41.2562,-96.0051,67,manual_corrected
+NCAA_614591,Dartmouth College Hanover NH,43.7044,-72.2887,67,manual_corrected
+NCAA_614592,Davidson College NC,35.5013,-80.8483,67,manual_corrected
+NCAA_614593,Dayton Baseball Stadium,39.7384,-84.1792,67,geocoded_nominatim
+NCAA_614594,Delaware St. Baseball Stadium,39.1868,-75.5424,67,geocoded_nominatim
+NCAA_614595,Delaware Baseball Stadium,39.6803,-75.7531,67,geocoded_nominatim
+BSB_EAST_CAROLINA,East Carolina Greenville NC,35.6047,-77.3729,67,manual_corrected
+NCAA_614597,ETSU Baseball Stadium,36.3024,-82.3693,67,geocoded_nominatim
+NCAA_614598,Eastern Ill. Baseball Stadium,39.4787,-88.1791,67,geocoded_nominatim
+NCAA_614599,Eastern Ky. Baseball Stadium,37.7342,-84.3012,67,geocoded_nominatim
+NCAA_614600,Eastern Mich. Baseball Stadium,42.2522,-83.6246,67,geocoded_nominatim
+NCAA_614601,Fairfield Baseball Stadium,41.1597,-73.2574,67,geocoded_nominatim
+NCAA_614602,FDU Baseball Stadium,40.8939,-74.032,67,geocoded_nominatim
+NCAA_614603,Florida A&M Tallahassee,30.4274,-84.2875,67,manual_corrected
+NCAA_614604,Fla. Atlantic Baseball Stadium,26.3743,-80.1027,67,geocoded_nominatim
+NCAA_614605,FIU Baseball Stadium,25.7554,-80.3763,67,geocoded_nominatim
+NCAA_614606,Florida St. Baseball Stadium,30.4422,-84.2975,67,geocoded_nominatim
+NCAA_614608,Fordham Baseball Stadium,40.861,-73.9027,67,geocoded_nominatim
+NCAA_614609,George Mason Baseball Stadium,38.8378,-77.3314,67,geocoded_nominatim
+NCAA_614610,George Washington Baseball Stadium,38.9014,-77.0506,67,geocoded_nominatim
+NCAA_614611,Georgetown University DC,38.9076,-77.0723,67,manual_corrected
+NCAA_614612,Georgia Southern Statesboro,32.4225,-81.7831,67,manual_corrected
+NCAA_614613,Georgia St. Baseball Stadium,33.7536,-84.3854,67,geocoded_nominatim
+BSB_GEORGIA_TECH,Georgia Tech Baseball Stadium,33.7761,-84.3988,67,geocoded_nominatim
+BSB_GEORGIA,Georgia Baseball Stadium,33.9404,-83.373,67,geocoded_nominatim
+BSB_GONZAGA,Gonzaga Baseball Stadium,47.6671,-117.4031,67,geocoded_nominatim
+NCAA_614617,Harvard University Cambridge MA,42.377,-71.1167,67,manual_corrected
+NCAA_614619,Hofstra Baseball Stadium,40.7169,-73.6,67,geocoded_nominatim
+NCAA_614620,Holy Cross Worcester MA,42.2351,-71.8065,67,manual_corrected
+NCAA_614621,Houston Christian Baseball Stadium,29.6944,-95.5148,67,geocoded_nominatim
+BSB_HOUSTON,Houston Baseball Stadium,29.7208,-95.3441,67,geocoded_nominatim
+NCAA_614623,Illinois St. Baseball Stadium,40.518,-89.0085,67,geocoded_nominatim
+BSB_ILLINOIS,Illinois Baseball Stadium,40.0762,-88.2233,67,geocoded_nominatim
+NCAA_614625,UIC Baseball Stadium,41.8689,-87.6486,67,geocoded_nominatim
+NCAA_614626,Indiana St. Baseball Stadium,39.4709,-87.4092,67,geocoded_nominatim
+BSB_INDIANA,Indiana University Bloomington,39.1653,-86.5264,67,manual_corrected
+NCAA_614629,Iona Baseball Stadium,40.9272,-73.7857,67,geocoded_nominatim
+BSB_IOWA,Iowa Baseball Stadium,41.6311,-91.5408,67,geocoded_nominatim
+NCAA_614631,Jackson St. Baseball Stadium,32.2964,-90.2074,67,geocoded_nominatim
+NCAA_614632,Jacksonville St. Baseball Stadium,33.8249,-85.7641,67,geocoded_nominatim
+NCAA_614633,Jacksonville Baseball Stadium,30.269,-81.5097,67,geocoded_nominatim
+NCAA_614634,James Madison Baseball Stadium,38.4364,-78.869,67,geocoded_nominatim
+NCAA_614635,Kansas St. Baseball Stadium,39.2086,-96.5885,67,geocoded_nominatim
+BSB_KANSAS,Kansas Baseball Stadium,38.9535,-95.2631,67,geocoded_nominatim
+NCAA_614637,Kent St. Baseball Stadium,41.1442,-81.3398,67,geocoded_nominatim
+BSB_KENTUCKY,Kentucky Baseball Stadium,38.0266,-84.5047,67,geocoded_nominatim
+NCAA_614639,Lafayette College Easton PA,40.2463,-75.2838,67,manual_corrected
+NCAA_614640,Lamar University Baseball Stadium,30.0389,-94.0759,67,geocoded_nominatim
+NCAA_614641,Lehigh Baseball Stadium,40.538,-75.3798,67,geocoded_nominatim
+BSB_LIBERTY,Liberty University Lynchburg VA,37.3529,-79.1844,67,manual_corrected
+NCAA_614643,Longwood University Farmville VA,37.3032,-78.3934,67,manual_corrected
+NCAA_614645,Louisiana Tech Baseball Stadium,32.5261,-92.6481,67,geocoded_nominatim
+BSB_LOUISVILLE,Louisville Baseball Stadium,38.2133,-85.7577,67,geocoded_nominatim
+NCAA_614647,UMass Lowell Baseball Stadium,42.6519,-71.3174,67,geocoded_nominatim
+NCAA_614648,LMU (CA) Baseball Stadium,33.9669,-118.4225,67,geocoded_nominatim
+NCAA_614649,Maine Baseball Stadium,44.9015,-68.6617,67,geocoded_nominatim
+NCAA_614650,Manhattan Baseball Stadium,40.758,-73.9855,67,geocoded_nominatim
+NCAA_614651,Marist Baseball Stadium,41.722,-73.9344,67,geocoded_nominatim
+NCAA_614652,Marshall Baseball Stadium,38.4236,-82.4274,67,geocoded_nominatim
+NCAA_614653,UMBC Baseball Stadium,39.2524,-76.7089,67,geocoded_nominatim
+BSB_MARYLAND,Maryland Baseball Stadium,38.9904,-76.9439,67,geocoded_nominatim
+NCAA_614655,UMES Princess Anne MD,38.2057,-75.6962,67,manual_corrected
+NCAA_614656,UMass Amherst,42.3868,-72.5301,67,manual_corrected
+NCAA_614657,McNeese Baseball Stadium,30.1751,-93.2113,67,geocoded_nominatim
+NCAA_614659,Mercer Baseball Stadium,32.8289,-83.6507,67,geocoded_nominatim
+NCAA_614660,Miami (OH) Baseball Stadium,39.5094,-84.7312,67,geocoded_nominatim
+NCAA_614661,Miami (FL) Baseball Stadium,25.7173,-80.2787,67,geocoded_nominatim
+NCAA_614662,Michigan St. Baseball Stadium,42.7024,-84.4804,67,geocoded_nominatim
+BSB_MICHIGAN,Michigan Baseball Stadium,42.2942,-83.71,67,geocoded_nominatim
+NCAA_614664,Middle Tenn. Baseball Stadium,35.8486,-86.3609,67,geocoded_nominatim
+BSB_MINNESOTA,Minnesota Baseball Stadium,44.9863,-93.1794,67,geocoded_nominatim
+NCAA_614666,Mississippi St. Baseball Stadium,33.4387,-88.7943,67,geocoded_nominatim
+BSB_OLE_MISS,Ole Miss Oxford MS,34.3597,-89.5303,67,manual_corrected
+BSB_MISSOURI,Missouri Baseball Stadium,38.9364,-92.3297,67,geocoded_nominatim
+NCAA_614670,Monmouth Baseball Stadium,40.2794,-74.0068,67,geocoded_nominatim
+NCAA_614671,Morehead St. Baseball Stadium,38.1867,-83.4332,67,geocoded_nominatim
+NCAA_614672,Mount St. Mary's Baseball Stadium,39.6806,-77.3466,67,geocoded_nominatim
+NCAA_614673,Murray St. Baseball Stadium,36.613,-88.3221,67,geocoded_nominatim
+NCAA_614674,UNC Asheville Baseball Stadium,35.6163,-82.5676,67,geocoded_nominatim
+BSB_NORTH_CAROLINA,North Carolina Baseball Stadium,35.9047,-79.0534,67,geocoded_nominatim
+NCAA_614676,UNC Charlotte NC,35.2271,-80.8431,67,manual_corrected
+NCAA_614677,UNC Greensboro Baseball Stadium,36.0684,-79.8106,67,geocoded_nominatim
+NCAA_614678,UNCW Baseball Stadium,34.225,-77.8691,67,geocoded_nominatim
+NCAA_614679,Omaha Baseball Stadium,41.2578,-96.0105,67,geocoded_nominatim
+NCAA_614680,UNLV Baseball Stadium,36.1079,-115.1439,67,geocoded_nominatim
+NCAA_614681,University of Nevada Reno,39.5296,-119.8138,67,manual_corrected
+NCAA_614682,NJIT Baseball Stadium,40.7421,-74.179,67,geocoded_nominatim
+NCAA_614683,New Mexico St. Baseball Stadium,32.2729,-106.7435,67,geocoded_nominatim
+NCAA_614684,New Mexico Baseball Stadium,35.0866,-106.6202,67,geocoded_nominatim
+NCAA_614685,New Orleans Baseball Stadium,30.0284,-90.0668,67,geocoded_nominatim
+NCAA_614686,Niagara Baseball Stadium,42.9561,-78.8233,67,geocoded_nominatim
+NCAA_614687,Norfolk St. Baseball Stadium,36.8482,-76.263,67,geocoded_nominatim
+NCAA_614688,NC A&T Greensboro,36.0726,-79.792,67,manual_corrected
+BSB_NC_STATE,NC State Baseball Stadium,35.7718,-78.6741,67,geocoded_nominatim
+NCAA_614690,North Dakota St. Baseball Stadium,46.8972,-96.8183,67,geocoded_nominatim
+NCAA_614691,ULM Baseball Stadium,32.5318,-92.0658,67,geocoded_nominatim
+NCAA_614692,Northeastern Baseball Stadium,42.3351,-71.0893,67,geocoded_nominatim
+NCAA_614693,Northern Colo. Baseball Stadium,40.4029,-104.7017,67,geocoded_nominatim
+NCAA_614694,Northern Illinois DeKalb,41.9328,-88.7569,67,manual_corrected
+NCAA_614695,Northern Kentucky Highland Heights,39.035,-84.4569,67,manual_corrected
+NCAA_614696,Northwestern St. Baseball Stadium,31.7473,-93.099,67,geocoded_nominatim
+BSB_NORTHWESTERN,Northwestern University Evanston IL,42.0565,-87.6753,67,manual_corrected
+BSB_NOTRE_DAME,Notre Dame Baseball Stadium,41.7046,-86.2382,67,geocoded_nominatim
+NCAA_614699,Oakland Baseball Stadium,42.6666,-83.2066,67,geocoded_nominatim
+NCAA_614700,Ohio St. Baseball Stadium,40.0057,-83.0287,67,geocoded_nominatim
+NCAA_614701,Ohio University Athens,39.3246,-82.1013,67,manual_corrected
+BSB_OKLAHOMA,Oklahoma Baseball Stadium,35.196,-97.4457,67,geocoded_nominatim
+NCAA_614703,Old Dominion Baseball Stadium,37.8276,-78.6661,67,geocoded_nominatim
+NCAA_614706,Pacific Baseball Stadium,37.9804,-121.3128,67,geocoded_nominatim
+NCAA_614707,UTRGV Baseball Stadium,26.3072,-98.1728,67,geocoded_nominatim
+NCAA_614708,Penn St. Baseball Stadium,40.8129,-77.8711,67,geocoded_nominatim
+NCAA_614709,Pepperdine Baseball Stadium,34.043,-118.7093,67,geocoded_nominatim
+NCAA_614710,Pittsburgh Baseball Stadium,40.4442,-79.9625,67,geocoded_nominatim
+NCAA_614711,Portland Baseball Stadium,45.5737,-122.7283,67,geocoded_nominatim
+NCAA_614712,Prairie View Baseball Stadium,30.0961,-95.987,67,geocoded_nominatim
+NCAA_614713,Princeton University NJ,40.343,-74.6514,67,manual_corrected
+BSB_PURDUE,Purdue University West Lafayette IN,40.4237,-86.9212,67,manual_corrected
+NCAA_614715,Quinnipiac Baseball Stadium,41.4182,-72.8931,67,geocoded_nominatim
+NCAA_614716,Radford Baseball Stadium,37.137,-80.55,67,geocoded_nominatim
+NCAA_614717,Rhode Island Baseball Stadium,41.4875,-71.5343,67,geocoded_nominatim
+NCAA_614718,Rice University Houston TX,29.7604,-95.3698,67,manual_corrected
+NCAA_614719,Richmond Baseball Stadium,37.5759,-77.5413,67,geocoded_nominatim
+NCAA_614720,Rider University Lawrenceville NJ,40.285,-74.7517,67,manual_corrected
+BSB_RUTGERS,Rutgers Baseball Stadium,40.7403,-74.1742,67,geocoded_nominatim
+NCAA_614722,Sacred Heart Baseball Stadium,41.2226,-73.2445,67,geocoded_nominatim
+NCAA_614723,St. Bonaventure Baseball Stadium,42.0767,-78.4817,67,geocoded_nominatim
+NCAA_614724,Saint Josephs Philadelphia,39.9811,-75.1533,67,manual_corrected
+NCAA_614725,Saint Louis Baseball Stadium,38.7086,-90.3117,67,geocoded_nominatim
+NCAA_614726,Saint Marys Moraga CA,37.8467,-122.1139,67,manual_corrected
+NCAA_614727,Saint Peters University Jersey City NJ,40.7347,-74.058,67,manual_corrected
+NCAA_614728,Sam Houston Baseball Stadium,30.7133,-95.5449,67,geocoded_nominatim
+NCAA_614729,Samford University Birmingham AL,33.4641,-86.7614,67,manual_corrected
+NCAA_614730,San Diego St. Baseball Stadium,32.7762,-117.0733,67,geocoded_nominatim
+BSB_SAN_DIEGO,San Diego Baseball Stadium,32.7726,-117.1891,67,geocoded_nominatim
+NCAA_614732,San Francisco Baseball Stadium,37.7794,-122.4514,67,geocoded_nominatim
+NCAA_614733,San Jose St. Baseball Stadium,37.3352,-121.8812,67,geocoded_nominatim
+NCAA_614734,Santa Clara Baseball Stadium,37.3486,-121.9365,67,geocoded_nominatim
+NCAA_614735,Seton Hall South Orange NJ,40.7419,-74.2377,67,manual_corrected
+NCAA_614736,Siena College Loudonville NY,42.7472,-73.7507,67,manual_corrected
+NCAA_614737,South Alabama Baseball Stadium,30.6972,-88.1892,67,geocoded_nominatim
+BSB_SOUTH_CAROLINA,South Carolina Baseball Stadium,33.9929,-81.0269,67,geocoded_nominatim
+NCAA_614739,South Dakota St. Baseball Stadium,44.3444,-96.7982,67,geocoded_nominatim
+NCAA_614740,South Fla. Baseball Stadium,28.06,-82.4138,67,geocoded_nominatim
+NCAA_614741,Southeastern La. Baseball Stadium,30.5182,-90.4688,67,geocoded_nominatim
+NCAA_614742,Southern California Baseball Stadium,34.0219,-118.2859,67,geocoded_nominatim
+NCAA_614743,Southern Ill. Baseball Stadium,37.7083,-89.2276,67,geocoded_nominatim
+NCAA_614744,SIUE Baseball Stadium,38.7942,-90.0003,67,geocoded_nominatim
+NCAA_614745,Southern U. Baseball Stadium,30.5258,-91.1949,67,geocoded_nominatim
+NCAA_614746,Missouri St. Baseball Stadium,37.2017,-93.2808,67,geocoded_nominatim
+NCAA_614747,Texas St. Baseball Stadium,29.8911,-97.9376,67,geocoded_nominatim
+BSB_LOUISIANA,Louisiana Baseball Stadium,30.2117,-92.0196,67,geocoded_nominatim
+NCAA_614750,SFA Baseball Stadium,31.6236,-94.6434,67,geocoded_nominatim
+NCAA_614751,Stony Brook Baseball Stadium,40.9091,-73.1206,67,geocoded_nominatim
+NCAA_614752,Tennessee Tech Baseball Stadium,36.1749,-85.5089,67,geocoded_nominatim
+NCAA_614753,UT Martin Tennessee,36.3412,-88.8516,67,manual_corrected
+NCAA_614754,Bellarmine Baseball Stadium,38.2188,-85.7058,67,geocoded_nominatim
+NCAA_614755,UC San Diego Baseball Stadium,32.8731,-117.2155,67,geocoded_nominatim
+NCAA_614756,Lindenwood Baseball Stadium,38.7875,-90.5031,67,geocoded_nominatim
+NCAA_614757,Queens University Charlotte NC,35.2271,-80.8431,67,manual_corrected
+NCAA_614758,Southern Indiana Evansville,38.0033,-87.5764,67,manual_corrected
+NCAA_614759,Stonehill Baseball Stadium,42.06,-71.0793,67,geocoded_nominatim
+NCAA_614760,Le Moyne Baseball Stadium,43.0483,-76.0852,67,geocoded_nominatim
+NCAA_614761,Tarleton St. Baseball Stadium,32.2147,-98.2197,67,geocoded_nominatim
+NCAA_614762,Tulane Baseball Stadium,29.9579,-90.0779,67,geocoded_nominatim
+NCAA_614763,Army West Point Baseball Stadium,41.3926,-73.9599,67,geocoded_nominatim
+NCAA_614764,DBU Baseball Stadium,32.7103,-96.9464,67,geocoded_nominatim
+NCAA_614765,Wofford Baseball Stadium,34.9612,-81.9353,67,geocoded_nominatim
+NCAA_614766,High Point Baseball Stadium,35.9721,-79.9937,67,geocoded_nominatim
+BSB_ARIZONA,Arizona Baseball Stadium,32.2357,-110.9517,67,geocoded_nominatim
+NCAA_614768,Fresno St. Baseball Stadium,36.821,-119.7373,67,geocoded_nominatim
+BSB_DUKE,Duke University Durham NC,36.0014,-78.9382,67,manual_corrected
+NCAA_614770,Evansville Baseball Stadium,37.9735,-87.5323,67,geocoded_nominatim
+NCAA_614771,Grambling Baseball Stadium,32.5195,-92.7212,67,geocoded_nominatim
+NCAA_614772,LIU Baseball Stadium,40.6911,-73.9804,67,geocoded_nominatim
+BSB_NEBRASKA,University of Nebraska Lincoln,40.8202,-96.7005,67,manual_corrected
+NCAA_614774,Nicholls Baseball Stadium,29.7886,-90.8035,67,geocoded_nominatim
+NCAA_614775,Oklahoma St. Baseball Stadium,36.1314,-97.0891,67,geocoded_nominatim
+NCAA_614776,Oral Roberts Baseball Stadium,36.0508,-95.9521,67,geocoded_nominatim
+NCAA_614777,Penn Baseball Stadium,40.8129,-77.8711,67,geocoded_nominatim
+NCAA_614778,St. John's (NY) Baseball Stadium,40.8038,-73.9618,67,geocoded_nominatim
+NCAA_614779,SE Missouri St Cape Girardeau,37.3115,-89.5181,67,manual_corrected
+NCAA_614780,Southern Miss. Baseball Stadium,31.3286,-89.3367,67,geocoded_nominatim
+NCAA_614781,Stetson DeLand FL,29.0349,-81.2991,67,manual_corrected
+NCAA_614783,Mercyhurst Baseball Stadium,42.1041,-80.0539,67,geocoded_nominatim
+NCAA_614784,University of West Georgia Carrollton,33.5843,-85.0793,67,manual_corrected
+NCAA_614785,St. Thomas (MN) Baseball Stadium,44.9421,-93.1895,67,geocoded_nominatim
+NCAA_614786,Utah Tech St George UT,37.1041,-113.5841,67,manual_corrected
+NCAA_614787,Akron Baseball Stadium,41.0757,-81.5115,67,geocoded_nominatim
+NCAA_614788,Texas A&M Baseball Stadium,30.6109,-96.3521,67,geocoded_nominatim
+BSB_TCU,TCU Baseball Stadium,32.708,-97.3612,67,geocoded_nominatim
+NCAA_614790,Texas Southern Houston,29.7282,-95.3439,67,manual_corrected
+BSB_TEXAS_TECH,Texas Tech Baseball Stadium,33.5875,-102.0307,67,geocoded_nominatim
+NCAA_614792,UT Arlington Baseball Stadium,32.7285,-97.112,67,geocoded_nominatim
+NCAA_614794,UTSA Baseball Stadium,29.5833,-98.6194,67,geocoded_nominatim
+NCAA_614795,University of Toledo OH,41.6639,-83.5554,67,manual_corrected
+NCAA_614796,Towson Baseball Stadium,39.387,-76.6186,67,geocoded_nominatim
+NCAA_614797,Troy Baseball Stadium,31.8022,-85.9557,67,geocoded_nominatim
+NCAA_614798,Air Force Baseball Stadium,38.9912,-104.8588,67,geocoded_nominatim
+NCAA_614799,Navy Baseball Stadium,38.9819,-76.4822,67,geocoded_nominatim
+BSB_UTAH,Utah Baseball Stadium,40.7628,-111.8369,67,geocoded_nominatim
+NCAA_614801,Valparaiso Baseball Stadium,41.4667,-87.0431,67,geocoded_nominatim
+NCAA_614803,Villanova Baseball Stadium,40.0319,-75.3359,67,geocoded_nominatim
+NCAA_614804,VCU Baseball Stadium,37.5461,-77.4541,67,geocoded_nominatim
+NCAA_614805,VMI Baseball Stadium,37.7913,-79.4355,67,geocoded_nominatim
+BSB_VIRGINIA_TECH,Virginia Tech Baseball Stadium,37.2348,-80.4321,67,geocoded_nominatim
+NCAA_614808,Wagner Baseball Stadium,40.6147,-74.0936,67,geocoded_nominatim
+BSB_WAKE_FOREST,Wake Forest Baseball Stadium,36.1364,-80.2783,67,geocoded_nominatim
+NCAA_614810,Washington St. Baseball Stadium,46.7338,-117.1498,67,geocoded_nominatim
+BSB_WASHINGTON,Washington Baseball Stadium,47.6554,-122.3002,67,geocoded_nominatim
+BSB_WEST_VIRGINIA,West Virginia Baseball Stadium,38.3329,-81.6169,67,geocoded_nominatim
+NCAA_614814,Western Illinois Macomb,40.4612,-90.6718,67,manual_corrected
+NCAA_614815,Western Ky. Baseball Stadium,36.9845,-86.4576,67,geocoded_nominatim
+NCAA_614816,Western Mich. Baseball Stadium,42.2444,-85.5491,67,geocoded_nominatim
+NCAA_614817,Wichita St. Baseball Stadium,37.7193,-97.2899,67,geocoded_nominatim
+NCAA_614818,William & Mary Baseball Stadium,37.2691,-76.7221,67,geocoded_nominatim
+NCAA_614819,Winthrop Baseball Stadium,34.9391,-81.0325,67,geocoded_nominatim
+NCAA_614820,Milwaukee Baseball Stadium,43.0776,-87.8819,67,geocoded_nominatim
+NCAA_614821,Wright St. Baseball Stadium,39.7842,-84.0568,67,geocoded_nominatim
+NCAA_614823,Yale University New Haven CT,41.3163,-72.9223,67,manual_corrected
+NCAA_614824,Youngstown St. Baseball Stadium,41.1067,-80.6478,67,geocoded_nominatim
+NCAA_614825,Central Ark. Baseball Stadium,35.0776,-92.458,67,geocoded_nominatim
+NCAA_614826,Merrimack Baseball Stadium,42.6669,-71.1229,67,geocoded_nominatim
+NCAA_614827,Col. of Charleston Baseball Stadium,32.7708,-79.9317,67,geocoded_nominatim
+NCAA_614828,Elon Baseball Stadium,36.1063,-79.5027,67,geocoded_nominatim
+NCAA_614829,Gardner-Webb Baseball Stadium,35.2478,-81.6702,67,geocoded_nominatim
+NCAA_614830,Grand Canyon Baseball Stadium,33.5132,-112.1272,67,geocoded_nominatim
+NCAA_614831,Kennesaw St. Baseball Stadium,34.0383,-84.5831,67,geocoded_nominatim
+NCAA_614832,Presbyterian Baseball Stadium,34.4628,-81.8672,67,geocoded_nominatim
+NCAA_614833,Seattle U Baseball Stadium,47.6095,-122.3188,67,geocoded_nominatim
+NCAA_614834,Ark.-Pine Bluff Baseball Stadium,34.2511,-92.0289,67,geocoded_nominatim
+NCAA_614835,North Florida Baseball Stadium,30.269,-81.5097,67,geocoded_nominatim
+NCAA_614836,UIW Baseball Stadium,29.4688,-98.4691,67,geocoded_nominatim
+NCAA_614837,USC Upstate Baseball Stadium,35.0003,-81.9709,67,geocoded_nominatim
+NCAA_614838,Belmont University Nashville TN,36.152,-86.7967,67,manual_corrected
+NCAA_614839,A&M-Corpus Christi Baseball Stadium,27.7128,-97.3234,67,geocoded_nominatim
+NCAA_614840,Lipscomb Baseball Stadium,36.1051,-86.7986,67,geocoded_nominatim
+NCAA_614841,FGCU Baseball Stadium,26.4636,-81.7747,67,geocoded_nominatim
+NCAA_614842,Utah Valley Baseball Stadium,40.2794,-111.7179,67,geocoded_nominatim
+NCAA_614843,North Ala. Baseball Stadium,34.6834,-87.5951,67,geocoded_nominatim
+NCAA_614844,California Baptist University Riverside,33.9294,-117.4261,67,manual_corrected
+NCAA_614845,Abilene Christian Baseball Stadium,32.47,-99.7074,67,geocoded_nominatim
+NCAA_614846,Alabama A&M Baseball Stadium,34.7843,-86.5701,67,geocoded_nominatim
+NCAA_614847,Alabama St. Baseball Stadium,32.3635,-86.2936,67,geocoded_nominatim
+BSB_ALABAMA,Alabama Baseball Stadium,33.2121,-87.5397,67,geocoded_nominatim
+NCAA_614849,UAB Baseball Stadium,33.5016,-86.806,67,geocoded_nominatim
+NCAA_614850,UAlbany Baseball Stadium,42.6867,-73.8234,67,geocoded_nominatim
+NCAA_614851,Alcorn State Lorman MS,31.8693,-90.9718,67,manual_corrected
+NCAA_614852,App State Baseball Stadium,36.2114,-81.6861,67,geocoded_nominatim
+NCAA_614853,Arizona St. Baseball Stadium,33.4213,-111.9332,67,geocoded_nominatim
+NCAA_614854,Arkansas St. Baseball Stadium,35.8441,-90.6726,67,geocoded_nominatim
+NCAA_614856,Little Rock Baseball Stadium,34.7224,-92.3383,67,geocoded_nominatim
+BSB_AUBURN,Auburn University AL,32.6099,-85.4808,67,manual_corrected
+NCAA_614858,Austin Peay Baseball Stadium,36.5343,-87.3543,67,geocoded_nominatim
+NCAA_614859,Ball St. Baseball Stadium,40.2097,-85.4112,67,geocoded_nominatim
+NCAA_614860,Charleston So. Baseball Stadium,32.9826,-80.0711,67,geocoded_nominatim
+BSB_BAYLOR,Baylor University Waco TX,31.5497,-97.1143,67,manual_corrected
+NCAA_614862,Bethune-Cookman Baseball Stadium,29.2119,-81.032,67,geocoded_nominatim
+NCAA_614863,Binghamton Baseball Stadium,42.0878,-75.9707,67,geocoded_nominatim
+BSB_BOSTON_COLLEGE,Boston College Baseball Stadium,42.3497,-71.1009,67,geocoded_nominatim
+NCAA_614865,Bowling Green State OH,41.3759,-83.6513,67,manual_corrected
+NCAA_614866,Bradley University Peoria IL,40.6983,-89.6148,67,manual_corrected
+BSB_BYU,BYU Baseball Stadium,40.2554,-111.6497,67,geocoded_nominatim
+NCAA_614868,Brown University Providence RI,41.8268,-71.4025,67,manual_corrected
+NCAA_614869,Bryant Baseball Stadium,41.9221,-71.5372,67,geocoded_nominatim
+NCAA_615065,New Haven Baseball Stadium,41.2909,-72.9626,67,geocoded_nominatim
+NCAA_621265,La Salle University Philadelphia,40.0366,-75.1538,67,manual_corrected
+NCAA_614667,Mississippi Valley St Itta Bena,33.4905,-90.31,67,manual_corrected
+NCAA_614813,Western Carolina Cullowhee NC,35.3083,-83.1848,67,manual_corrected
+NCAA_614793,FAMU Baseball Tallahassee FL,30.4583,-84.2977,67,manual_corrected
