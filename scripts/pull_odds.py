@@ -235,11 +235,24 @@ def fetch_historical_odds(
 
 
 def write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
-    """Append one JSON object per line."""
+    """Write records to a JSONL file (overwrites)."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
         for rec in records:
             f.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
+def append_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
+    """Append records to a JSONL file (creates if missing)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        for rec in records:
+            f.write(json.dumps(rec, sort_keys=True) + "\n")
+
+
+ODDS_DIR = Path("data/raw/odds")
+LOG_PATH = ODDS_DIR / "odds_pull_log.jsonl"
+LATEST_PATH = ODDS_DIR / "odds_latest.jsonl"
 
 
 def main() -> int:
@@ -300,6 +313,8 @@ def main() -> int:
     api_key = os.environ.get("ODDS_API_KEY", "").strip()
     if not api_key:
         raise SystemExit("Missing ODDS_API_KEY. Set in .env or environment.")
+
+    pull_id = utc_now_iso()
 
     if args.mode == "historical":
         if args.from_date and args.to_date:
@@ -385,10 +400,20 @@ def main() -> int:
         records = process_events(events, snapshot_ts=None)
         stamp = utc_now_iso()[:10].replace("-", "")
 
-    out = args.out or Path("data/raw/odds") / f"odds_{args.sport}_{stamp}.jsonl"
+    # Stamp every record with pull metadata
+    for rec in records:
+        rec["pull_id"] = pull_id
+        rec["pull_mode"] = args.mode
+        rec["pull_regions"] = args.regions
+        rec["pull_markets"] = args.markets
+
+    # Write latest snapshot (overwrite) and append to master log
+    out = args.out or LATEST_PATH
     write_jsonl(out, records)
+    append_jsonl(LOG_PATH, records)
 
     print(f"Wrote {len(records)} games to {out}")
+    print(f"Appended {len(records)} records to {LOG_PATH} (pull_id={pull_id})")
     return 0
 
 
