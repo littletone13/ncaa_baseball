@@ -32,7 +32,7 @@ from ncaa_baseball.phase1 import (
 )
 from simulate_run_event_game import prob_to_american
 from lookup_starters import StarterLookup
-from weather_park_adjustment import get_weather_park_adj
+from weather_park_adjustment import get_weather_park_adj, fetch_hourly_weather, load_stadium_data, get_stadium_info
 
 
 def resolve_team(name: str, team_idx_map: dict, name_to_cid: dict,
@@ -179,7 +179,8 @@ def main() -> int:
     print(f"  {n_draws} draws, {N_teams} teams, {N_pitchers} pitchers", file=sys.stderr)
 
     # ── Fetch game schedule (NCAA API primary, ESPN fallback) ──────────────
-    matchups = []  # list of (home_name, away_name) tuples
+    # matchups: list of (home_name, away_name, start_utc_iso_or_None)
+    matchups = []
     dt_parts = args.date.split("-")
     ncaa_url = f"https://ncaa-api.henrygd.me/scoreboard/baseball/d1/{dt_parts[0]}/{dt_parts[1]}/{dt_parts[2]}"
     try:
@@ -193,16 +194,22 @@ def main() -> int:
             a_names = away.get("names", {})
             h_name = h_names.get("full", "").strip() or h_names.get("short", "").strip() or "?"
             a_name = a_names.get("full", "").strip() or a_names.get("short", "").strip() or "?"
+            start_time = game.get("startTimeEpoch")  # NCAA API may have epoch
             if h_name != "?" and a_name != "?":
-                matchups.append((h_name, a_name))
+                matchups.append((h_name, a_name, None))  # NCAA API doesn't reliably give times
         print(f"\n{len(matchups)} games on {args.date} (NCAA API)\n", file=sys.stderr)
     except Exception as ex:
         print(f"NCAA API failed ({ex}), falling back to ESPN...", file=sys.stderr)
+
+    # Always also fetch ESPN to get start times (merge by team name)
+    espn_times: dict[tuple[str, str], str] = {}  # (home, away) → UTC ISO time
+    try:
         dt = args.date.replace("-", "")
         espn_url = f"https://site.api.espn.com/apis/site/v2/sports/baseball/college-baseball/scoreboard?dates={dt}&limit=200"
         req = Request(espn_url, headers={"User-Agent": "Mozilla/5.0 (Macintosh)"})
         data = json.loads(urlopen(req, timeout=15).read())
         for e in data.get("events", []):
+            start_utc = e.get("date")  # ISO 8601 UTC
             comps = e.get("competitions", [{}])
             if not comps:
                 continue
@@ -214,25 +221,76 @@ def main() -> int:
             if home_c and away_c:
                 h_name = home_c.get("team", {}).get("displayName", "?")
                 a_name = away_c.get("team", {}).get("displayName", "?")
-                matchups.append((h_name, a_name))
+                if start_utc:
+                    espn_times[(h_name, a_name)] = start_utc
+                if not matchups:  # ESPN fallback for schedule
+                    matchups.append((h_name, a_name, start_utc))
+        if not matchups:
+            # Loaded from ESPN
+            pass
+        else:
+            # Merge ESPN times into NCAA matchups
+            pass
+        if matchups and matchups[0][2] is None:
+            print(f"  (ESPN provided {len(espn_times)} start times for time-merge)", file=sys.stderr)
+    except Exception as ex2:
+        print(f"  ESPN time fetch failed: {ex2}", file=sys.stderr)
+
+    if not matchups and espn_times:
+        for (h, a), t in espn_times.items():
+            matchups.append((h, a, t))
         print(f"\n{len(matchups)} games on {args.date} (ESPN fallback)\n", file=sys.stderr)
 
     # ── Resolve teams, starters, weather for each game ─────────────────────
     rng = np.random.default_rng(args.seed)
     all_results = []
 
-    for game_num, (h_name, a_name) in enumerate(matchups):
+    for game_num, (h_name, a_name, start_utc) in enumerate(matchups):
 
         h_cid, h_idx = resolve_team(h_name, team_idx_map, name_to_cid, canonical, name_to_canonical)
         a_cid, a_idx = resolve_team(a_name, team_idx_map, name_to_cid, canonical, name_to_canonical)
+
+        # ── Resolve game start time ──────────────────────────────────────
+        # Try to match ESPN time if we didn't get one from NCAA API
+        if start_utc is None:
+            start_utc = espn_times.get((h_name, a_name))
+
+        # Parse start time → local hour for hourly weather
+        game_start_hour = None
+        if start_utc:
+            try:
+                from datetime import datetime, timezone, timedelta
+                utc_dt = datetime.fromisoformat(start_utc.replace("Z", "+00:00"))
+                # Rough local time: use longitude to estimate timezone offset
+                # More accurate than assuming a single timezone for all US stadiums
+                # (Every 15° of longitude ≈ 1 hour offset from UTC)
+                if 'sdf_temp' not in dir():
+                    sdf_temp = load_stadium_data(args.stadium_csv)
+                sinfo = get_stadium_info(h_cid, sdf_temp) if h_cid else None
+                if sinfo:
+                    lon_offset_hrs = round(sinfo["lon"] / 15.0)
+                    local_dt = utc_dt + timedelta(hours=lon_offset_hrs)
+                    game_start_hour = local_dt.hour
+            except Exception:
+                pass
 
         # ── Starting pitchers ──────────────────────────────────────────────
         hp_name, hp_id, hp_idx = starter_lookup.get_starter(h_cid, args.date)
         ap_name, ap_id, ap_idx = starter_lookup.get_starter(a_cid, args.date)
 
+        # Clamp pitcher indices to posterior size (new pitchers not in model → league avg)
+        if hp_idx >= N_pitchers + 1:
+            print(f"    WARNING: home pitcher idx {hp_idx} exceeds posterior ({N_pitchers}), using league avg", file=sys.stderr)
+            hp_idx = 0
+        if ap_idx >= N_pitchers + 1:
+            print(f"    WARNING: away pitcher idx {ap_idx} exceeds posterior ({N_pitchers}), using league avg", file=sys.stderr)
+            ap_idx = 0
+
         hp_tag = f"{hp_name} (idx={hp_idx})" if hp_idx > 0 else f"{hp_name} (no model data)"
         ap_tag = f"{ap_name} (idx={ap_idx})" if ap_idx > 0 else f"{ap_name} (no model data)"
         print(f"  Game {game_num+1}: {a_name} @ {h_name}", file=sys.stderr)
+        if start_utc:
+            print(f"    Start: {start_utc} (local hr≈{game_start_hour})", file=sys.stderr)
         print(f"    Starters: {ap_tag} vs {hp_tag}", file=sys.stderr)
 
         # ── Park factor + weather ──────────────────────────────────────────
@@ -241,12 +299,23 @@ def main() -> int:
         weather_info = {}
         if not args.no_weather:
             try:
-                w = get_weather_park_adj(canonical_id=h_cid, stadium_csv=args.stadium_csv)
+                w = get_weather_park_adj(
+                    canonical_id=h_cid,
+                    stadium_csv=args.stadium_csv,
+                    game_date=args.date,
+                    game_start_hour=game_start_hour,
+                )
                 if "error" not in w:
                     weather_adj = w["total_adj"]
                     weather_info = w
-                    print(f"    Weather: {w['temp_f']:.0f}°F, wind {w['wind_speed_mph']:.0f}mph "
-                          f"(out: {w['wind_out_mph']:+.1f}), adj={weather_adj:+.4f}",
+                    mode = w.get("weather_mode", "current")
+                    wind_detail = ""
+                    if mode == "hourly_avg" and "hourly_wind" in w:
+                        hrs = w["hourly_wind"]
+                        parts = [f"hr{h['hour_offset']}:{h['wind_out_mph']:+.0f}" for h in hrs]
+                        wind_detail = f" [{', '.join(parts)}]"
+                    print(f"    Weather ({mode}): {w['temp_f']:.0f}°F, wind {w['wind_speed_mph']:.0f}mph "
+                          f"(out: {w['wind_out_mph']:+.1f}), adj={weather_adj:+.4f}{wind_detail}",
                           file=sys.stderr)
                 else:
                     print(f"    Weather: {w['error']}", file=sys.stderr)
@@ -364,7 +433,16 @@ def main() -> int:
             "temp_f": weather_info.get("temp_f"),
             "wind_mph": weather_info.get("wind_speed_mph"),
             "wind_out_mph": weather_info.get("wind_out_mph"),
+            "weather_mode": weather_info.get("weather_mode"),
+            "wind_out_hr0": None,
+            "wind_out_hr1": None,
+            "wind_out_hr2": None,
         }
+        # Add per-hour wind detail if available
+        if weather_info.get("hourly_wind"):
+            for h in weather_info["hourly_wind"]:
+                key = f"wind_out_hr{h['hour_offset']}"
+                result[key] = h["wind_out_mph"]
         all_results.append(result)
 
     # ── Output ─────────────────────────────────────────────────────────────

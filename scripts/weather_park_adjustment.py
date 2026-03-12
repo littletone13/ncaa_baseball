@@ -126,6 +126,97 @@ def fetch_current_weather(lat: float, lon: float) -> dict | None:
     }
 
 
+def fetch_hourly_weather(lat: float, lon: float, date: str) -> list[dict] | None:
+    """
+    Fetch full day of hourly forecasts from Open-Meteo API.
+
+    Args:
+        lat, lon: stadium coordinates
+        date: YYYY-MM-DD
+
+    Returns list of 24 hourly dicts with keys:
+        time (ISO str), wind_speed_mph, wind_direction_deg, temperature_f, wind_gusts_mph
+    """
+    url = (
+        f"https://api.open-meteo.com/v1/forecast?"
+        f"latitude={lat}&longitude={lon}"
+        f"&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+        f"&temperature_unit=fahrenheit"
+        f"&wind_speed_unit=mph"
+        f"&timezone=auto"
+        f"&start_date={date}&end_date={date}"
+    )
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "ncaa-baseball-model/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+    except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as e:
+        print(f"Hourly weather API error: {e}", file=sys.stderr)
+        return None
+
+    hourly = data.get("hourly", {})
+    times = hourly.get("time", [])
+    if not times:
+        return None
+
+    results = []
+    for i, t in enumerate(times):
+        results.append({
+            "time": t,
+            "wind_speed_mph": float(hourly.get("wind_speed_10m", [0])[i]),
+            "wind_direction_deg": float(hourly.get("wind_direction_10m", [0])[i]),
+            "temperature_f": float(hourly.get("temperature_2m", [TEMP_BASELINE_F])[i]),
+            "wind_gusts_mph": float(hourly.get("wind_gusts_10m", [0])[i]),
+        })
+    return results
+
+
+def get_weather_at_hours(
+    hourly_data: list[dict],
+    start_hour_local: int,
+    offsets: tuple[int, ...] = (0, 1, 2),
+) -> list[dict]:
+    """
+    Extract weather at specific hour offsets from game start.
+
+    Args:
+        hourly_data: list of 24 hourly weather dicts (from fetch_hourly_weather)
+        start_hour_local: local hour (0-23) of game start
+        offsets: hours after start to sample (default: start, +1hr, +2hr)
+
+    Returns list of weather dicts for each offset hour.
+    """
+    result = []
+    for off in offsets:
+        idx = start_hour_local + off
+        if 0 <= idx < len(hourly_data):
+            result.append(hourly_data[idx])
+    return result
+
+
+def average_weather(weather_list: list[dict]) -> dict:
+    """Average multiple hourly weather readings into one composite."""
+    if not weather_list:
+        return {
+            "wind_speed_mph": 0,
+            "wind_direction_deg": 0,
+            "temperature_f": TEMP_BASELINE_F,
+            "wind_gusts_mph": 0,
+        }
+    n = len(weather_list)
+    # For wind direction, use vector averaging to handle wraparound (e.g., 350° + 10°)
+    sin_sum = sum(math.sin(math.radians(w["wind_direction_deg"])) for w in weather_list)
+    cos_sum = sum(math.cos(math.radians(w["wind_direction_deg"])) for w in weather_list)
+    avg_dir = math.degrees(math.atan2(sin_sum / n, cos_sum / n)) % 360
+
+    return {
+        "wind_speed_mph": sum(w["wind_speed_mph"] for w in weather_list) / n,
+        "wind_direction_deg": round(avg_dir, 1),
+        "temperature_f": sum(w["temperature_f"] for w in weather_list) / n,
+        "wind_gusts_mph": sum(w["wind_gusts_mph"] for w in weather_list) / n,
+    }
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Wind component calculation
 # ──────────────────────────────────────────────────────────────────────────────
@@ -196,11 +287,17 @@ def get_weather_park_adj(
     lon: float | None = None,
     hp_bearing: float | None = None,
     stadium_csv: Path = Path("data/registries/stadium_orientations.csv"),
+    game_date: str | None = None,
+    game_start_hour: int | None = None,
 ) -> dict:
     """
     Full pipeline: look up stadium → fetch weather → compute adjustment.
 
     Provide either canonical_id (to look up from CSV) or lat/lon/hp_bearing directly.
+
+    If game_date and game_start_hour are provided, uses hourly forecast data
+    averaged over start, +1hr, and +2hr to account for wind direction changes
+    during the game. Otherwise falls back to current conditions.
     """
     venue_name = ""
     if canonical_id and (lat is None or lon is None):
@@ -217,7 +314,34 @@ def get_weather_park_adj(
         return {"error": "No lat/lon provided", "total_adj": 0.0}
     hp_bearing = hp_bearing or DEFAULT_HP_BEARING
 
-    weather = fetch_current_weather(lat, lon)
+    # ── Hourly mode: average weather over game duration ──────────────────
+    hourly_detail = []
+    if game_date and game_start_hour is not None:
+        hourly_data = fetch_hourly_weather(lat, lon, game_date)
+        if hourly_data:
+            hours = get_weather_at_hours(hourly_data, game_start_hour, offsets=(0, 1, 2))
+            if hours:
+                # Store per-hour wind detail for output
+                for i, h in enumerate(hours):
+                    w_out = wind_out_component(h["wind_direction_deg"],
+                                                h["wind_speed_mph"], hp_bearing)
+                    hourly_detail.append({
+                        "hour_offset": i,
+                        "time": h.get("time", ""),
+                        "wind_speed_mph": round(h["wind_speed_mph"], 1),
+                        "wind_dir_deg": round(h["wind_direction_deg"]),
+                        "wind_out_mph": round(w_out, 1),
+                        "temp_f": round(h["temperature_f"], 1),
+                        "wind_gusts_mph": round(h["wind_gusts_mph"], 1),
+                    })
+                weather = average_weather(hours)
+            else:
+                weather = fetch_current_weather(lat, lon)
+        else:
+            weather = fetch_current_weather(lat, lon)
+    else:
+        weather = fetch_current_weather(lat, lon)
+
     if weather is None:
         return {"error": "Weather API failed", "total_adj": 0.0}
 
@@ -230,13 +354,18 @@ def get_weather_park_adj(
     adj.update({
         "wind_speed_mph": weather["wind_speed_mph"],
         "wind_dir_deg": weather["wind_direction_deg"],
-        "wind_gusts_mph": weather["wind_gusts_mph"],
+        "wind_gusts_mph": weather.get("wind_gusts_mph", 0),
         "temp_f": weather["temperature_f"],
         "hp_bearing_deg": hp_bearing,
         "venue_name": venue_name,
         "lat": lat,
         "lon": lon,
     })
+    if hourly_detail:
+        adj["hourly_wind"] = hourly_detail
+        adj["weather_mode"] = "hourly_avg"
+    else:
+        adj["weather_mode"] = "current"
     return adj
 
 
