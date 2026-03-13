@@ -1,10 +1,15 @@
 """
 Look up projected starting pitchers for upcoming games.
 
-Three-tier approach:
-  1. D1Baseball.com projected weekend rotations (Fri/Sat/Sun for major conferences)
-  2. Rotation inference from pitcher_appearances.csv (day-of-week patterns)
-  3. Most-rested-pitcher heuristic fallback
+Priority chain for weekend games (Fri/Sat/Sun):
+  0a. D1Baseball expert picks (press conference intel, ~86 major teams)
+  0b. Appearance-based weekend rotation projections (all ~308 teams)
+  1.  Most-recent same-day-of-week starter from appearances
+  2.  Most-rested-pitcher heuristic fallback
+
+For midweek games (Mon/Tue/Wed):
+  1. Most-recent midweek starter
+  2. Most-rested-pitcher fallback
 
 Usage:
   from lookup_starters import StarterLookup
@@ -33,6 +38,8 @@ class StarterLookup:
         appearances_csv: Path | str = "data/processed/pitcher_appearances.csv",
         registry_csv: Path | str = "data/processed/pitcher_registry.csv",
         pitcher_index_csv: Path | str = "data/processed/run_event_pitcher_index.csv",
+        weekend_rotations_csv: Path | str = "data/processed/weekend_rotations.csv",
+        d1baseball_rotations_csv: Path | str = "data/processed/d1baseball_rotations.csv",
     ):
         self.pa = pd.read_csv(appearances_csv, dtype=str)
         self.pa["game_date"] = pd.to_datetime(self.pa["game_date"])
@@ -69,8 +76,43 @@ class StarterLookup:
         self.starters = self.pa[self.pa["role"] == "starter"].copy()
         self.starters = self.starters.sort_values("game_date", ascending=False)
 
-        # D1baseball cache
-        self._d1bb_starters: dict[str, list[dict]] | None = None
+        # Weekend rotation projections (from build_weekend_rotations.py)
+        self._weekend_rotations: dict[tuple[str, str], dict] = {}
+        wr_path = Path(weekend_rotations_csv)
+        if wr_path.exists():
+            wr_df = pd.read_csv(wr_path, dtype=str)
+            for _, r in wr_df.iterrows():
+                cid = str(r.get("canonical_id", "")).strip()
+                day = str(r.get("day", "")).strip()  # fri/sat/sun
+                if cid and day:
+                    self._weekend_rotations[(cid, day)] = {
+                        "pitcher_name": str(r.get("pitcher_name", "")),
+                        "pitcher_id": str(r.get("pitcher_id", "")),
+                        "confidence": str(r.get("confidence", "low")),
+                        "starts": int(r.get("starts_this_role", 0)),
+                    }
+            print(f"  Loaded {len(self._weekend_rotations)} weekend rotation projections",
+                  file=sys.stderr)
+
+        # D1Baseball expert rotations (from scrape_d1baseball_rotations.py)
+        # This is the HIGHEST priority source — press conference intel
+        self._d1baseball_rotations: dict[tuple[str, str], dict] = {}
+        d1b_path = Path(d1baseball_rotations_csv)
+        if d1b_path.exists():
+            d1b_df = pd.read_csv(d1b_path, dtype=str)
+            for _, r in d1b_df.iterrows():
+                cid = str(r.get("canonical_id", "")).strip()
+                day = str(r.get("day", "")).strip()  # fri/sat/sun
+                pname = str(r.get("pitcher_name", "")).strip()
+                if cid and day and pname:
+                    self._d1baseball_rotations[(cid, day)] = {
+                        "pitcher_name": pname,
+                        "hand": str(r.get("hand", "")),
+                        "era": str(r.get("era", "")),
+                        "source": str(r.get("source", "d1baseball")),
+                    }
+            print(f"  Loaded {len(self._d1baseball_rotations)} D1Baseball expert rotation picks",
+                  file=sys.stderr)
 
     def get_starter(
         self, team_canonical_id: str, game_date: str
@@ -83,6 +125,30 @@ class StarterLookup:
         """
         gd = pd.Timestamp(game_date)
         dow = gd.day_of_week  # 0=Mon ... 6=Sun
+
+        # Strategy 0a: D1Baseball expert picks (highest priority — press conference intel)
+        dow_to_day = {4: "fri", 5: "sat", 6: "sun"}
+        if dow in dow_to_day:
+            day_key = dow_to_day[dow]
+            d1b = self._d1baseball_rotations.get((team_canonical_id, day_key))
+            if d1b:
+                pname = d1b["pitcher_name"]
+                pidx = self._resolve_by_name(pname, team_canonical_id)
+                if pidx > 0:
+                    return (pname, f"d1b_{pname}", pidx)
+
+        # Strategy 0b: Appearance-based weekend rotation projections (fallback)
+        if dow in dow_to_day:
+            day_key = dow_to_day[dow]
+            wr = self._weekend_rotations.get((team_canonical_id, day_key))
+            if wr and wr["confidence"] in ("high", "medium"):
+                pname = wr["pitcher_name"]
+                pid = wr["pitcher_id"]
+                pidx = self._resolve_idx(pid)
+                if pidx == 0:
+                    pidx = self._resolve_by_name(pname, team_canonical_id)
+                if pidx > 0:
+                    return (pname, pid, pidx)
 
         team_starters = self.starters[
             self.starters["team_canonical_id"] == team_canonical_id
@@ -145,6 +211,34 @@ class StarterLookup:
         name = str(best.get("pitcher_name", "")).strip()
         pidx = self._resolve_idx(pid)
         return (name, pid, pidx)
+
+    def _resolve_by_name(self, pitcher_name: str, team_canonical_id: str) -> int:
+        """Try to resolve pitcher_idx by name + team fuzzy matching."""
+        name_lower = pitcher_name.strip().lower()
+        # Exact name+team match
+        pid = self._name_team_to_pid.get((name_lower, team_canonical_id))
+        if pid:
+            return self._resolve_idx(pid)
+        # Try last-name match against registry
+        parts = name_lower.split()
+        last = parts[-1] if parts else name_lower
+        for (n, t), pid in self._name_team_to_pid.items():
+            if t == team_canonical_id and (n == last or n.endswith(last)):
+                idx = self._resolve_idx(pid)
+                if idx > 0:
+                    return idx
+        # Try last-name match against appearances data (catches pitchers
+        # not in registry but who have appeared in games)
+        team_apps = self.pa[self.pa["team_canonical_id"] == team_canonical_id]
+        if not team_apps.empty:
+            for _, r in team_apps.iterrows():
+                pname = str(r.get("pitcher_name", "")).strip().lower()
+                if pname == last or pname.endswith(last):
+                    pid = str(r.get("pitcher_id", "")).strip()
+                    idx = self._resolve_idx(pid)
+                    if idx > 0:
+                        return idx
+        return 0
 
     def _resolve_idx(self, pitcher_id: str) -> int:
         """Map pitcher_id to pitcher_idx."""

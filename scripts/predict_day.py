@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -201,8 +202,10 @@ def main() -> int:
     except Exception as ex:
         print(f"NCAA API failed ({ex}), falling back to ESPN...", file=sys.stderr)
 
-    # Always also fetch ESPN to get start times (merge by team name)
-    espn_times: dict[tuple[str, str], str] = {}  # (home, away) → UTC ISO time
+    # Always also fetch ESPN to get start times
+    # Two lookups: by raw name pair AND by canonical_id pair (for fuzzy merge)
+    espn_times: dict[tuple[str, str], str] = {}      # (home_name, away_name) → UTC ISO
+    espn_times_cid: dict[tuple[str, str], str] = {}   # (home_cid, away_cid) → UTC ISO
     try:
         dt = args.date.replace("-", "")
         espn_url = f"https://site.api.espn.com/apis/site/v2/sports/baseball/college-baseball/scoreboard?dates={dt}&limit=200"
@@ -219,20 +222,19 @@ def main() -> int:
             home_c = next((x for x in competitors if x.get("homeAway") == "home"), None)
             away_c = next((x for x in competitors if x.get("homeAway") == "away"), None)
             if home_c and away_c:
-                h_name = home_c.get("team", {}).get("displayName", "?")
-                a_name = away_c.get("team", {}).get("displayName", "?")
+                h_espn = home_c.get("team", {}).get("displayName", "?")
+                a_espn = away_c.get("team", {}).get("displayName", "?")
                 if start_utc:
-                    espn_times[(h_name, a_name)] = start_utc
+                    espn_times[(h_espn, a_espn)] = start_utc
+                    # Also resolve ESPN names to canonical_ids for fuzzy merge
+                    h_cid_e, _ = resolve_team(h_espn, team_idx_map, name_to_cid, canonical, name_to_canonical)
+                    a_cid_e, _ = resolve_team(a_espn, team_idx_map, name_to_cid, canonical, name_to_canonical)
+                    if h_cid_e and a_cid_e:
+                        espn_times_cid[(h_cid_e, a_cid_e)] = start_utc
                 if not matchups:  # ESPN fallback for schedule
-                    matchups.append((h_name, a_name, start_utc))
-        if not matchups:
-            # Loaded from ESPN
-            pass
-        else:
-            # Merge ESPN times into NCAA matchups
-            pass
+                    matchups.append((h_espn, a_espn, start_utc))
         if matchups and matchups[0][2] is None:
-            print(f"  (ESPN provided {len(espn_times)} start times for time-merge)", file=sys.stderr)
+            print(f"  (ESPN provided {len(espn_times)} start times, {len(espn_times_cid)} resolved to canonical)", file=sys.stderr)
     except Exception as ex2:
         print(f"  ESPN time fetch failed: {ex2}", file=sys.stderr)
 
@@ -240,6 +242,33 @@ def main() -> int:
         for (h, a), t in espn_times.items():
             matchups.append((h, a, t))
         print(f"\n{len(matchups)} games on {args.date} (ESPN fallback)\n", file=sys.stderr)
+
+    # ── Load odds commence times as additional start time source ───────────
+    odds_times_cid: dict[tuple[str, str], str] = {}
+    try:
+        odds_latest = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "..", "data", "raw", "odds", "odds_latest.jsonl")
+        if os.path.exists(odds_latest):
+            # Build odds_api_name → canonical_id lookup
+            odds_name_to_cid: dict[str, str] = {}
+            for _, row in canonical.iterrows():
+                oname = str(row.get("odds_api_name", "")).strip()
+                if oname:
+                    odds_name_to_cid[oname] = row["canonical_id"]
+            with open(odds_latest) as fod:
+                for line in fod:
+                    og = json.loads(line)
+                    ct = og.get("commence_time")
+                    if not ct:
+                        continue
+                    hc = odds_name_to_cid.get(og.get("home_team", ""))
+                    ac = odds_name_to_cid.get(og.get("away_team", ""))
+                    if hc and ac:
+                        odds_times_cid[(hc, ac)] = ct
+            if odds_times_cid:
+                print(f"  (Odds API provided {len(odds_times_cid)} commence times)", file=sys.stderr)
+    except Exception as ex3:
+        print(f"  Odds commence time load failed: {ex3}", file=sys.stderr)
 
     # ── Resolve teams, starters, weather for each game ─────────────────────
     rng = np.random.default_rng(args.seed)
@@ -251,28 +280,39 @@ def main() -> int:
         a_cid, a_idx = resolve_team(a_name, team_idx_map, name_to_cid, canonical, name_to_canonical)
 
         # ── Resolve game start time ──────────────────────────────────────
-        # Try to match ESPN time if we didn't get one from NCAA API
+        # Try to match ESPN time: first by raw names, then by canonical_id
         if start_utc is None:
             start_utc = espn_times.get((h_name, a_name))
+        if start_utc is None and h_cid and a_cid:
+            start_utc = espn_times_cid.get((h_cid, a_cid))
+        # Odds API commence time as fallback before 6pm default
+        if start_utc is None and h_cid and a_cid:
+            start_utc = odds_times_cid.get((h_cid, a_cid))
 
         # Parse start time → local hour for hourly weather
         game_start_hour = None
+        sdf_temp_local = None
+        if 'sdf_temp' not in dir():
+            sdf_temp = load_stadium_data(args.stadium_csv)
+        sinfo = get_stadium_info(h_cid, sdf_temp) if h_cid else None
         if start_utc:
             try:
                 from datetime import datetime, timezone, timedelta
                 utc_dt = datetime.fromisoformat(start_utc.replace("Z", "+00:00"))
                 # Rough local time: use longitude to estimate timezone offset
-                # More accurate than assuming a single timezone for all US stadiums
                 # (Every 15° of longitude ≈ 1 hour offset from UTC)
-                if 'sdf_temp' not in dir():
-                    sdf_temp = load_stadium_data(args.stadium_csv)
-                sinfo = get_stadium_info(h_cid, sdf_temp) if h_cid else None
                 if sinfo:
                     lon_offset_hrs = round(sinfo["lon"] / 15.0)
                     local_dt = utc_dt + timedelta(hours=lon_offset_hrs)
                     game_start_hour = local_dt.hour
             except Exception:
                 pass
+
+        # Default start hour: 18 (6pm local) for games without ESPN times
+        # Most college baseball games start between 5-7pm; 6pm is a safe default
+        # for forecast-based weather rather than current conditions
+        if game_start_hour is None and sinfo:
+            game_start_hour = 18  # 6pm local default
 
         # ── Starting pitchers ──────────────────────────────────────────────
         hp_name, hp_id, hp_idx = starter_lookup.get_starter(h_cid, args.date)

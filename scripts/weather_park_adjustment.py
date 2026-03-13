@@ -52,6 +52,14 @@ WIND_OUT_COEFF = 0.008
 TEMP_COEFF = 0.002  # ~0.02 runs/game per 10°F above baseline
 TEMP_BASELINE_F = 72.0
 
+# Altitude effect: log-rate change per unit of air density reduction
+# Based on Bahill et al. (2009) and Nathan's empirical data:
+#   - Every 10% air density decrease → ~4% more fly ball distance
+#   - Denver (5280 ft, 18% density reduction) → ~5% more distance, ~7.5% carry
+#   - Coefficient maps (1 - density_ratio) to log-rate scoring change
+#   - 0.25 calibrated so Denver: 0.25 * 0.18 = 0.045 → exp(0.045) = +4.6% runs
+ALTITUDE_COEFF = 0.25
+
 # Default home plate bearing if not in stadium data (MLB rule: ENE ~67°)
 DEFAULT_HP_BEARING = 67.0
 
@@ -89,6 +97,7 @@ def get_stadium_info(
         "lon": float(r["lon"]),
         "hp_bearing": float(r.get("hp_bearing_deg", DEFAULT_HP_BEARING)),
         "venue_name": str(r.get("venue_name", "")),
+        "elevation_ft": float(r.get("elevation_ft", 0)),
     }
 
 
@@ -218,6 +227,26 @@ def average_weather(weather_list: list[dict]) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Altitude / air density
+# ──────────────────────────────────────────────────────────────────────────────
+
+def air_density_ratio(elevation_ft: float) -> float:
+    """
+    Ratio of air density at elevation vs sea level (standard atmosphere).
+
+    Uses the barometric formula:
+        ρ/ρ₀ = (1 - L·h/T₀)^(g·M/(R·L))
+
+    Where L=lapse rate, h=altitude, T₀=288.15K, g=9.80665, M=0.0289644, R=8.31447.
+    Simplified: (1 - 2.25577e-5 × elevation_m)^5.25588
+
+    Returns 1.0 at sea level, ~0.82 at Denver (5280 ft), ~0.78 at 7000 ft.
+    """
+    elevation_m = elevation_ft * 0.3048
+    return (1 - 2.25577e-5 * elevation_m) ** 5.25588
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Wind component calculation
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -259,25 +288,34 @@ def compute_weather_adjustment(
     wind_direction_deg: float,
     temperature_f: float,
     hp_bearing_deg: float,
+    elevation_ft: float = 0.0,
 ) -> dict:
     """
-    Compute log-scale park factor adjustment from current weather.
+    Compute log-scale park factor adjustment from current weather + altitude.
 
     Returns dict with:
       wind_out_mph: component of wind blowing out (+ = out, - = in)
       wind_adj: log-rate adjustment from wind
       temp_adj: log-rate adjustment from temperature
+      alt_adj: log-rate adjustment from altitude (air density reduction)
       total_adj: combined log-rate adjustment (add to existing park_factor)
     """
     w_out = wind_out_component(wind_direction_deg, wind_speed_mph, hp_bearing_deg)
     wind_adj = WIND_OUT_COEFF * w_out
     temp_adj = TEMP_COEFF * (temperature_f - TEMP_BASELINE_F)
 
+    # Altitude: lower air density → less drag → more carry
+    density_ratio = air_density_ratio(elevation_ft)
+    alt_adj = ALTITUDE_COEFF * (1.0 - density_ratio)
+
     return {
         "wind_out_mph": round(w_out, 1),
         "wind_adj": round(wind_adj, 4),
         "temp_adj": round(temp_adj, 4),
-        "total_adj": round(wind_adj + temp_adj, 4),
+        "alt_adj": round(alt_adj, 4),
+        "density_ratio": round(density_ratio, 4),
+        "elevation_ft": round(elevation_ft),
+        "total_adj": round(wind_adj + temp_adj + alt_adj, 4),
     }
 
 
@@ -300,6 +338,7 @@ def get_weather_park_adj(
     during the game. Otherwise falls back to current conditions.
     """
     venue_name = ""
+    elevation_ft = 0.0
     if canonical_id and (lat is None or lon is None):
         sdf = load_stadium_data(stadium_csv)
         info = get_stadium_info(canonical_id, sdf)
@@ -309,6 +348,7 @@ def get_weather_park_adj(
         lon = info["lon"]
         hp_bearing = hp_bearing or info["hp_bearing"]
         venue_name = info["venue_name"]
+        elevation_ft = info.get("elevation_ft", 0.0)
 
     if lat is None or lon is None:
         return {"error": "No lat/lon provided", "total_adj": 0.0}
@@ -350,6 +390,7 @@ def get_weather_park_adj(
         weather["wind_direction_deg"],
         weather["temperature_f"],
         hp_bearing,
+        elevation_ft=elevation_ft,
     )
     adj.update({
         "wind_speed_mph": weather["wind_speed_mph"],
@@ -402,9 +443,12 @@ def main() -> int:
         print(f"Weather: {result['temp_f']:.0f}°F, wind {result['wind_speed_mph']:.0f} mph "
               f"from {result['wind_dir_deg']:.0f}° (gusts {result['wind_gusts_mph']:.0f})")
         print(f"Wind out component: {result['wind_out_mph']:.1f} mph")
-        print(f"Wind adjustment: {result['wind_adj']:+.4f} (log-rate)")
-        print(f"Temp adjustment:  {result['temp_adj']:+.4f} (log-rate)")
-        print(f"TOTAL adjustment: {result['total_adj']:+.4f} (log-rate)")
+        print(f"Elevation: {result.get('elevation_ft', 0):.0f} ft "
+              f"(air density ratio: {result.get('density_ratio', 1.0):.3f})")
+        print(f"Wind adjustment:     {result['wind_adj']:+.4f} (log-rate)")
+        print(f"Temp adjustment:     {result['temp_adj']:+.4f} (log-rate)")
+        print(f"Altitude adjustment: {result.get('alt_adj', 0):+.4f} (log-rate)")
+        print(f"TOTAL adjustment:    {result['total_adj']:+.4f} (log-rate)")
         total_exp = math.exp(result['total_adj'])
         print(f"  → {total_exp:.3f}x run multiplier ({(total_exp-1)*100:+.1f}% runs)")
 

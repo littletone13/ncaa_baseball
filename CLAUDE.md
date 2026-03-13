@@ -67,10 +67,13 @@ pull_odds.py → odds JSONL → compare model vs market
 - Market data uses `bookmaker_lines` field (not `bookmakers`)
 - American odds conversion: negative → `|ml|/(|ml|+100)`, positive → `100/(ml+100)`
 
-### Wind Model
+### Weather & Altitude Model
 - `wind_out_mph` = wind component blowing from HP toward CF
-- Effect: ~0.04 log-rate change per mph → 10 mph tailwind ≈ +0.5 runs/game
+- Wind: ~0.008 log-rate/mph → 10 mph tailwind ≈ +8% runs/game (validated vs Nathan's +4%/5mph)
+- Temperature: ~0.002 log-rate/°F above 72°F baseline
+- Altitude: 0.25 × (1 − air_density_ratio) → Air Force (6686 ft) = +5.6% runs
 - Negative wind_out = wind blowing IN (suppresses scoring)
+- `elevation_ft` column in `stadium_orientations.csv` sourced from Open-Meteo elevation API
 
 ## Daily Pipeline Commands
 
