@@ -126,7 +126,7 @@ def load_appearances_starters(appearances_path: Path) -> list[dict]:
         for r in reader:
             if r.get("role") == "starter" or r.get("is_starter") == "True":
                 rows.append({
-                    "team_canonical": r.get("canonical_id", ""),
+                    "team_canonical": r.get("team_canonical_id", ""),
                     "team_name": r.get("team_name", ""),
                     "pitcher_name": r.get("pitcher_name", ""),
                     "pitcher_id": r.get("pitcher_id", ""),
