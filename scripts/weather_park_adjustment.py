@@ -92,10 +92,13 @@ def get_stadium_info(
     if row.empty:
         return None
     r = row.iloc[0]
+    cf_bearing = float(r.get("hp_bearing_deg", DEFAULT_HP_BEARING))
     return {
         "lat": float(r["lat"]),
         "lon": float(r["lon"]),
-        "hp_bearing": float(r.get("hp_bearing_deg", DEFAULT_HP_BEARING)),
+        "hp_bearing": cf_bearing,
+        "lf_bearing": (cf_bearing - 45.0) % 360.0,
+        "rf_bearing": (cf_bearing + 45.0) % 360.0,
         "venue_name": str(r.get("venue_name", "")),
         "elevation_ft": float(r.get("elevation_ft", 0)),
     }
@@ -279,6 +282,62 @@ def wind_out_component(
     return wind_speed_mph * math.cos(angle_diff)
 
 
+def wind_out_directional(
+    wind_dir_deg: float,
+    wind_speed_mph: float,
+    hp_bearing_deg: float,
+) -> dict[str, float]:
+    """
+    Compute wind components across the outfield arc: LF, CF, RF.
+
+    Baseball diamond geometry: foul lines are 90° apart, CF bisects them.
+      HP→LF = HP→CF − 45°
+      HP→RF = HP→CF + 45°
+
+    Also computes weighted effective wind_out across the arc using batted-ball
+    spray distribution weights (pull side gets more weight than oppo).
+
+    Returns dict with keys:
+      wind_out_lf: component toward left field foul pole (mph)
+      wind_out_cf: component toward center field (mph)
+      wind_out_rf: component toward right field foul pole (mph)
+      wind_out_eff: weighted average across outfield arc (mph)
+      lf_bearing, cf_bearing, rf_bearing: compass bearings used
+    """
+    lf_bearing = (hp_bearing_deg - 45.0) % 360.0
+    rf_bearing = (hp_bearing_deg + 45.0) % 360.0
+
+    w_cf = wind_out_component(wind_dir_deg, wind_speed_mph, hp_bearing_deg)
+    w_lf = wind_out_component(wind_dir_deg, wind_speed_mph, lf_bearing)
+    w_rf = wind_out_component(wind_dir_deg, wind_speed_mph, rf_bearing)
+
+    # Weighted average across outfield arc.
+    # Batted ball distribution: power alleys (LCF/RCF) get most fly balls,
+    # foul poles get fewer. Use 5-point trapezoid across the arc:
+    #   LF foul pole (0.10), LF power alley (0.25), CF (0.30),
+    #   RF power alley (0.25), RF foul pole (0.10)
+    # Power alleys are at ±22.5° from CF.
+    if wind_speed_mph < CALM_WIND_MPH:
+        w_eff = 0.0
+    else:
+        wind_toward = (wind_dir_deg + 180.0) % 360.0
+        lcf_bearing = (hp_bearing_deg - 22.5) % 360.0
+        rcf_bearing = (hp_bearing_deg + 22.5) % 360.0
+        w_lcf = wind_speed_mph * math.cos(math.radians(wind_toward - lcf_bearing))
+        w_rcf = wind_speed_mph * math.cos(math.radians(wind_toward - rcf_bearing))
+        w_eff = 0.10 * w_lf + 0.25 * w_lcf + 0.30 * w_cf + 0.25 * w_rcf + 0.10 * w_rf
+
+    return {
+        "wind_out_lf": round(w_lf, 1),
+        "wind_out_cf": round(w_cf, 1),
+        "wind_out_rf": round(w_rf, 1),
+        "wind_out_eff": round(w_eff, 1),
+        "lf_bearing": round(lf_bearing, 1),
+        "cf_bearing": round(hp_bearing_deg, 1),
+        "rf_bearing": round(rf_bearing, 1),
+    }
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Combined adjustment
 # ──────────────────────────────────────────────────────────────────────────────
@@ -294,6 +353,10 @@ def compute_weather_adjustment(
     """
     Compute log-scale park factor adjustment from current weather + altitude.
 
+    Uses directional wind model: samples wind components across the full
+    outfield arc (LF → CF → RF) weighted by batted-ball spray distribution,
+    rather than only the CF bearing.
+
     Returns components separately so callers can apply per-pitcher FB% scaling
     to the wind portion only:
 
@@ -302,12 +365,20 @@ def compute_weather_adjustment(
       wind_adj: wind_adj_raw × fb_sensitivity (for backward compat / display)
       total_adj: wind_adj + non_wind_adj (combined, for backward compat)
 
+    Also returns directional wind detail:
+      wind_out_lf, wind_out_cf, wind_out_rf: components at LF/CF/RF (mph)
+      wind_out_eff: weighted effective wind across outfield arc (mph)
+
     Recommended usage in predict_day.py:
       - Use wind_adj_raw × pitcher_fb_sensitivity for per-pitcher wind scaling
       - Add non_wind_adj unchanged (temp/altitude affect all batted balls)
     """
-    w_out = wind_out_component(wind_direction_deg, wind_speed_mph, hp_bearing_deg)
-    wind_adj_raw = WIND_OUT_COEFF * w_out
+    # Directional wind: weighted average across outfield arc
+    dir_wind = wind_out_directional(wind_direction_deg, wind_speed_mph, hp_bearing_deg)
+    w_out_eff = dir_wind["wind_out_eff"]
+    w_out_cf = dir_wind["wind_out_cf"]  # legacy CF-only for display
+
+    wind_adj_raw = WIND_OUT_COEFF * w_out_eff
     wind_adj = wind_adj_raw * fb_sensitivity
     temp_adj = TEMP_COEFF * (temperature_f - TEMP_BASELINE_F)
 
@@ -318,7 +389,13 @@ def compute_weather_adjustment(
     non_wind_adj = temp_adj + alt_adj
 
     return {
-        "wind_out_mph": round(w_out, 1),
+        "wind_out_mph": round(w_out_eff, 1),    # effective (arc-weighted)
+        "wind_out_cf_mph": round(w_out_cf, 1),   # CF-only for reference
+        "wind_out_lf_mph": round(dir_wind["wind_out_lf"], 1),
+        "wind_out_rf_mph": round(dir_wind["wind_out_rf"], 1),
+        "lf_bearing": dir_wind["lf_bearing"],
+        "cf_bearing": dir_wind["cf_bearing"],
+        "rf_bearing": dir_wind["rf_bearing"],
         "wind_adj": round(wind_adj, 4),
         "wind_adj_raw": round(wind_adj_raw, 4),
         "non_wind_adj": round(non_wind_adj, 4),
@@ -374,16 +451,19 @@ def get_weather_park_adj(
         if hourly_data:
             hours = get_weather_at_hours(hourly_data, game_start_hour, offsets=(0, 1, 2))
             if hours:
-                # Store per-hour wind detail for output
+                # Store per-hour wind detail for output (directional)
                 for i, h in enumerate(hours):
-                    w_out = wind_out_component(h["wind_direction_deg"],
-                                                h["wind_speed_mph"], hp_bearing)
+                    dw = wind_out_directional(h["wind_direction_deg"],
+                                              h["wind_speed_mph"], hp_bearing)
                     hourly_detail.append({
                         "hour_offset": i,
                         "time": h.get("time", ""),
                         "wind_speed_mph": round(h["wind_speed_mph"], 1),
                         "wind_dir_deg": round(h["wind_direction_deg"]),
-                        "wind_out_mph": round(w_out, 1),
+                        "wind_out_mph": round(dw["wind_out_eff"], 1),
+                        "wind_out_lf": round(dw["wind_out_lf"], 1),
+                        "wind_out_cf": round(dw["wind_out_cf"], 1),
+                        "wind_out_rf": round(dw["wind_out_rf"], 1),
                         "temp_f": round(h["temperature_f"], 1),
                         "wind_gusts_mph": round(h["wind_gusts_mph"], 1),
                     })
@@ -454,9 +534,16 @@ def main() -> int:
         print(f"Stadium: {result.get('venue_name', 'Custom location')}")
         print(f"Location: ({result['lat']:.4f}, {result['lon']:.4f})")
         print(f"HP bearing: {result['hp_bearing_deg']:.0f}° (home plate → center field)")
+        lf_b = result.get('lf_bearing', '?')
+        rf_b = result.get('rf_bearing', '?')
+        print(f"  LF bearing: {lf_b}°  |  CF bearing: {result['hp_bearing_deg']:.0f}°  |  RF bearing: {rf_b}°")
         print(f"Weather: {result['temp_f']:.0f}°F, wind {result['wind_speed_mph']:.0f} mph "
               f"from {result['wind_dir_deg']:.0f}° (gusts {result['wind_gusts_mph']:.0f})")
-        print(f"Wind out component: {result['wind_out_mph']:.1f} mph")
+        w_lf = result.get('wind_out_lf_mph', 0)
+        w_cf = result.get('wind_out_cf_mph', 0)
+        w_rf = result.get('wind_out_rf_mph', 0)
+        w_eff = result.get('wind_out_mph', 0)
+        print(f"Wind out (directional): LF={w_lf:+.1f}  CF={w_cf:+.1f}  RF={w_rf:+.1f}  → eff={w_eff:+.1f} mph")
         print(f"Elevation: {result.get('elevation_ft', 0):.0f} ft "
               f"(air density ratio: {result.get('density_ratio', 1.0):.3f})")
         print(f"Wind adjustment:     {result['wind_adj']:+.4f} (log-rate)")

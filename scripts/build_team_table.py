@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""
+build_team_table.py
+
+Pre-compute a unified team lookup table merging team identity, Stan model
+indices, bullpen quality, and wRC+ offense data into one CSV.
+
+Output: data/processed/team_table.csv
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+# ── Constants ────────────────────────────────────────────────────────────────
+ATT_STD_EST = 0.109   # from posterior att_run_1 team mean std
+BULLPEN_SCALE = 0.1   # bullpen_adj = -bullpen_depth_score * BULLPEN_SCALE
+
+
+def load_canonical_teams(path: Path) -> pd.DataFrame:
+    """Load canonical team registry as the base table."""
+    df = pd.read_csv(path, dtype=str)
+    # Keep only the columns we need from the registry
+    keep = ["canonical_id", "team_name", "conference", "academic_year"]
+    available = [c for c in keep if c in df.columns]
+    df = df[available].copy()
+    df = df.rename(columns={"academic_year": "season"})
+    return df
+
+
+def load_team_index(path: Path) -> pd.DataFrame:
+    """Load Stan model team index (canonical_id → team_idx)."""
+    df = pd.read_csv(path, dtype=str)
+    df["team_idx"] = pd.to_numeric(df["team_idx"], errors="coerce").fillna(0).astype(int)
+    return df[["canonical_id", "team_idx"]]
+
+
+def load_bullpen_quality(path: Path) -> pd.DataFrame:
+    """Load bullpen quality scores and compute bullpen_adj."""
+    df = pd.read_csv(path, dtype=str)
+    # Rename join key to canonical_id if needed
+    if "team_canonical_id" in df.columns and "canonical_id" not in df.columns:
+        df = df.rename(columns={"team_canonical_id": "canonical_id"})
+
+    df["bullpen_depth_score"] = pd.to_numeric(df["bullpen_depth_score"], errors="coerce")
+    df["bullpen_quality_z"] = df["bullpen_depth_score"]
+    df["bullpen_adj"] = -df["bullpen_depth_score"] * BULLPEN_SCALE
+
+    cols = ["canonical_id", "bullpen_quality_z", "bullpen_adj"]
+    if "n_relievers" in df.columns:
+        cols.append("n_relievers")
+    return df[cols].copy()
+
+
+def build_d1b_crosswalk(xwalk_path: Path) -> dict[str, str]:
+    """Build d1baseball_name → canonical_id mapping with apostrophe normalization."""
+    xw_df = pd.read_csv(xwalk_path, dtype=str)
+    d1b_to_cid: dict[str, str] = {}
+    for _, r in xw_df.iterrows():
+        d1b_name = str(r.get("d1baseball_name", "")).strip().lower()
+        cid = str(r.get("canonical_id", "")).strip()
+        if not d1b_name or not cid:
+            continue
+        d1b_to_cid[d1b_name] = cid
+        # Normalize apostrophes: Unicode curly → ASCII and vice versa
+        norm_ascii = d1b_name.replace("\u2019", "'")
+        if norm_ascii != d1b_name:
+            d1b_to_cid[norm_ascii] = cid
+        norm_unicode = d1b_name.replace("'", "\u2019")
+        if norm_unicode != d1b_name:
+            d1b_to_cid[norm_unicode] = cid
+    return d1b_to_cid
+
+
+def load_wrc_plus(bat_path: Path, xwalk_path: Path) -> pd.DataFrame:
+    """
+    Load D1B batting_advanced.tsv and compute team mean wRC+.
+
+    Returns a DataFrame with columns:
+        canonical_id, wrc_plus, wrc_offense_adj
+    """
+    d1b_to_cid = build_d1b_crosswalk(xwalk_path)
+
+    bat_df = pd.read_csv(bat_path, sep="\t", dtype=str)
+
+    team_wrc: dict[str, list[float]] = {}
+    for _, r in bat_df.iterrows():
+        team = str(r.get("Team", "")).strip()
+        # Normalize apostrophes for lookup
+        team_key = team.lower().replace("\u2019", "'")
+        cid = d1b_to_cid.get(team_key) or d1b_to_cid.get(team.lower(), "")
+        if not cid:
+            continue
+        try:
+            wrc_val = float(r["wRC+"])
+            team_wrc.setdefault(cid, []).append(wrc_val)
+        except (ValueError, TypeError, KeyError):
+            pass
+
+    if not team_wrc:
+        print("  WARNING: No wRC+ data loaded — check batting_advanced.tsv and crosswalk",
+              file=sys.stderr)
+        return pd.DataFrame(columns=["canonical_id", "wrc_plus", "wrc_offense_adj"])
+
+    team_means = {cid: float(np.mean(vals)) for cid, vals in team_wrc.items()}
+    all_means = np.array(list(team_means.values()))
+    wrc_std = float(np.std(all_means)) if len(all_means) > 1 else 23.8
+
+    print(f"  wRC+ loaded: {len(team_means)} teams, "
+          f"μ={np.mean(all_means):.1f} σ={wrc_std:.1f}", file=sys.stderr)
+
+    rows = []
+    for cid, wrc_mean in team_means.items():
+        wrc_offense_adj = (wrc_mean - 100.0) / max(wrc_std, 1.0) * ATT_STD_EST
+        rows.append({
+            "canonical_id": cid,
+            "wrc_plus": round(wrc_mean, 2),
+            "wrc_offense_adj": round(wrc_offense_adj, 6),
+        })
+
+    return pd.DataFrame(rows)
+
+
+def build_team_table(
+    registry_path: Path,
+    team_index_path: Path,
+    bullpen_path: Path,
+    bat_path: Path,
+    xwalk_path: Path,
+) -> pd.DataFrame:
+    """Merge all sources into a single team table."""
+
+    # 1. Base: canonical team registry
+    print("Loading canonical team registry...", file=sys.stderr)
+    base = load_canonical_teams(registry_path)
+    print(f"  {len(base)} teams in registry", file=sys.stderr)
+
+    # 2. Stan model team indices
+    print("Loading Stan model team indices...", file=sys.stderr)
+    if team_index_path.exists():
+        idx_df = load_team_index(team_index_path)
+        print(f"  {len(idx_df)} teams with Stan indices", file=sys.stderr)
+        base = base.merge(idx_df, on="canonical_id", how="left")
+        base["team_idx"] = base["team_idx"].fillna(0).astype(int)
+    else:
+        print(f"  WARNING: {team_index_path} not found — team_idx set to 0", file=sys.stderr)
+        base["team_idx"] = 0
+
+    # 3. Bullpen quality
+    print("Loading bullpen quality...", file=sys.stderr)
+    if bullpen_path.exists():
+        bq_df = load_bullpen_quality(bullpen_path)
+        n_with_bullpen = bq_df["bullpen_quality_z"].notna().sum()
+        print(f"  {n_with_bullpen} teams with bullpen data", file=sys.stderr)
+        base = base.merge(bq_df, on="canonical_id", how="left")
+    else:
+        print(f"  WARNING: {bullpen_path} not found — bullpen fields will be empty",
+              file=sys.stderr)
+        base["bullpen_quality_z"] = np.nan
+        base["bullpen_adj"] = np.nan
+
+    # 4. D1B wRC+ offense adjustment
+    print("Loading D1B wRC+ batting stats...", file=sys.stderr)
+    if bat_path.exists() and xwalk_path.exists():
+        wrc_df = load_wrc_plus(bat_path, xwalk_path)
+        print(f"  {len(wrc_df)} teams with wRC+ data", file=sys.stderr)
+        base = base.merge(wrc_df, on="canonical_id", how="left")
+    else:
+        missing = []
+        if not bat_path.exists():
+            missing.append(str(bat_path))
+        if not xwalk_path.exists():
+            missing.append(str(xwalk_path))
+        print(f"  WARNING: Missing files {missing} — wRC+ fields will be empty", file=sys.stderr)
+        base["wrc_plus"] = np.nan
+        base["wrc_offense_adj"] = np.nan
+
+    # Fill missing wrc_offense_adj with 0.0 (no adjustment for unknown teams)
+    base["wrc_offense_adj"] = base["wrc_offense_adj"].fillna(0.0)
+
+    # 5. n_games — not available yet, set to None
+    base["n_games"] = np.nan
+
+    # 6. Final column ordering per spec
+    output_cols = [
+        "canonical_id",
+        "team_idx",
+        "team_name",
+        "conference",
+        "season",
+        "bullpen_quality_z",
+        "bullpen_adj",
+        "wrc_plus",
+        "wrc_offense_adj",
+        "n_games",
+    ]
+    # Only include columns that exist
+    output_cols = [c for c in output_cols if c in base.columns]
+    base = base[output_cols]
+
+    return base
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Build unified team lookup table (team_table.csv)"
+    )
+    parser.add_argument(
+        "--out",
+        default="data/processed/team_table.csv",
+        help="Output path (default: data/processed/team_table.csv)",
+    )
+    parser.add_argument(
+        "--registry",
+        default="data/registries/canonical_teams_2026.csv",
+        help="Canonical team registry CSV",
+    )
+    parser.add_argument(
+        "--team-index",
+        default="data/processed/run_event_team_index.csv",
+        help="Stan model team index CSV",
+    )
+    parser.add_argument(
+        "--bullpen",
+        default="data/processed/bullpen_quality.csv",
+        help="Bullpen quality CSV",
+    )
+    parser.add_argument(
+        "--batting",
+        default="data/raw/d1baseball/batting_advanced.tsv",
+        help="D1B batting advanced TSV",
+    )
+    parser.add_argument(
+        "--crosswalk",
+        default="data/registries/d1baseball_crosswalk.csv",
+        help="D1B team name → canonical_id crosswalk CSV",
+    )
+    args = parser.parse_args()
+
+    # Resolve paths relative to repo root (script lives in scripts/)
+    repo_root = Path(__file__).parent.parent
+    out_path = repo_root / args.out
+    registry_path = repo_root / args.registry
+    team_index_path = repo_root / args.team_index
+    bullpen_path = repo_root / args.bullpen
+    bat_path = repo_root / args.batting
+    xwalk_path = repo_root / args.crosswalk
+
+    print(f"Building team table...", file=sys.stderr)
+
+    tt = build_team_table(
+        registry_path=registry_path,
+        team_index_path=team_index_path,
+        bullpen_path=bullpen_path,
+        bat_path=bat_path,
+        xwalk_path=xwalk_path,
+    )
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    tt.to_csv(out_path, index=False)
+
+    print(f"\nWrote {len(tt)} rows to {out_path}", file=sys.stderr)
+    print(f"  With team_idx > 0:    {(tt['team_idx'] > 0).sum()}", file=sys.stderr)
+    print(f"  With bullpen_quality_z: {tt['bullpen_quality_z'].notna().sum()}", file=sys.stderr)
+    print(f"  With wRC+:            {tt['wrc_plus'].notna().sum()}", file=sys.stderr)
+    print(f"  With wrc_offense_adj != 0: {(tt['wrc_offense_adj'] != 0).sum()}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

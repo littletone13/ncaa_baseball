@@ -37,18 +37,25 @@ def build_odds_name_to_canonical(
     canonical: pd.DataFrame,
 ) -> dict[str, tuple[str, int]]:
     """
-    Build mapping: odds_api_display_name -> (canonical_id, ncaa_teams_id).
+    Build mapping: display_name -> (canonical_id, ncaa_teams_id).
 
-    Uses (1) exact odds_api_name when set, (2) team_name prefix match
-    (e.g. "Georgia Tech" in "Georgia Tech Yellow Jackets").
+    Uses (1) exact odds_api_name when set, (2) exact espn_name when set.
+    ESPN names are indexed so that build_run_events_from_espn and
+    predict_day can resolve ESPN team names directly.
     """
     out: dict[str, tuple[str, int]] = {}
     for _, row in canonical.iterrows():
+        entry = (row["canonical_id"], int(row["ncaa_teams_id"]))
         o = (row.get("odds_api_name") or "").strip()
         if o:
-            out[_normalize_for_match(o)] = (
-                row["canonical_id"], int(row["ncaa_teams_id"]),
-            )
+            out[_normalize_for_match(o)] = entry
+        # Also index ESPN display name (e.g. "Florida State Seminoles")
+        e = str(row.get("espn_name") or "").strip()
+        if e and e != "nan":
+            norm_e = _normalize_for_match(e)
+            # ESPN name only wins if not already claimed by an odds_api_name
+            if norm_e not in out:
+                out[norm_e] = entry
     return out
 
 
