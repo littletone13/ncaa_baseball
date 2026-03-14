@@ -40,7 +40,12 @@ from platoon_adjustment import PlatoonLookup
 
 def resolve_team(name: str, team_idx_map: dict, name_to_cid: dict,
                  canonical: pd.DataFrame, name_to_canonical: dict) -> tuple[str, int]:
-    """Resolve ESPN/NCAA team name to (canonical_id, team_idx)."""
+    """Resolve ESPN/NCAA team name to (canonical_id, team_idx).
+
+    Returns (canonical_id, team_idx).  When the team is known but absent
+    from the Stan model's training data, returns (canonical_id, 0) so
+    downstream code can still look up starters, weather, etc.
+    """
     name = name.strip()
     if not name:
         return "", 0
@@ -49,14 +54,13 @@ def resolve_team(name: str, team_idx_map: dict, name_to_cid: dict,
         return name, team_idx_map[name]
     # By name (lower)
     cid = name_to_cid.get(name.lower())
-    if cid and cid in team_idx_map:
-        return cid, team_idx_map[cid]
+    if cid:
+        return cid, team_idx_map.get(cid, 0)
     # Fuzzy match via resolve_odds_teams
     h_t, _ = resolve_odds_teams(name, "", canonical, name_to_canonical)
     if h_t:
         cid = h_t[0]
-        if cid in team_idx_map:
-            return cid, team_idx_map[cid]
+        return cid, team_idx_map.get(cid, 0)
     # Partial match
     nl = name.lower()
     for cid, idx in team_idx_map.items():

@@ -188,8 +188,10 @@ class StarterLookup:
                 pidx = self._resolve_idx(pid)
                 if pidx == 0:
                     pidx = self._resolve_by_name(pname, team_canonical_id)
-                if pidx > 0:
-                    return (pname, pid, pidx)
+                # Always return weekend rotation pick — it's based on
+                # consistent day-of-week patterns. Even with idx=0,
+                # predict_day.py can use ERA fallback.
+                return (pname, pid, pidx)
 
         team_starters = self.starters[
             self.starters["team_canonical_id"] == team_canonical_id
