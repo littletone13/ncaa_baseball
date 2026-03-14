@@ -34,6 +34,8 @@ from ncaa_baseball.phase1 import (
 from simulate_run_event_game import prob_to_american
 from lookup_starters import StarterLookup
 from weather_park_adjustment import get_weather_park_adj, fetch_hourly_weather, load_stadium_data, get_stadium_info
+from fb_sensitivity import FBSensitivityLookup
+from platoon_adjustment import PlatoonLookup
 
 
 def resolve_team(name: str, team_idx_map: dict, name_to_cid: dict,
@@ -137,6 +139,41 @@ def main() -> int:
         registry_csv=args.pitcher_registry,
         pitcher_index_csv=args.pitcher_index,
     )
+
+    # ── Fly-ball sensitivity lookup ──────────────────────────────────────
+    fb_lookup = FBSensitivityLookup()
+    print(f"  {fb_lookup.summary()}", file=sys.stderr)
+
+    # ── Platoon (LHP/RHP) lookup ──────────────────────────────────────
+    platoon_lookup = PlatoonLookup()
+    print(f"  {platoon_lookup.summary()}", file=sys.stderr)
+
+    # ── ERA-based pitcher ability fallback (D1Baseball) ──────────────────
+    # When a pitcher has no run_event posterior data (idx=0), use their
+    # D1Baseball ERA to estimate ability instead of league-average prior.
+    # Calibration: ability ≈ 0.027 * log(ERA / 3.4) - 0.01, R²=0.07
+    # (weak but directionally correct — better than assuming everyone is average)
+    ERA_SLOPE = 0.027
+    ERA_INTERCEPT = -0.01
+    ERA_BASELINE = 3.4  # median ERA in D1B rotation data
+    era_ability_map: dict[tuple[str, str], float] = {}  # (canonical_id, pitcher_name) → ability
+    d1b_era_path = Path("data/processed/d1baseball_rotations.csv")
+    if d1b_era_path.exists():
+        d1b_era_df = pd.read_csv(d1b_era_path, dtype=str)
+        for _, r in d1b_era_df.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            pname = str(r.get("pitcher_name", "")).strip()
+            era_str = str(r.get("era", "")).strip()
+            if cid and pname and era_str:
+                try:
+                    era_val = float(era_str)
+                    if era_val > 0:
+                        ability_est = ERA_SLOPE * math.log(era_val / ERA_BASELINE) + ERA_INTERCEPT
+                        era_ability_map[(cid, pname.lower())] = ability_est
+                except (ValueError, ZeroDivisionError):
+                    pass
+        print(f"  ERA-based ability fallback: {len(era_ability_map)} pitchers from D1Baseball",
+              file=sys.stderr)
 
     # ── Pre-extract posterior into numpy arrays ────────────────────────────
     print("Loading posterior...", file=sys.stderr)
@@ -326,17 +363,62 @@ def main() -> int:
             print(f"    WARNING: away pitcher idx {ap_idx} exceeds posterior ({N_pitchers}), using league avg", file=sys.stderr)
             ap_idx = 0
 
-        hp_tag = f"{hp_name} (idx={hp_idx})" if hp_idx > 0 else f"{hp_name} (no model data)"
-        ap_tag = f"{ap_name} (idx={ap_idx})" if ap_idx > 0 else f"{ap_name} (no model data)"
+        # ── ERA-based ability override for pitchers without posterior data ─
+        # When idx=0, pitcher_ab[d, 0] ≈ 0 (league average prior).
+        # If D1Baseball ERA is available, use it for a better estimate.
+        hp_era_adj = 0.0
+        ap_era_adj = 0.0
+        if hp_idx == 0 and hp_name != "unknown":
+            era_est = era_ability_map.get((h_cid, hp_name.lower()))
+            if era_est is not None:
+                hp_era_adj = era_est
+        if ap_idx == 0 and ap_name != "unknown":
+            era_est = era_ability_map.get((a_cid, ap_name.lower()))
+            if era_est is not None:
+                ap_era_adj = era_est
+
+        # ── Pitcher handedness (platoon effect) ────────────────────────────
+        hp_hand = platoon_lookup.get_hand(h_cid, hp_name)
+        ap_hand = platoon_lookup.get_hand(a_cid, ap_name)
+        # Home team faces away pitcher → platoon adj based on away P hand
+        platoon_h = platoon_lookup.platoon_adj(ap_hand)
+        # Away team faces home pitcher → platoon adj based on home P hand
+        platoon_a = platoon_lookup.platoon_adj(hp_hand)
+
+        hp_hand_tag = f" ({hp_hand}HP)" if hp_hand else ""
+        ap_hand_tag = f" ({ap_hand}HP)" if ap_hand else ""
+        hp_era_tag = f", ERA→{hp_era_adj:+.3f}" if hp_era_adj != 0 else ""
+        ap_era_tag = f", ERA→{ap_era_adj:+.3f}" if ap_era_adj != 0 else ""
+        hp_tag = f"{hp_name}{hp_hand_tag} (idx={hp_idx}{hp_era_tag})" if hp_idx > 0 else f"{hp_name}{hp_hand_tag} (ERA adj={hp_era_adj:+.3f})" if hp_era_adj != 0 else f"{hp_name}{hp_hand_tag} (no model data)"
+        ap_tag = f"{ap_name}{ap_hand_tag} (idx={ap_idx}{ap_era_tag})" if ap_idx > 0 else f"{ap_name}{ap_hand_tag} (ERA adj={ap_era_adj:+.3f})" if ap_era_adj != 0 else f"{ap_name}{ap_hand_tag} (no model data)"
         print(f"  Game {game_num+1}: {a_name} @ {h_name}", file=sys.stderr)
         if start_utc:
             print(f"    Start: {start_utc} (local hr≈{game_start_hour})", file=sys.stderr)
         print(f"    Starters: {ap_tag} vs {hp_tag}", file=sys.stderr)
+        if platoon_h != 0.0 or platoon_a != 0.0:
+            print(f"    Platoon: home={platoon_h:+.3f} (vs {ap_hand or '?'}HP), "
+                  f"away={platoon_a:+.3f} (vs {hp_hand or '?'}HP)", file=sys.stderr)
 
         # ── Park factor + weather ──────────────────────────────────────────
+        # Wind sensitivity is per-pitcher: the pitcher on the mound determines
+        # how much wind affects scoring against them.
+        #   Home batting faces away pitcher → ap's FB% scales wind for home runs
+        #   Away batting faces home pitcher → hp's FB% scales wind for away runs
+        # Bullpen wind uses team-average FB% (bullpen = staff average).
+        # Temp + altitude (non_wind_adj) are symmetric — affect all batted balls.
         pf = pf_map.get(h_cid, 0.0)
         weather_adj = 0.0
+        wind_adj_raw = 0.0
+        non_wind_adj = 0.0
         weather_info = {}
+
+        # Per-pitcher FB sensitivity (starters)
+        hp_fb_sens = fb_lookup.pitcher_sensitivity(h_cid, hp_name)
+        ap_fb_sens = fb_lookup.pitcher_sensitivity(a_cid, ap_name)
+        # Bullpen FB sensitivity (team averages)
+        hp_bp_fb_sens = fb_lookup.bullpen_sensitivity(h_cid)
+        ap_bp_fb_sens = fb_lookup.bullpen_sensitivity(a_cid)
+
         if not args.no_weather:
             try:
                 w = get_weather_park_adj(
@@ -346,7 +428,10 @@ def main() -> int:
                     game_start_hour=game_start_hour,
                 )
                 if "error" not in w:
-                    weather_adj = w["total_adj"]
+                    wind_adj_raw = w["wind_adj_raw"]
+                    non_wind_adj = w["non_wind_adj"]
+                    # Display-level: average of both starters for summary
+                    weather_adj = wind_adj_raw * (hp_fb_sens + ap_fb_sens) / 2.0 + non_wind_adj
                     weather_info = w
                     mode = w.get("weather_mode", "current")
                     wind_detail = ""
@@ -354,15 +439,39 @@ def main() -> int:
                         hrs = w["hourly_wind"]
                         parts = [f"hr{h['hour_offset']}:{h['wind_out_mph']:+.0f}" for h in hrs]
                         wind_detail = f" [{', '.join(parts)}]"
+                    fb_tag = f" [hp_fb={hp_fb_sens:.2f}, ap_fb={ap_fb_sens:.2f}]"
                     print(f"    Weather ({mode}): {w['temp_f']:.0f}°F, wind {w['wind_speed_mph']:.0f}mph "
-                          f"(out: {w['wind_out_mph']:+.1f}), adj={weather_adj:+.4f}{wind_detail}",
+                          f"(out: {w['wind_out_mph']:+.1f}), wind_raw={wind_adj_raw:+.4f}, "
+                          f"non_wind={non_wind_adj:+.4f}{fb_tag}{wind_detail}",
                           file=sys.stderr)
                 else:
                     print(f"    Weather: {w['error']}", file=sys.stderr)
             except Exception as e:
                 print(f"    Weather: failed ({e})", file=sys.stderr)
 
-        combined_pf = pf + weather_adj
+        # Per-team park+weather effects:
+        # base_pf = static park factor + temp/altitude (symmetric)
+        # wind is per-pitcher: scaled by the FB% of the pitcher on the mound
+        #
+        # Starters pitch ~5.5 of 9 innings (~61%), bullpen covers ~3.5 (~39%).
+        # Blend starter and bullpen FB sensitivity proportionally.
+        STARTER_IP_FRAC = 0.61  # ~5.5 / 9
+        BULLPEN_IP_FRAC = 1.0 - STARTER_IP_FRAC
+
+        base_pf = pf + non_wind_adj
+
+        # Home scoring: away pitcher on mound
+        #   starter innings → away starter FB sens, bullpen innings → away bullpen FB sens
+        ap_blended_sens = STARTER_IP_FRAC * ap_fb_sens + BULLPEN_IP_FRAC * ap_bp_fb_sens
+        wind_adj_home = wind_adj_raw * ap_blended_sens
+
+        # Away scoring: home pitcher on mound
+        hp_blended_sens = STARTER_IP_FRAC * hp_fb_sens + BULLPEN_IP_FRAC * hp_bp_fb_sens
+        wind_adj_away = wind_adj_raw * hp_blended_sens
+
+        # Pure bullpen wind (for extra innings)
+        wind_adj_home_bp = wind_adj_raw * ap_bp_fb_sens
+        wind_adj_away_bp = wind_adj_raw * hp_bp_fb_sens
 
         h_bp = bp_map.get((h_cid, 2026), 0.0)
         a_bp = bp_map.get((a_cid, 2026), 0.0)
@@ -377,7 +486,10 @@ def main() -> int:
 
         for _ in range(args.N):
             d = rng.integers(0, n_draws)
-            park_eff = beta_park[d] * combined_pf
+            base_park_eff = beta_park[d] * base_pf
+            # Per-team park effects: base (symmetric) + per-pitcher wind
+            park_eff_h = base_park_eff + wind_adj_home   # home scoring (away P on mound)
+            park_eff_a = base_park_eff + wind_adj_away   # away scoring (home P on mound)
             bp_h_eff = beta_bullpen[d] * a_bp
             bp_a_eff = beta_bullpen[d] * h_bp
 
@@ -386,9 +498,11 @@ def main() -> int:
 
             for k in range(4):
                 log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
-                             + home_adv[d] + pitcher_ab[d, ap_idx] + park_eff + bp_h_eff)
+                             + home_adv[d] + pitcher_ab[d, ap_idx] + ap_era_adj
+                             + park_eff_h + bp_h_eff + platoon_h)
                 log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
-                             + pitcher_ab[d, hp_idx] + park_eff + bp_a_eff)
+                             + pitcher_ab[d, hp_idx] + hp_era_adj
+                             + park_eff_a + bp_a_eff + platoon_a)
                 mu_h = np.exp(log_lam_h)
                 mu_a = np.exp(log_lam_a)
                 eh += (k + 1) * mu_h
@@ -407,14 +521,16 @@ def main() -> int:
             exp_h_sum += eh
             exp_a_sum += ea
 
-            # Extra innings
+            # Extra innings (bullpen pitching → use bullpen FB sensitivity for wind)
+            park_eff_h_bp = base_park_eff + wind_adj_home_bp
+            park_eff_a_bp = base_park_eff + wind_adj_away_bp
             extra = 0
             while home_runs_sim == away_runs_sim and extra < 20:
                 for k in range(4):
                     log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
-                                 + home_adv[d] + pitcher_ab[d, ap_idx] + park_eff + bp_h_eff)
+                                 + home_adv[d] + pitcher_ab[d, ap_idx] + park_eff_h_bp + bp_h_eff)
                     log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
-                                 + pitcher_ab[d, hp_idx] + park_eff + bp_a_eff)
+                                 + pitcher_ab[d, hp_idx] + park_eff_a_bp + bp_a_eff)
                     mu_h = np.exp(log_lam_h) / 9.0
                     mu_a = np.exp(log_lam_a) / 9.0
                     if k <= 1:
@@ -458,6 +574,10 @@ def main() -> int:
             "away_starter": ap_name,
             "home_starter_idx": hp_idx,
             "away_starter_idx": ap_idx,
+            "hp_throws": hp_hand or "",
+            "ap_throws": ap_hand or "",
+            "platoon_adj_home": round(platoon_h, 4),
+            "platoon_adj_away": round(platoon_a, 4),
             "home_win_prob": win_prob,
             "away_win_prob": 1 - win_prob,
             "ml_home": prob_to_american(win_prob),
@@ -469,11 +589,19 @@ def main() -> int:
             "away_rl_cover": away_rl_cover / N,
             "over_prob": overs / N,
             "park_factor": pf,
-            "weather_adj": weather_adj,
+            "weather_adj": round(weather_adj, 4),
+            "wind_adj_raw": round(wind_adj_raw, 4),
+            "non_wind_adj": round(non_wind_adj, 4),
+            "hp_fb_sens": round(hp_fb_sens, 3),
+            "ap_fb_sens": round(ap_fb_sens, 3),
+            "hp_bp_fb_sens": round(hp_bp_fb_sens, 3),
+            "ap_bp_fb_sens": round(ap_bp_fb_sens, 3),
             "temp_f": weather_info.get("temp_f"),
             "wind_mph": weather_info.get("wind_speed_mph"),
             "wind_out_mph": weather_info.get("wind_out_mph"),
             "weather_mode": weather_info.get("weather_mode"),
+            "hp_era_adj": round(hp_era_adj, 4) if hp_era_adj != 0 else None,
+            "ap_era_adj": round(ap_era_adj, 4) if ap_era_adj != 0 else None,
             "wind_out_hr0": None,
             "wind_out_hr1": None,
             "wind_out_hr2": None,
@@ -515,17 +643,28 @@ def main() -> int:
 
         print(f"  {tier}  {r['away']:>22s}  @  {r['home']:<22s}   {fav_name} {fav_prob:.0%}")
 
-        # Starters line
+        # Starters line (with handedness)
         as_lbl = r["away_starter"] if r["away_starter"] != "unknown" else "??"
         hs_lbl = r["home_starter"] if r["home_starter"] != "unknown" else "??"
         as_model = "✓" if r["away_starter_idx"] > 0 else "✗"
         hs_model = "✓" if r["home_starter_idx"] > 0 else "✗"
-        print(f"       SP: {as_lbl} [{as_model}]  vs  {hs_lbl} [{hs_model}]")
+        as_hand = f" ({r['ap_throws']}HP)" if r.get("ap_throws") else ""
+        hs_hand = f" ({r['hp_throws']}HP)" if r.get("hp_throws") else ""
+        plat_tag = ""
+        if r.get("platoon_adj_home", 0) != 0 or r.get("platoon_adj_away", 0) != 0:
+            plat_parts = []
+            if r.get("platoon_adj_home", 0) != 0:
+                plat_parts.append(f"home={r['platoon_adj_home']:+.3f}")
+            if r.get("platoon_adj_away", 0) != 0:
+                plat_parts.append(f"away={r['platoon_adj_away']:+.3f}")
+            plat_tag = f"  platoon[{', '.join(plat_parts)}]"
+        print(f"       SP: {as_lbl}{as_hand} [{as_model}]  vs  {hs_lbl}{hs_hand} [{hs_model}]{plat_tag}")
 
         # Weather line
         if r.get("temp_f") is not None:
             wind_str = f"wind out {r['wind_out_mph']:+.0f}mph" if r.get("wind_out_mph") else ""
-            print(f"       Wx: {r['temp_f']:.0f}°F  {wind_str}  (adj={r['weather_adj']:+.4f})")
+            fb_str = f"  fb[hp={r['hp_fb_sens']:.2f},ap={r['ap_fb_sens']:.2f}]" if r.get("hp_fb_sens") else ""
+            print(f"       Wx: {r['temp_f']:.0f}°F  {wind_str}  (adj={r['weather_adj']:+.4f}){fb_str}")
         elif not args.no_weather:
             print(f"       Wx: unavailable")
 
@@ -551,11 +690,14 @@ def main() -> int:
               f"{wp:>5.0%}  {r['ml_home']:>+6d}  {r['ml_away']:>+6d}  {r['exp_total']:>5.1f}  {temp:>5s}")
 
     # ── Starter coverage report ────────────────────────────────────────────
-    n_sp_found = sum(1 for r in all_results if r["home_starter_idx"] > 0) + \
-                 sum(1 for r in all_results if r["away_starter_idx"] > 0)
+    n_sp_posterior = sum(1 for r in all_results if r["home_starter_idx"] > 0) + \
+                     sum(1 for r in all_results if r["away_starter_idx"] > 0)
+    n_sp_era = sum(1 for r in all_results if r.get("hp_era_adj")) + \
+               sum(1 for r in all_results if r.get("ap_era_adj"))
     n_sp_total = 2 * len(all_results)
     n_wx = sum(1 for r in all_results if r.get("temp_f") is not None)
-    print(f"\n  Coverage: starters {n_sp_found}/{n_sp_total} with model data | "
+    print(f"\n  Coverage: starters {n_sp_posterior}/{n_sp_total} posterior | "
+          f"{n_sp_era}/{n_sp_total} ERA-fallback | "
           f"weather {n_wx}/{len(all_results)} games")
 
     if args.out:

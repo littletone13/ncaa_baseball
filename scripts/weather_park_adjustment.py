@@ -289,33 +289,45 @@ def compute_weather_adjustment(
     temperature_f: float,
     hp_bearing_deg: float,
     elevation_ft: float = 0.0,
+    fb_sensitivity: float = 1.0,
 ) -> dict:
     """
     Compute log-scale park factor adjustment from current weather + altitude.
 
-    Returns dict with:
-      wind_out_mph: component of wind blowing out (+ = out, - = in)
-      wind_adj: log-rate adjustment from wind
-      temp_adj: log-rate adjustment from temperature
-      alt_adj: log-rate adjustment from altitude (air density reduction)
-      total_adj: combined log-rate adjustment (add to existing park_factor)
+    Returns components separately so callers can apply per-pitcher FB% scaling
+    to the wind portion only:
+
+      wind_adj_raw: log-rate from wind at league-avg FB sensitivity (unscaled)
+      non_wind_adj: log-rate from temp + altitude (not affected by FB%)
+      wind_adj: wind_adj_raw × fb_sensitivity (for backward compat / display)
+      total_adj: wind_adj + non_wind_adj (combined, for backward compat)
+
+    Recommended usage in predict_day.py:
+      - Use wind_adj_raw × pitcher_fb_sensitivity for per-pitcher wind scaling
+      - Add non_wind_adj unchanged (temp/altitude affect all batted balls)
     """
     w_out = wind_out_component(wind_direction_deg, wind_speed_mph, hp_bearing_deg)
-    wind_adj = WIND_OUT_COEFF * w_out
+    wind_adj_raw = WIND_OUT_COEFF * w_out
+    wind_adj = wind_adj_raw * fb_sensitivity
     temp_adj = TEMP_COEFF * (temperature_f - TEMP_BASELINE_F)
 
     # Altitude: lower air density → less drag → more carry
     density_ratio = air_density_ratio(elevation_ft)
     alt_adj = ALTITUDE_COEFF * (1.0 - density_ratio)
 
+    non_wind_adj = temp_adj + alt_adj
+
     return {
         "wind_out_mph": round(w_out, 1),
         "wind_adj": round(wind_adj, 4),
+        "wind_adj_raw": round(wind_adj_raw, 4),
+        "non_wind_adj": round(non_wind_adj, 4),
         "temp_adj": round(temp_adj, 4),
         "alt_adj": round(alt_adj, 4),
         "density_ratio": round(density_ratio, 4),
         "elevation_ft": round(elevation_ft),
-        "total_adj": round(wind_adj + temp_adj + alt_adj, 4),
+        "fb_sensitivity": round(fb_sensitivity, 3),
+        "total_adj": round(wind_adj + non_wind_adj, 4),
     }
 
 
@@ -327,6 +339,7 @@ def get_weather_park_adj(
     stadium_csv: Path = Path("data/registries/stadium_orientations.csv"),
     game_date: str | None = None,
     game_start_hour: int | None = None,
+    fb_sensitivity: float = 1.0,
 ) -> dict:
     """
     Full pipeline: look up stadium → fetch weather → compute adjustment.
@@ -391,6 +404,7 @@ def get_weather_park_adj(
         weather["temperature_f"],
         hp_bearing,
         elevation_ft=elevation_ft,
+        fb_sensitivity=fb_sensitivity,
     )
     adj.update({
         "wind_speed_mph": weather["wind_speed_mph"],

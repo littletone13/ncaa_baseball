@@ -55,22 +55,62 @@ class StarterLookup:
                 self.pid_to_idx[pid] = idx
 
         # pitcher_id -> (pitcher_name, pitcher_idx)
+        # Use run_event_pitcher_index (pid_to_idx) for posterior-aligned indices
+        # when available, otherwise fall back to registry index.
         self.pid_to_info: dict[str, tuple[str, int]] = {}
         for _, r in self.registry.iterrows():
             pid = str(r.get("pitcher_id", "")).strip()
             name = str(r.get("pitcher_name", "")).strip()
-            pidx_val = int(r.get("pitcher_idx", 0))
+            # Prefer run_event index over registry index
+            if pid.startswith("ESPN_"):
+                numeric_id = pid.replace("ESPN_", "")
+                pidx_val = self.pid_to_idx.get(numeric_id, 0)
+                if pidx_val == 0:
+                    pidx_val = self.pid_to_idx.get(pid, 0)
+            else:
+                pidx_val = self.pid_to_idx.get(pid, 0)
+            # Do NOT fall back to registry pitcher_idx — those indices
+            # don't align with the run_event posterior. Pitchers not in
+            # run_events should get idx=0 (league average prior).
             if pid:
                 self.pid_to_info[pid] = (name, pidx_val)
 
         # name (lower) + team_canonical_id -> pitcher_id for fuzzy matching
+        # ESPN entries use display names ("Arizona Wildcats"); we also map
+        # them to canonical_ids so _resolve_by_name can find them.
         self._name_team_to_pid: dict[tuple[str, str], str] = {}
+        # Build ESPN team name → canonical_id mapping
+        _espn_to_cid: dict[str, str] = {}
+        try:
+            _canon = pd.read_csv("data/registries/canonical_teams_2026.csv", dtype=str)
+            for _, cr in _canon.iterrows():
+                cid = str(cr.get("canonical_id", "")).strip()
+                for col in ("team_name", "odds_api_name", "baseballr_team_name", "espn_name"):
+                    tn = str(cr.get(col, "")).strip()
+                    if tn and tn != "nan" and cid:
+                        _espn_to_cid[tn] = cid
+        except Exception:
+            pass
         for _, r in self.registry.iterrows():
             pid = str(r.get("pitcher_id", "")).strip()
             name = str(r.get("pitcher_name", "")).strip().lower()
             team = str(r.get("team", "")).strip()
             if pid and name and name != "unknown":
                 self._name_team_to_pid[(name, team)] = pid
+                # Also store ESPN entries under canonical_id so
+                # _resolve_by_name(name, canonical_id) finds them.
+                if pid.startswith("ESPN_") and team in _espn_to_cid:
+                    cid = _espn_to_cid[team]
+                    # ESPN entries have run_event data — always prefer them
+                    self._name_team_to_pid[(name, cid)] = pid
+
+        # ── NCAA→ESPN pitcher crosswalk ─────────────────────────────────
+        # The run_event model learns pitcher_ability at ESPN_ indices (1-1743).
+        # Appearances scraper assigns NCAA_ format IDs (idx 1744+) which have
+        # no posterior data. This crosswalk maps NCAA_ IDs → ESPN indices so
+        # the model's learned pitcher abilities are actually used.
+        self._ncaa_to_espn_idx: dict[str, int] = {}
+        self._build_ncaa_espn_crosswalk()
 
         # Filter to starters only
         self.starters = self.pa[self.pa["role"] == "starter"].copy()
@@ -134,8 +174,9 @@ class StarterLookup:
             if d1b:
                 pname = d1b["pitcher_name"]
                 pidx = self._resolve_by_name(pname, team_canonical_id)
-                if pidx > 0:
-                    return (pname, f"d1b_{pname}", pidx)
+                # Always return D1B pick — it's the best source for who's pitching
+                # Even with idx=0, predict_day.py can use ERA fallback
+                return (pname, f"d1b_{pname}", pidx)
 
         # Strategy 0b: Appearance-based weekend rotation projections (fallback)
         if dow in dow_to_day:
@@ -212,14 +253,99 @@ class StarterLookup:
         pidx = self._resolve_idx(pid)
         return (name, pid, pidx)
 
+    def _build_ncaa_espn_crosswalk(self) -> None:
+        """Build mapping from NCAA-format pitcher IDs to ESPN pitcher indices.
+
+        ESPN entries have actual posterior data (idx 1–1743).  NCAA entries
+        (idx 1744+) are created by the appearances scraper and have no model
+        data.  When the same pitcher exists in both, we want to use the ESPN
+        index so the learned pitcher_ability is applied in simulation.
+
+        Strategy: match on (normalized_name, canonical_team_id).
+        ESPN registry uses full mascot names ("Arizona Wildcats") → map to
+        canonical_id via canonical_teams CSV, then match against NCAA entries
+        whose team field is already a canonical_id.
+        """
+        try:
+            canonical_path = Path("data/registries/canonical_teams_2026.csv")
+            if not canonical_path.exists():
+                return
+            canon = pd.read_csv(canonical_path, dtype=str)
+        except Exception:
+            return
+
+        # ESPN full team name → canonical_id
+        # Uses team_name, odds_api_name, baseballr_team_name, and espn_name columns
+        espn_team_to_cid: dict[str, str] = {}
+        for _, r in canon.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            for col in ("team_name", "odds_api_name", "baseballr_team_name", "espn_name"):
+                tn = str(r.get(col, "")).strip()
+                if tn and tn != "nan" and cid:
+                    espn_team_to_cid[tn] = cid
+
+        # Build (name_norm, team_cid) → run_event pitcher_idx
+        # NOTE: We look up the ESPN numeric ID in pid_to_idx (from
+        # run_event_pitcher_index.csv) to get the posterior-aligned index,
+        # NOT the registry index which uses a different numbering.
+        espn_reg = self.registry[
+            self.registry["pitcher_id"].str.startswith("ESPN_", na=False)
+        ]
+        espn_by_name_team: dict[tuple[str, str], int] = {}
+        for _, r in espn_reg.iterrows():
+            team = str(r.get("team", "")).strip()
+            cid = espn_team_to_cid.get(team)
+            if not cid:
+                continue
+            name = str(r.get("pitcher_name", "")).strip().lower()
+            name = re.sub(r"\s*-\s*p$", "", name).strip()
+            # Get the run_event index via numeric ESPN ID → pid_to_idx
+            pid = str(r.get("pitcher_id", ""))
+            numeric_id = pid.replace("ESPN_", "")
+            idx = self.pid_to_idx.get(numeric_id, 0)
+            if idx == 0:
+                idx = self.pid_to_idx.get(pid, 0)
+            if idx > 0:
+                espn_by_name_team[(name, cid)] = idx
+
+        # Now build NCAA pitcher_id → ESPN idx
+        ncaa_reg = self.registry[
+            self.registry["pitcher_id"].str.startswith("NCAA_", na=False)
+        ]
+        matched = 0
+        for _, r in ncaa_reg.iterrows():
+            ncaa_pid = str(r.get("pitcher_id", "")).strip()
+            # Parse: NCAA_{name}__{team_cid}
+            parts = ncaa_pid.replace("NCAA_", "", 1).split("__")
+            if len(parts) != 2:
+                continue
+            name_part = parts[0].replace("_", " ").strip().lower()
+            team_cid = parts[1]
+            # Full name match
+            espn_idx = espn_by_name_team.get((name_part, team_cid))
+            if espn_idx is None:
+                # Try last name only
+                last = name_part.split()[-1] if name_part.split() else name_part
+                espn_idx = espn_by_name_team.get((last, team_cid))
+            if espn_idx is not None:
+                self._ncaa_to_espn_idx[ncaa_pid] = espn_idx
+                matched += 1
+
+        if matched:
+            print(f"  NCAA→ESPN pitcher crosswalk: {matched} pitchers matched",
+                  file=sys.stderr)
+
     def _resolve_by_name(self, pitcher_name: str, team_canonical_id: str) -> int:
         """Try to resolve pitcher_idx by name + team fuzzy matching."""
         name_lower = pitcher_name.strip().lower()
         # Exact name+team match
         pid = self._name_team_to_pid.get((name_lower, team_canonical_id))
         if pid:
-            return self._resolve_idx(pid)
-        # Try last-name match against registry
+            idx = self._resolve_idx(pid)
+            if idx > 0:
+                return idx
+        # Try last-name match against registry (catches abbreviated names
+        # like "Sandford" matching "schuyler sandford" ESPN entry)
         parts = name_lower.split()
         last = parts[-1] if parts else name_lower
         for (n, t), pid in self._name_team_to_pid.items():
@@ -241,9 +367,15 @@ class StarterLookup:
         return 0
 
     def _resolve_idx(self, pitcher_id: str) -> int:
-        """Map pitcher_id to pitcher_idx."""
+        """Map pitcher_id to pitcher_idx, preferring ESPN indices with model data."""
         if not pitcher_id:
             return 0
+        # NCAA→ESPN crosswalk: if this NCAA_ ID has a matching ESPN pitcher
+        # with actual posterior data, use that index instead
+        if pitcher_id.startswith("NCAA_"):
+            espn_idx = self._ncaa_to_espn_idx.get(pitcher_id)
+            if espn_idx is not None and espn_idx > 0:
+                return espn_idx
         # Direct lookup
         idx = self.pid_to_idx.get(pitcher_id, 0)
         if idx > 0:

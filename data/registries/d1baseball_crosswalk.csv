@@ -1,0 +1,309 @@
+d1baseball_name,ncaa_team_name,canonical_id,match_method
+Abilene Christian,Abilene Christian,NCAA_614845,direct
+Air Force,Air Force,NCAA_614798,direct
+Akron,Akron,NCAA_614787,direct
+Alabama,Alabama,BSB_ALABAMA,direct
+Alabama A&M,Alabama A&M,NCAA_614846,direct
+Alabama State,Alabama St.,NCAA_614847,abbrev_expand
+Albany,UAlbany,NCAA_614850,manual
+Alcorn State,Alcorn,NCAA_614851,manual
+Appalachian State,App State,NCAA_614852,manual
+Arizona,Arizona,BSB_ARIZONA,direct
+Arizona State,Arizona St.,NCAA_614853,abbrev_expand
+Arkansas,Arkansas,BSB_ARKANSAS,direct
+Arkansas State,Arkansas St.,NCAA_614854,abbrev_expand
+Arkansas-Pine Bluff,Ark.-Pine Bluff,NCAA_614834,abbrev_expand
+Army,Army West Point,NCAA_614763,manual
+Auburn,Auburn,BSB_AUBURN,direct
+Austin Peay,Austin Peay,NCAA_614858,direct
+BYU,BYU,BSB_BYU,direct
+Ball State,Ball St.,NCAA_614859,abbrev_expand
+Baylor,Baylor,BSB_BAYLOR,direct
+Bellarmine,Bellarmine,NCAA_614754,direct
+Belmont,Belmont,NCAA_614838,direct
+Bethune-Cookman,Bethune-Cookman,NCAA_614862,direct
+Binghamton,Binghamton,NCAA_614863,direct
+Boston College,Boston College,BSB_BOSTON_COLLEGE,direct
+Bowling Green,Bowling Green,NCAA_614865,direct
+Bradley,Bradley,NCAA_614866,direct
+Brown,Brown,NCAA_614868,direct
+Bryant,Bryant,NCAA_614869,direct
+Bucknell,Bucknell,NCAA_614563,direct
+Butler,Butler,NCAA_614564,direct
+CSU Bakersfield,CSU Bakersfield,NCAA_614566,direct
+Cal Poly,Cal Poly,NCAA_614565,direct
+Cal State Fullerton,Cal St. Fullerton,NCAA_614567,abbrev_expand
+Cal State Northridge,CSUN,NCAA_614569,manual
+California,California,NCAA_614572,direct
+California Baptist,California Baptist,NCAA_614844,direct
+Campbell,Campbell,NCAA_614577,direct
+Canisius,Canisius,NCAA_614578,direct
+Central Arkansas,Central Ark.,NCAA_614825,abbrev_expand
+Central Connecticut,Central Conn. St.,NCAA_614579,manual
+Central Michigan,Central Mich.,NCAA_614581,abbrev_expand
+Charleston Southern,Charleston So.,NCAA_614860,manual
+Charlotte,Charlotte,NCAA_614676,direct
+Cincinnati,Cincinnati,BSB_CINCINNATI,direct
+Clemson,Clemson,BSB_CLEMSON,direct
+Coastal Carolina,Coastal Carolina,BSB_COASTAL_CAROLINA,direct
+College of Charleston,Col. of Charleston,NCAA_614827,manual
+Columbia,Columbia,NCAA_614586,direct
+Connecticut,UConn,NCAA_614587,manual
+Coppin State,Coppin St.,NCAA_614588,abbrev_expand
+Cornell,Cornell,NCAA_614589,direct
+Creighton,Creighton,NCAA_614590,direct
+Dallas Baptist,DBU,NCAA_614764,manual
+Dartmouth,Dartmouth,NCAA_614591,direct
+Davidson,Davidson,NCAA_614592,direct
+Dayton,Dayton,NCAA_614593,direct
+Delaware,Delaware,NCAA_614595,direct
+Delaware State,Delaware St.,NCAA_614594,abbrev_expand
+Duke,Duke,BSB_DUKE,direct
+East Carolina,East Carolina,BSB_EAST_CAROLINA,direct
+East Tennessee State,ETSU,NCAA_614597,manual
+Eastern Illinois,Eastern Ill.,NCAA_614598,abbrev_expand
+Eastern Kentucky,Eastern Ky.,NCAA_614599,manual
+Eastern Michigan,Eastern Mich.,NCAA_614600,abbrev_expand
+Elon,Elon,NCAA_614828,direct
+Evansville,Evansville,NCAA_614770,direct
+Fairfield,Fairfield,NCAA_614601,direct
+Fairleigh Dickinson,FDU,NCAA_614602,manual
+Florida,Florida,BSB_FLORIDA,direct
+Florida A&M,Florida A&M,NCAA_614603,direct
+Florida Atlantic,Fla. Atlantic,NCAA_614604,abbrev_expand
+Florida Gulf Coast,FGCU,NCAA_614841,manual
+Florida International,FIU,NCAA_614605,manual
+Florida State,Florida St.,NCAA_614606,abbrev_expand
+Fordham,Fordham,NCAA_614608,direct
+Fresno State,Fresno St.,NCAA_614768,abbrev_expand
+Gardner-Webb,Gardner-Webb,NCAA_614829,direct
+George Mason,George Mason,NCAA_614609,direct
+George Washington,George Washington,NCAA_614610,direct
+Georgetown,Georgetown,NCAA_614611,direct
+Georgia,Georgia,BSB_GEORGIA,direct
+Georgia Southern,Ga. Southern,NCAA_614612,abbrev_expand
+Georgia State,Georgia St.,NCAA_614613,abbrev_expand
+Georgia Tech,Georgia Tech,BSB_GEORGIA_TECH,direct
+Gonzaga,Gonzaga,BSB_GONZAGA,direct
+Grambling,Grambling,NCAA_614771,direct
+Grand Canyon,Grand Canyon,NCAA_614830,direct
+Harvard,Harvard,NCAA_614617,direct
+Hawaii,Hawaii,NCAA_614618,direct
+High Point,High Point,NCAA_614766,direct
+Hofstra,Hofstra,NCAA_614619,direct
+Holy Cross,Holy Cross,NCAA_614620,direct
+Houston,Houston,BSB_HOUSTON,direct
+Houston Christian,Houston Christian,NCAA_614621,direct
+Illinois,Illinois,BSB_ILLINOIS,direct
+Illinois State,Illinois St.,NCAA_614623,abbrev_expand
+Illinois-Chicago,UIC,NCAA_614625,manual
+Incarnate Word,UIW,NCAA_614836,manual
+Indiana,Indiana,BSB_INDIANA,direct
+Indiana State,Indiana St.,NCAA_614626,abbrev_expand
+Iona,Iona,NCAA_614629,direct
+Iowa,Iowa,BSB_IOWA,direct
+Jackson State,Jackson St.,NCAA_614631,abbrev_expand
+Jacksonville,Jacksonville,NCAA_614633,direct
+Jacksonville State,Jacksonville St.,NCAA_614632,abbrev_expand
+James Madison,James Madison,NCAA_614634,direct
+Kansas,Kansas,BSB_KANSAS,direct
+Kansas State,Kansas St.,NCAA_614635,abbrev_expand
+Kennesaw State,Kennesaw St.,NCAA_614831,abbrev_expand
+Kent State,Kent St.,NCAA_614637,abbrev_expand
+Kentucky,Kentucky,BSB_KENTUCKY,direct
+LSU,LSU,BSB_LSU,direct
+La Salle,La Salle,NCAA_621265,direct
+Lafayette,Lafayette,NCAA_614639,direct
+Lamar,Lamar University,NCAA_614640,manual
+Le Moyne,Le Moyne,NCAA_614760,direct
+Lehigh,Lehigh,NCAA_614641,direct
+Liberty,Liberty,BSB_LIBERTY,direct
+Lindenwood,Lindenwood,NCAA_614756,direct
+Lipscomb,Lipscomb,NCAA_614840,direct
+Little Rock,Little Rock,NCAA_614856,direct
+Long Beach State,Long Beach St.,NCAA_614568,abbrev_expand
+Long Island,LIU,NCAA_614772,manual
+Longwood,Longwood,NCAA_614643,direct
+Louisiana,Louisiana,BSB_LOUISIANA,direct
+Louisiana Tech,Louisiana Tech,NCAA_614645,direct
+Louisville,Louisville,BSB_LOUISVILLE,direct
+Loyola Marymount,LMU (CA),NCAA_614648,manual
+Maine,Maine,NCAA_614649,direct
+Manhattan,Manhattan,NCAA_614650,direct
+Marist,Marist,NCAA_614651,direct
+Marshall,Marshall,NCAA_614652,direct
+Maryland,Maryland,BSB_MARYLAND,direct
+Massachusetts,Massachusetts,NCAA_614656,direct
+McNeese,McNeese,NCAA_614657,direct
+Memphis,Memphis,NCAA_614658,direct
+Mercer,Mercer,NCAA_614659,direct
+Mercyhurst,Mercyhurst,NCAA_614783,direct
+Merrimack,Merrimack,NCAA_614826,direct
+Miami,Miami (FL),NCAA_614661,manual
+Miami (OH),Miami (OH),NCAA_614660,direct
+Michigan,Michigan,BSB_MICHIGAN,direct
+Michigan State,Michigan St.,NCAA_614662,abbrev_expand
+Middle Tennessee,Middle Tenn.,NCAA_614664,abbrev_expand
+Milwaukee,Milwaukee,NCAA_614820,direct
+Minnesota,Minnesota,BSB_MINNESOTA,direct
+Mississippi State,Mississippi St.,NCAA_614666,abbrev_expand
+Mississippi Valley State,Mississippi Val.,NCAA_614667,manual
+Missouri,Missouri,BSB_MISSOURI,direct
+Missouri State,Missouri St.,NCAA_614746,abbrev_expand
+Monmouth,Monmouth,NCAA_614670,direct
+Morehead State,Morehead St.,NCAA_614671,abbrev_expand
+Mount St. Mary's,Mount St. Mary's,NCAA_614672,direct
+Murray State,Murray St.,NCAA_614673,abbrev_expand
+NC State,NC State,BSB_NC_STATE,direct
+Navy,Navy,NCAA_614799,direct
+Nebraska,Nebraska,BSB_NEBRASKA,direct
+Nevada,Nevada,NCAA_614681,direct
+New Haven,New Haven,NCAA_615065,direct
+New Jersey Tech,NJIT,NCAA_614682,manual
+New Mexico,New Mexico,NCAA_614684,direct
+New Mexico State,New Mexico St.,NCAA_614683,abbrev_expand
+New Orleans,New Orleans,NCAA_614685,direct
+Niagara,Niagara,NCAA_614686,direct
+Nicholls,Nicholls,NCAA_614774,direct
+Norfolk State,Norfolk St.,NCAA_614687,abbrev_expand
+North Alabama,North Ala.,NCAA_614843,abbrev_expand
+North Carolina,North Carolina,BSB_NORTH_CAROLINA,direct
+North Carolina A&T,N.C. A&T,NCAA_614688,abbrev_expand
+North Dakota State,North Dakota St.,NCAA_614690,abbrev_expand
+North Florida,North Florida,NCAA_614835,direct
+Northeastern,Northeastern,NCAA_614692,direct
+Northern Colorado,Northern Colo.,NCAA_614693,manual
+Northern Illinois,NIU,NCAA_614694,manual
+Northern Kentucky,Northern Ky.,NCAA_614695,manual
+Northwestern,Northwestern,BSB_NORTHWESTERN,direct
+Northwestern State,Northwestern St.,NCAA_614696,abbrev_expand
+Notre Dame,Notre Dame,BSB_NOTRE_DAME,direct
+Oakland,Oakland,NCAA_614699,direct
+Ohio,Ohio,NCAA_614701,direct
+Ohio State,Ohio St.,NCAA_614700,abbrev_expand
+Oklahoma,Oklahoma,BSB_OKLAHOMA,direct
+Oklahoma State,Oklahoma St.,NCAA_614775,abbrev_expand
+Old Dominion,Old Dominion,NCAA_614703,direct
+Ole Miss,Ole Miss,BSB_OLE_MISS,direct
+Omaha,Omaha,NCAA_614679,direct
+Oral Roberts,Oral Roberts,NCAA_614776,direct
+Oregon,Oregon,BSB_OREGON,direct
+Oregon State,Oregon St.,NCAA_614704,abbrev_expand
+Pacific,Pacific,NCAA_614706,direct
+Penn State,Penn St.,NCAA_614708,abbrev_expand
+Pennsylvania,Penn,NCAA_614777,manual
+Pepperdine,Pepperdine,NCAA_614709,direct
+Pittsburgh,Pittsburgh,NCAA_614710,direct
+Portland,Portland,NCAA_614711,direct
+Prairie View,Prairie View,NCAA_614712,direct
+Presbyterian,Presbyterian,NCAA_614832,direct
+Princeton,Princeton,NCAA_614713,direct
+Purdue,Purdue,BSB_PURDUE,direct
+Queens (NC),Queens (NC),NCAA_614757,direct
+Quinnipiac,Quinnipiac,NCAA_614715,direct
+Radford,Radford,NCAA_614716,direct
+Rhode Island,Rhode Island,NCAA_614717,direct
+Rice,Rice,NCAA_614718,direct
+Richmond,Richmond,NCAA_614719,direct
+Rider,Rider,NCAA_614720,direct
+Rutgers,Rutgers,BSB_RUTGERS,direct
+SIU Edwardsville,SIUE,NCAA_614744,manual
+Sacramento State,Sacramento St.,NCAA_614570,manual
+Sacred Heart,Sacred Heart,NCAA_614722,direct
+Saint Joseph's,Saint Joseph's,NCAA_614724,direct
+Saint Louis,Saint Louis,NCAA_614725,direct
+Saint Mary's,Saint Mary's (CA),NCAA_614726,manual
+Saint Peter's,Saint Peter's,NCAA_614727,direct
+Sam Houston,Sam Houston,NCAA_614728,direct
+Samford,Samford,NCAA_614729,direct
+San Diego,San Diego,BSB_SAN_DIEGO,direct
+San Diego State,San Diego St.,NCAA_614730,abbrev_expand
+San Francisco,San Francisco,NCAA_614732,direct
+San Jose State,San Jose St.,NCAA_614733,abbrev_expand
+Santa Clara,Santa Clara,NCAA_614734,direct
+Seattle,Seattle U,NCAA_614833,manual
+Seton Hall,Seton Hall,NCAA_614735,direct
+Siena,Siena,NCAA_614736,direct
+South Alabama,South Alabama,NCAA_614737,direct
+South Carolina,South Carolina,BSB_SOUTH_CAROLINA,direct
+South Dakota State,South Dakota St.,NCAA_614739,abbrev_expand
+South Florida,South Fla.,NCAA_614740,abbrev_expand
+Southeast Missouri State,Southeast Mo. St.,NCAA_614779,manual
+Southeastern Louisiana,Southeastern La.,NCAA_614741,abbrev_expand
+Southern,Southern U.,NCAA_614745,manual
+Southern California,Southern California,NCAA_614742,direct
+Southern Illinois,Southern Ill.,NCAA_614743,abbrev_expand
+Southern Indiana,Southern Ind.,NCAA_614758,abbrev_expand
+Southern Miss,Southern Miss.,NCAA_614780,manual
+St. Bonaventure,St. Bonaventure,NCAA_614723,direct
+St. John's,St. John's (NY),NCAA_614778,manual
+St. Thomas,St. Thomas (MN),NCAA_614785,manual
+Stanford,Stanford,BSB_STANFORD,direct
+Stephen F. Austin,SFA,NCAA_614750,manual
+Stetson,Stetson,NCAA_614781,direct
+Stonehill,Stonehill,NCAA_614759,direct
+Stony Brook,Stony Brook,NCAA_614751,direct
+TCU,TCU,BSB_TCU,direct
+Tarleton,Tarleton St.,NCAA_614761,manual
+Tennessee,Tennessee,BSB_TENNESSEE,direct
+Tennessee Tech,Tennessee Tech,NCAA_614752,direct
+Tennessee-Martin,UT Martin,NCAA_614753,manual
+Texas,Texas,BSB_TEXAS,direct
+Texas A&M,Texas A&M,NCAA_614788,direct
+Texas A&M-Corpus Christi,A&M-Corpus Christi,NCAA_614839,manual
+Texas Southern,Texas Southern,NCAA_614790,direct
+Texas State,Texas St.,NCAA_614747,abbrev_expand
+Texas Tech,Texas Tech,BSB_TEXAS_TECH,direct
+The Citadel,The Citadel,NCAA_614583,direct
+Toledo,Toledo,NCAA_614795,direct
+Towson,Towson,NCAA_614796,direct
+Troy,Troy,NCAA_614797,direct
+Tulane,Tulane,NCAA_614762,direct
+UAB,UAB,NCAA_614849,direct
+UC Davis,UC Davis,NCAA_614573,direct
+UC Irvine,UC Irvine,NCAA_614574,direct
+UC Riverside,UC Riverside,NCAA_614576,direct
+UC San Diego,UC San Diego,NCAA_614755,direct
+UC Santa Barbara,UC Santa Barbara,BSB_UC_SANTA_BARBARA,direct
+UCF,UCF,BSB_UCF,direct
+UCLA,UCLA,BSB_UCLA,direct
+UL Monroe,ULM,NCAA_614691,manual
+UMBC,UMBC,NCAA_614653,direct
+UMES,UMES,NCAA_614655,direct
+UMass Lowell,UMass Lowell,NCAA_614647,direct
+UNC Asheville,UNC Asheville,NCAA_614674,direct
+UNC Greensboro,UNC Greensboro,NCAA_614677,direct
+UNC Wilmington,UNCW,NCAA_614678,manual
+UNLV,UNLV,NCAA_614680,direct
+USC Upstate,USC Upstate,NCAA_614837,direct
+UT Arlington,UT Arlington,NCAA_614792,direct
+UT Rio Grande Valley,UTRGV,NCAA_614707,manual
+UTSA,UTSA,NCAA_614794,direct
+Utah,Utah,BSB_UTAH,direct
+Utah Tech,Utah Tech,NCAA_614786,direct
+Utah Valley,Utah Valley,NCAA_614842,direct
+VCU,VCU,NCAA_614804,direct
+VMI,VMI,NCAA_614805,direct
+Valparaiso,Valparaiso,NCAA_614801,direct
+Vanderbilt,Vanderbilt,BSB_VANDERBILT,direct
+Villanova,Villanova,NCAA_614803,direct
+Virginia,Virginia,BSB_VIRGINIA,direct
+Virginia Tech,Virginia Tech,BSB_VIRGINIA_TECH,direct
+Wagner,Wagner,NCAA_614808,direct
+Wake Forest,Wake Forest,BSB_WAKE_FOREST,direct
+Washington,Washington,BSB_WASHINGTON,direct
+Washington State,Washington St.,NCAA_614810,abbrev_expand
+West Georgia,West Ga.,NCAA_614784,manual
+West Virginia,West Virginia,BSB_WEST_VIRGINIA,direct
+Western Carolina,Western Caro.,NCAA_614813,manual
+Western Illinois,Western Ill.,NCAA_614814,abbrev_expand
+Western Kentucky,Western Ky.,NCAA_614815,manual
+Western Michigan,Western Mich.,NCAA_614816,abbrev_expand
+Wichita State,Wichita St.,NCAA_614817,abbrev_expand
+William & Mary,William & Mary,NCAA_614818,direct
+Winthrop,Winthrop,NCAA_614819,direct
+Wofford,Wofford,NCAA_614765,direct
+Wright State,Wright St.,NCAA_614821,abbrev_expand
+Xavier,Xavier,NCAA_614822,direct
+Yale,Yale,NCAA_614823,direct
+Youngstown State,Youngstown St.,NCAA_614824,abbrev_expand

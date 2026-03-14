@@ -37,6 +37,7 @@ pull_odds.py → odds JSONL → compare model vs market
 | `scripts/measure_stadium_bearings.py` | OSM-based HP→CF bearing measurement |
 | `scripts/measure_bearings_retry.py` | Retry with wider radii for missed stadiums |
 | `data/registries/stadium_orientations.csv` | Stadium lat/lon + HP→CF bearings |
+| `scripts/platoon_adjustment.py` | LHP/RHP platoon lookup (PlatoonLookup class, currently disabled) |
 | `data/registries/canonical_teams_2026.csv` | Team registry with odds_api_name mappings |
 
 ## Environment Setup
@@ -52,7 +53,16 @@ pull_odds.py → odds JSONL → compare model vs market
 - Every team has a `canonical_id` (e.g., `BSB_TEXAS_TECH`, `NCAA_614704`)
 - NCAA API names → canonical via `src/ncaa_baseball/phase1.py`
 - Odds API names → canonical via `odds_api_name` column in `canonical_teams_2026.csv`
-- When odds names don't resolve, add the mapping to `canonical_teams_2026.csv`
+- ESPN names → canonical via `espn_name` column (full mascot format, e.g. "Arizona Wildcats")
+- When odds/ESPN names don't resolve, add the mapping to `canonical_teams_2026.csv`
+
+### Pitcher ID Crosswalk (NCAA→ESPN)
+- Run events use numeric ESPN IDs (`64890.0`); pitcher appearances scraper assigns `NCAA_` format IDs
+- Same pitcher may appear at two registry indices — ESPN (1–1743, has posterior data) and NCAA (1744+, prior-only)
+- `lookup_starters.py` has `_build_ncaa_espn_crosswalk()` that maps NCAA_ IDs → ESPN indices via (name, team) matching
+- Crosswalk reads `espn_name` column from `canonical_teams_2026.csv` — if this column is missing, crosswalk produces 0 matches
+- Only ~285/7591 NCAA pitchers have ESPN counterparts — most pitchers have no learned posterior (prior-dominated)
+- Do NOT use fuzzy matching for team names — use explicit `espn_name` mappings only
 
 ### Stadium Bearings (HP→CF)
 - `hp_bearing_deg`: Compass bearing from home plate toward center field
@@ -65,7 +75,10 @@ pull_odds.py → odds JSONL → compare model vs market
 - Stored as JSONL in `data/raw/odds/odds_latest.jsonl` (overwritten each pull)
 - Append-only log in `data/raw/odds/odds_pull_log.jsonl`
 - Market data uses `bookmaker_lines` field (not `bookmakers`)
+- Each bookmaker entry uses `bookmaker_key` (not `key`) for the sportsbook identifier
 - American odds conversion: negative → `|ml|/(|ml|+100)`, positive → `100/(ml+100)`
+- Available markets: `h2h`, `totals`, `spreads` — pass all three to `pull_odds.py --markets`
+- Live games have shifted odds — filter by `commence_time` vs now to exclude in-progress games
 
 ### Weather & Altitude Model
 - `wind_out_mph` = wind component blowing from HP toward CF
@@ -83,7 +96,7 @@ pull_odds.py → odds JSONL → compare model vs market
 .venv/bin/python3 scripts/predict_day.py --date YYYY-MM-DD --N 5000 --out data/processed/predictions_YYYY-MM-DD.csv
 
 # 2. Pull fresh odds
-source ~/.zshrc; ODDS_API_KEY="$THE_ODDS_API_KEY" .venv/bin/python3 scripts/pull_odds.py --mode current --regions us,us2,eu --markets h2h,totals
+source ~/.zshrc; ODDS_API_KEY="$THE_ODDS_API_KEY" .venv/bin/python3 scripts/pull_odds.py --mode current --regions us,us2,eu --markets h2h,totals,spreads
 
 # 3. Compare (see odds comparison skill)
 ```
@@ -100,9 +113,26 @@ source ~/.zshrc; ODDS_API_KEY="$THE_ODDS_API_KEY" .venv/bin/python3 scripts/pull
 .venv/bin/python3 scripts/measure_stadium_bearings.py --canonical-id BSB_TEXAS_TECH
 ```
 
+### Prediction CSV Columns
+- Team names: `home`, `away` (not `home_team`/`away_team`)
+- Expected runs: `exp_home`, `exp_away`, `exp_total` (not `mean_*`)
+- Win probability: `home_win_prob`, `away_win_prob`; moneylines: `ml_home`, `ml_away`
+- Pitcher handedness: `hp_throws`, `ap_throws` (may be blank if unknown)
+- Platoon: `platoon_adj_home`, `platoon_adj_away` (currently 0.0, disabled)
+
+### Platoon Splits (LHP/RHP)
+- `scripts/platoon_adjustment.py` tracks pitcher handedness via D1B rotation data
+- Rate adjustment disabled (`DEFAULT_LHP_ADJ = 0.0`) — sign uncertain, double-counts with `pitcher_ability`
+- Stage 2 plan: add `platoon_effect` parameter to Stan model to learn sign/magnitude from data
+- Batter handedness available on D1Baseball player pages (`BAT/THRW` field, e.g. `R/R`)
+- D1Baseball lineup pages (`/team/{slug}/lineup/`) show game-by-game batting orders (free, no login)
+
 ## Common Pitfalls
 - Overpass API rate limits: Use 4-5s between queries, retry on 429/504 with exponential backoff
 - `bookmaker_lines` not `bookmakers` in odds JSONL
 - Stadium default 67° will produce wrong wind calculations — always verify bearing source
 - NCAA API game names don't match odds API names — use canonical_id as join key
 - The ODDS_API_KEY is stored in shell env as `$THE_ODDS_API_KEY` (source ~/.zshrc first)
+- Pitcher ID formats: run_events uses numeric ESPN IDs, appearances uses `NCAA_` format — crosswalk in `lookup_starters.py` bridges them
+- `canonical_teams_2026.csv` columns: `team_name` (short), `odds_api_name` (full mascot for odds), `espn_name` (full mascot for ESPN pitcher registry), `baseballr_team_name`
+- Prediction CSV columns: `home`/`away` (not `home_team`), `exp_total` (not `mean_total`), `home_starter_idx`/`away_starter_idx` (not `hp_pitcher_idx`)
