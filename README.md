@@ -2,6 +2,56 @@
 
 Goal: build a clean, deterministic dataset pipeline (teams → odds → performance) that we can trust before we model anything.
 
+## Current production flow (March 2026)
+
+The active workflow is now a two-stage pipeline:
+
+- **Build phase (offline):** `extract_espn.py` → `build_run_event_indices.py` → `fit_run_event_model.py` → `build_pitcher_table.py` + `build_team_table.py`
+- **Daily predict phase:** `predict_day.py` orchestrates `resolve_schedule.py` → `resolve_starters.py` → `resolve_weather.py` → `simulate.py`
+- **Post-predict diagnostics:** automatic `build_starter_qa_report.py` + `build_calibration_report.py`
+
+### Daily commands
+
+```bash
+# Predictions (standard / refresh / early)
+.venv/bin/python3 scripts/predict_day.py --date YYYY-MM-DD --phase standard --N 5000
+
+# Build betting sheet PDF from predictions
+.venv/bin/python3 scripts/export_betting_sheet_pdf.py \
+  --predictions data/processed/predictions_YYYY-MM-DD_standard.csv \
+  --odds data/raw/odds/odds_latest.jsonl \
+  --out output/MLB_Betting_Report_YYYY-MM-DD.pdf
+```
+
+### Key improvements implemented in this session
+
+- **Market-coherent calibration loop:** `scripts/build_calibration_report.py` checks ML, total, and runline tail consistency in one report.
+- **Market-implied anchor inputs:** schedule/simulation now blend market-implied features with a time-aware weight.
+- **Early deploy support:** `predict_day.py --phase {early,refresh,standard}` controls simulation depth/timing.
+- **Uncertainty + fragility first-class outputs:** prediction rows now include uncertainty bands and `fragility_score`/`fragility_flag`.
+- **Starter quality guardrails:** `scripts/build_starter_qa_report.py` tracks `idx>0` coverage, resolution method, and fallback rates.
+- **Dynamic IP split:** simulation uses starter-specific expected IP instead of fixed starter/bullpen fractions.
+- **Segmented calibration:** calibration outputs include starter-certainty and bullpen-edge segments.
+
+### D1Baseball historical stats (seasonized layout)
+
+To support recency-weighted multi-season D1B features, place files at:
+
+- `data/raw/d1baseball/2024/`
+- `data/raw/d1baseball/2025/`
+- `data/raw/d1baseball/2026/`
+
+Each season folder should contain:
+
+- `batting_standard.tsv`
+- `batting_advanced.tsv`
+- `batting_batted_ball.tsv`
+- `pitching_standard.tsv`
+- `pitching_advanced.tsv`
+- `pitching_batted_ball.tsv`
+
+`build_pitcher_table.py` and `build_team_table.py` now read this seasonized structure and apply recency-weighted aggregation.
+
 ## Canonical team library (2026)
 
 **Single source of truth for 2026:** `data/registries/canonical_teams_2026.csv`. Built from the full NCAA D1 list plus the manual crosswalk (no fuzzy matching). See [docs/DATA_PLAN_2026.md](docs/DATA_PLAN_2026.md) for schema and roster plan.

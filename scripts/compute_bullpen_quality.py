@@ -30,6 +30,33 @@ import pandas as pd
 import _bootstrap  # noqa: F401
 
 
+def _ip_to_float(ip_val) -> float:
+    """Convert baseball IP notation (e.g. 5.2 = 5 and 2/3) to decimal innings."""
+    if ip_val is None:
+        return 0.0
+    s = str(ip_val).strip()
+    if not s:
+        return 0.0
+    try:
+        if "." in s:
+            whole_s, frac_s = s.split(".", 1)
+            whole = int(whole_s) if whole_s else 0
+            if frac_s in ("0", "1", "2"):
+                outs = int(frac_s)
+                return float(whole + outs / 3.0)
+        return float(s)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _normalize_pitcher_id(pid: str) -> str:
+    """Normalize to the key format used by run_event_pitcher_index (numeric ESPN id)."""
+    val = str(pid or "").strip()
+    if val.startswith("ESPN_"):
+        return val.replace("ESPN_", "", 1)
+    return val
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Compute bullpen quality metrics from pitcher appearances.",
@@ -52,17 +79,54 @@ def main() -> int:
 
     df = pd.read_csv(args.appearances, dtype=str)
 
-    # Filter to relievers from NCAA (they have actual stats)
-    relievers = df[(df["role"] == "reliever") & (df["source"] == "ncaa")].copy()
+    # Schema compatibility: support both old and refactored appearances schema.
+    for col in ("role", "team_canonical_id", "pitcher_id", "pitcher_espn_id", "game_date", "season"):
+        if col not in df.columns:
+            df[col] = ""
+    df["role"] = df["role"].fillna("").astype(str).str.strip().str.lower()
+
+    # Use relievers from all sources; source filtering is optional.
+    relievers = df[df["role"] == "reliever"].copy()
+    if relievers.empty:
+        print("No reliever rows found in appearances file.")
+        return 1
     print(f"Reliever appearances: {len(relievers)}")
 
     # Coerce numeric columns
-    for col in ["ip", "h", "r", "er", "bb", "k", "bf"]:
-        if col in relievers.columns:
-            relievers[col] = pd.to_numeric(relievers[col], errors="coerce").fillna(0)
+    for col in ["h", "r", "er", "bb", "k", "bf"]:
+        if col not in relievers.columns:
+            relievers[col] = 0
+        relievers[col] = pd.to_numeric(relievers[col], errors="coerce").fillna(0)
+    if "ip" not in relievers.columns:
+        relievers["ip"] = 0
+    relievers["ip"] = relievers["ip"].apply(_ip_to_float)
 
-    # Derive season from game_date
-    relievers["season"] = relievers["game_date"].str[:4].astype(int)
+    # Derive BF if missing/unreliable.
+    if relievers["bf"].sum() <= 0:
+        outs = (relievers["ip"] * 3.0).round().clip(lower=0)
+        relievers["bf"] = outs + relievers["h"] + relievers["bb"]
+
+    # Derive/fix season from season column or game_date.
+    relievers["season"] = pd.to_numeric(relievers["season"], errors="coerce")
+    no_season = relievers["season"].isna()
+    if no_season.any():
+        relievers.loc[no_season, "season"] = pd.to_datetime(
+            relievers.loc[no_season, "game_date"], errors="coerce"
+        ).dt.year
+    relievers["season"] = pd.to_numeric(relievers["season"], errors="coerce").fillna(0).astype(int)
+    relievers = relievers[relievers["season"] > 0].copy()
+
+    # Team id fallback and cleanup.
+    relievers["team_canonical_id"] = relievers["team_canonical_id"].fillna("").astype(str).str.strip()
+    relievers = relievers[relievers["team_canonical_id"] != ""].copy()
+
+    # Pitcher id fallback from pitcher_espn_id when needed.
+    relievers["pitcher_id"] = relievers["pitcher_id"].fillna("").astype(str).str.strip()
+    missing_pid = relievers["pitcher_id"] == ""
+    if missing_pid.any():
+        relievers.loc[missing_pid, "pitcher_id"] = relievers.loc[missing_pid, "pitcher_espn_id"].fillna("").astype(str).apply(
+            lambda x: f"ESPN_{x}" if str(x).strip() else ""
+        )
 
     # Group by team + season
     team_stats = relievers.groupby(["team_canonical_id", "season"]).agg(
@@ -179,7 +243,7 @@ def main() -> int:
             total_ip = 0.0
             weighted_ability = 0.0
             for _, r in team_relievers.iterrows():
-                pid = str(r.get("pitcher_id", "")).strip()
+                pid = _normalize_pitcher_id(str(r.get("pitcher_id", "")).strip())
                 ip = float(r.get("ip", 0) or 0)
                 if ip <= 0:
                     continue

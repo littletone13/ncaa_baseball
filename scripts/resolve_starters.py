@@ -34,6 +34,89 @@ def _norm(s: str) -> str:
     return s.lower().replace("\u2019", "'").replace("\u2018", "'")
 
 
+def _espn_numeric_id(pitcher_id: str) -> str:
+    """Extract numeric ESPN pitcher id from known pitcher_id formats."""
+    if not pitcher_id:
+        return ""
+    pid = str(pitcher_id).strip()
+    if pid.startswith("ESPN_"):
+        return pid.replace("ESPN_", "", 1)
+    if pid.isdigit():
+        return pid
+    return ""
+
+
+def _ip_to_float(ip_val) -> float:
+    """Convert baseball IP notation (e.g. 5.2 = 5 and 2/3) to decimal innings."""
+    if ip_val is None:
+        return 0.0
+    s = str(ip_val).strip()
+    if not s:
+        return 0.0
+    try:
+        if "." in s:
+            whole_s, frac_s = s.split(".", 1)
+            whole = int(whole_s) if whole_s else 0
+            if frac_s in ("0", "1", "2"):
+                outs = int(frac_s)
+                return float(whole + outs / 3.0)
+        return float(s)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _expected_starter_ip(appearances: pd.DataFrame, cid: str, pitcher_id: str) -> float:
+    """Estimate starter expected IP from recent starts for this pitcher/team."""
+    if appearances.empty or not cid:
+        return 5.5
+
+    team_apps = appearances[appearances["team_canonical_id"] == cid]
+    if team_apps.empty:
+        return 5.5
+
+    pid = str(pitcher_id or "").strip()
+    rows = team_apps[team_apps["role"] == "starter"].copy()
+    if rows.empty:
+        return 5.5
+
+    if pid:
+        rows_pid = rows[rows["pitcher_id"] == pid]
+        if not rows_pid.empty:
+            rows = rows_pid
+
+    rows = rows.sort_values("game_date", ascending=False).head(5)
+    ip_vals = rows["ip_float"].tolist()
+    if not ip_vals:
+        return 5.5
+
+    # Recency weights: most recent has highest influence.
+    w = [1.0, 0.75, 0.55, 0.4, 0.3][: len(ip_vals)]
+    num = sum(float(x) * float(wi) for x, wi in zip(ip_vals, w))
+    den = sum(w)
+    exp_ip = num / den if den > 0 else 5.5
+    return max(3.5, min(7.5, float(exp_ip)))
+
+
+def _match_pitcher_by_id(
+    pitcher_tbl: pd.DataFrame,
+    cid: str,
+    pitcher_id: str,
+) -> Optional[pd.Series]:
+    """Find pitcher_table row by canonical_id + pitcher_espn_id."""
+    if not cid:
+        return None
+    espn_id = _espn_numeric_id(pitcher_id)
+    if not espn_id:
+        return None
+    sub = pitcher_tbl[
+        (pitcher_tbl["team_canonical_id"] == cid)
+        & (pitcher_tbl["pitcher_espn_id"] == espn_id)
+    ]
+    if len(sub) == 1:
+        return sub.iloc[0]
+    return None
+
+
 def _match_pitcher(
     pitcher_tbl: pd.DataFrame,
     cid: str,
@@ -87,6 +170,22 @@ def _match_pitcher(
         return hits_col.iloc[0]
 
     return None
+
+
+def _match_pitcher_with_method(
+    pitcher_tbl: pd.DataFrame,
+    cid: str,
+    pitcher_id: str,
+    name: str,
+) -> tuple[Optional[pd.Series], str]:
+    """Return matched pitcher row plus resolution method."""
+    by_id = _match_pitcher_by_id(pitcher_tbl, cid, pitcher_id)
+    if by_id is not None:
+        return by_id, "id_match"
+    by_name = _match_pitcher(pitcher_tbl, cid, name)
+    if by_name is not None:
+        return by_name, "name_match"
+    return None, "lookup_only"
 
 
 # ── Core function ─────────────────────────────────────────────────────────────
@@ -147,6 +246,8 @@ def resolve_starters(
 
     # ── Load pitcher_table ────────────────────────────────────────────────────
     pt = pd.read_csv(pitcher_table_csv, dtype=str)
+    if "pitcher_espn_id" in pt.columns:
+        pt["pitcher_espn_id"] = pt["pitcher_espn_id"].fillna("").astype(str).str.strip()
     # Pre-normalise names for matching
     pt["_name_norm"] = pt["pitcher_name"].fillna("").apply(_norm)
     # Numeric coercions
@@ -155,6 +256,15 @@ def resolve_starters(
     pt["pitcher_idx"] = pt["pitcher_idx"].fillna(0).astype(int)
     pt["fb_sensitivity"] = pt["fb_sensitivity"].fillna(1.0)
     pt["d1b_ability_adj"] = pt["d1b_ability_adj"].fillna(0.0)
+
+    # ── Load appearances for IP expectation + QA context ─────────────────────
+    app = pd.read_csv(appearances_csv, dtype=str)
+    for col in ("pitcher_id", "team_canonical_id", "role"):
+        if col not in app.columns:
+            app[col] = ""
+        app[col] = app[col].fillna("").astype(str).str.strip()
+    app["game_date"] = pd.to_datetime(app.get("game_date"), errors="coerce")
+    app["ip_float"] = app.get("ip", "").apply(_ip_to_float)
 
     # ── Pre-compute bullpen FB sensitivity per team ───────────────────────────
     # Use all pitchers in the team (not just non-SP), averaged.
@@ -191,6 +301,7 @@ def resolve_starters(
         "appearances_csv": appearances_csv,
         "registry_csv": pitcher_registry_csv,
         "pitcher_index_csv": pitcher_index_csv,
+        "canonical_csv": canonical_csv,
     }
     if weekend_rotations_csv.exists():
         sl_kwargs["weekend_rotations_csv"] = weekend_rotations_csv
@@ -214,8 +325,8 @@ def resolve_starters(
         ap_idx = int(ap_idx_raw) if ap_idx_raw else 0
 
         # ── Enrich from pitcher_table ─────────────────────────────────────────
-        hp_row = _match_pitcher(pt, h_cid, hp_name)
-        ap_row = _match_pitcher(pt, a_cid, ap_name)
+        hp_row, hp_resolution = _match_pitcher_with_method(pt, h_cid, hp_id, hp_name)
+        ap_row, ap_resolution = _match_pitcher_with_method(pt, a_cid, ap_id, ap_name)
 
         def _extract(row: Optional[pd.Series], starter_idx: int) -> dict:
             """Extract enrichment fields from a pitcher_table row."""
@@ -259,6 +370,10 @@ def resolve_starters(
         hp_bp_fb_sens = bp_fb_by_team.get(h_cid, 1.0)
         ap_bp_fb_sens = bp_fb_by_team.get(a_cid, 1.0)
 
+        # Dynamic expected starter innings (used by simulate.py IP split).
+        hp_expected_ip = _expected_starter_ip(app, h_cid, hp_id)
+        ap_expected_ip = _expected_starter_ip(app, a_cid, ap_id)
+
         # wRC+ offense adjustment (team_table, only for team_idx=0)
         home_wrc_adj = wrc_adj_by_team.get(h_cid, 0.0)
         away_wrc_adj = wrc_adj_by_team.get(a_cid, 0.0)
@@ -274,6 +389,10 @@ def resolve_starters(
 
         rows.append({
             "game_num": game_num,
+            "home_canonical_id": h_cid,
+            "away_canonical_id": a_cid,
+            "home_cid": h_cid,
+            "away_cid": a_cid,
             "home_starter": hp_name,
             "away_starter": ap_name,
             "home_starter_idx": hp_idx_final,
@@ -288,6 +407,12 @@ def resolve_starters(
             "ap_fb_sens": ap_info["fb_sens"],
             "hp_bp_fb_sens": hp_bp_fb_sens,
             "ap_bp_fb_sens": ap_bp_fb_sens,
+            "hp_expected_ip": hp_expected_ip,
+            "ap_expected_ip": ap_expected_ip,
+            "home_resolution_method": hp_resolution,
+            "away_resolution_method": ap_resolution,
+            "home_d1b_fallback": int(str(hp_id).startswith("d1b_")),
+            "away_d1b_fallback": int(str(ap_id).startswith("d1b_")),
             "home_wrc_adj": home_wrc_adj,
             "away_wrc_adj": away_wrc_adj,
             "platoon_adj_home": 0.0,

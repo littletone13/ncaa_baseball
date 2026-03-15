@@ -156,3 +156,20 @@ With teams at **6–10 games**, sample size is tiny. Do the following (Rufus Pea
 - [ ] **Score-only path:** Document and implement (e.g. RPG → Poisson or NegBin per team) for games without PBP; use in Phase 1 and as fallback in Phase 2.
 - [ ] **Early-season:** Define minimum games and shrinkage (or prior) for team strength; add “early season” segment to backtest and reporting.
 - [ ] **andrew_mack:** Use 018 and SSME catalog as reference; implement run-event and backtest in repo; add one sanity-check comparison to SSME or Ch 18 where applicable.
+
+---
+
+## 5. Session upgrades implemented (2026-03-15)
+
+The following items were executed and integrated into the current flow:
+
+- **Market-coherent daily calibration:** Added `scripts/build_calibration_report.py` and integrated it into `predict_day.py` after simulation.
+- **Market anchor as model input:** Added `mkt_home_win_prob`, `mkt_away_win_prob`, `mkt_total_line`, and `mkt_anchor_weight` in schedule resolution; simulation uses these anchors with time-aware blending.
+- **Early/refresh scheduling support:** Added `--phase {early,refresh,standard}` in `predict_day.py` with phase-aware default simulation counts.
+- **Uncertainty + fragility outputs:** Simulation now writes win/total/margin distribution bands and per-game `fragility_score`/`fragility_flag`.
+- **Starter pipeline hardening:** `lookup_starters.py` can build fallback registry from appearances when `pitcher_registry.csv` is missing.
+- **Bullpen schema compatibility:** `compute_bullpen_quality.py` now handles both old and new `pitcher_appearances` schemas (including derived BF/IP normalization).
+- **Starter QA reporting:** Added `scripts/build_starter_qa_report.py`; `predict_day.py` generates daily QA CSV/MD outputs.
+- **Dynamic IP split:** Replaced fixed starter/bullpen fractions with starter-specific expected IP from `resolve_starters.py`.
+- **Segmented calibration slices:** Calibration reports now segment by starter certainty and bullpen edge buckets.
+- **Seasonized D1B ingestion support:** `build_pitcher_table.py` and `build_team_table.py` now aggregate multi-season D1B files with recency weighting.

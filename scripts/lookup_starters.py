@@ -30,6 +30,43 @@ from urllib.request import Request, urlopen
 import pandas as pd
 
 
+def _build_registry_from_appearances(pa: pd.DataFrame) -> pd.DataFrame:
+    """Build a minimal pitcher registry when pitcher_registry.csv is unavailable.
+
+    This keeps StarterLookup artifact-safe by deriving pitcher identity rows from
+    pitcher_appearances.csv (the canonical extract artifact in the refactored flow).
+    """
+    if pa.empty:
+        return pd.DataFrame(columns=["pitcher_id", "pitcher_name", "team"])
+
+    tmp = pa.copy()
+    for col in ("pitcher_id", "pitcher_name", "team_name", "team_canonical_id"):
+        if col not in tmp.columns:
+            tmp[col] = ""
+        tmp[col] = tmp[col].fillna("").astype(str).str.strip()
+
+    # Build rows for both display-name and canonical-id team keys so downstream
+    # name matching and NCAA→ESPN crosswalk logic can operate.
+    rows: list[dict[str, str]] = []
+    for _, r in tmp.iterrows():
+        pid = str(r.get("pitcher_id", "")).strip()
+        pname = str(r.get("pitcher_name", "")).strip()
+        tname = str(r.get("team_name", "")).strip()
+        tcid = str(r.get("team_canonical_id", "")).strip()
+        if not pid or not pname:
+            continue
+        if tname:
+            rows.append({"pitcher_id": pid, "pitcher_name": pname, "team": tname})
+        if tcid:
+            rows.append({"pitcher_id": pid, "pitcher_name": pname, "team": tcid})
+
+    if not rows:
+        return pd.DataFrame(columns=["pitcher_id", "pitcher_name", "team"])
+
+    reg = pd.DataFrame(rows).drop_duplicates(subset=["pitcher_id", "team"], keep="first")
+    return reg.reset_index(drop=True)
+
+
 class StarterLookup:
     """Resolve projected starting pitcher for a team on a given date."""
 
@@ -40,11 +77,22 @@ class StarterLookup:
         pitcher_index_csv: Path | str = "data/processed/run_event_pitcher_index.csv",
         weekend_rotations_csv: Path | str = "data/processed/weekend_rotations.csv",
         d1baseball_rotations_csv: Path | str = "data/processed/d1baseball_rotations.csv",
+        canonical_csv: Path | str = "data/registries/canonical_teams_2026.csv",
     ):
+        self.canonical_csv = Path(canonical_csv)
+
         self.pa = pd.read_csv(appearances_csv, dtype=str)
         self.pa["game_date"] = pd.to_datetime(self.pa["game_date"])
-
-        self.registry = pd.read_csv(registry_csv, dtype=str)
+        registry_path = Path(registry_csv)
+        if registry_path.exists():
+            self.registry = pd.read_csv(registry_path, dtype=str)
+        else:
+            self.registry = _build_registry_from_appearances(self.pa)
+            print(
+                f"  StarterLookup: missing {registry_path}, "
+                f"built fallback registry from appearances ({len(self.registry)} rows)",
+                file=sys.stderr,
+            )
         # pitcher_id -> pitcher_idx (int)
         pi_df = pd.read_csv(pitcher_index_csv, dtype=str)
         self.pid_to_idx: dict[str, int] = {}
@@ -82,7 +130,7 @@ class StarterLookup:
         # Build ESPN team name → canonical_id mapping
         _espn_to_cid: dict[str, str] = {}
         try:
-            _canon = pd.read_csv("data/registries/canonical_teams_2026.csv", dtype=str)
+            _canon = pd.read_csv(self.canonical_csv, dtype=str)
             for _, cr in _canon.iterrows():
                 cid = str(cr.get("canonical_id", "")).strip()
                 for col in ("team_name", "odds_api_name", "baseballr_team_name", "espn_name"):
@@ -200,10 +248,11 @@ class StarterLookup:
         if team_starters.empty:
             return ("unknown", "", 0)
 
-        # Strategy 1: For midweek games (Mon/Tue/Wed), look at midweek history
-        if dow <= 2:  # Mon, Tue, Wed
+        # Strategy 1: For midweek games (Mon-Thu), coaching usage is mixed.
+        # Use recent midweek history as a soft prior, but do not require idx > 0.
+        if dow <= 3:  # Mon, Tue, Wed, Thu
             midweek = team_starters[
-                team_starters["game_date"].dt.day_of_week.isin([0, 1, 2])
+                team_starters["game_date"].dt.day_of_week.isin([0, 1, 2, 3])
             ]
             if not midweek.empty:
                 # Most recent midweek starter
@@ -211,8 +260,7 @@ class StarterLookup:
                 pid = str(best.get("pitcher_id", "")).strip()
                 name = str(best.get("pitcher_name", "")).strip()
                 pidx = self._resolve_idx(pid)
-                if pidx > 0:
-                    return (name, pid, pidx)
+                return (name, pid, pidx)
 
         # Strategy 2: For weekend games (Fri/Sat/Sun), match rotation slot
         if dow >= 4:  # Fri=4, Sat=5, Sun=6
@@ -220,12 +268,27 @@ class StarterLookup:
                 team_starters["game_date"].dt.day_of_week == dow
             ]
             if not same_dow.empty:
-                best = same_dow.iloc[0]
+                # Weekend usage tends to be stable by slot (#1 Fri, #2 Sat, #3 Sun).
+                # Prefer the modal same-DOW starter; break ties by recency.
+                same_dow = same_dow.copy()
+                same_dow["pitcher_id"] = same_dow["pitcher_id"].fillna("").astype(str)
+                same_dow_nonempty = same_dow[same_dow["pitcher_id"].str.strip() != ""]
+                if not same_dow_nonempty.empty:
+                    counts = (
+                        same_dow_nonempty.groupby("pitcher_id")
+                        .size()
+                        .sort_values(ascending=False)
+                    )
+                    top_count = counts.iloc[0]
+                    top_ids = set(counts[counts == top_count].index.tolist())
+                    top_rows = same_dow_nonempty[same_dow_nonempty["pitcher_id"].isin(top_ids)]
+                    best = top_rows.iloc[0]
+                else:
+                    best = same_dow.iloc[0]
                 pid = str(best.get("pitcher_id", "")).strip()
                 name = str(best.get("pitcher_name", "")).strip()
                 pidx = self._resolve_idx(pid)
-                if pidx > 0:
-                    return (name, pid, pidx)
+                return (name, pid, pidx)
 
         # Strategy 3: Most-rested pitcher
         # Get last 4 unique starters for this team
@@ -269,7 +332,7 @@ class StarterLookup:
         whose team field is already a canonical_id.
         """
         try:
-            canonical_path = Path("data/registries/canonical_teams_2026.csv")
+            canonical_path = self.canonical_csv
             if not canonical_path.exists():
                 return
             canon = pd.read_csv(canonical_path, dtype=str)
@@ -294,6 +357,7 @@ class StarterLookup:
             self.registry["pitcher_id"].str.startswith("ESPN_", na=False)
         ]
         espn_by_name_team: dict[tuple[str, str], int] = {}
+        espn_last_by_team: dict[tuple[str, str], list[int]] = {}
         for _, r in espn_reg.iterrows():
             team = str(r.get("team", "")).strip()
             cid = espn_team_to_cid.get(team)
@@ -309,6 +373,10 @@ class StarterLookup:
                 idx = self.pid_to_idx.get(pid, 0)
             if idx > 0:
                 espn_by_name_team[(name, cid)] = idx
+                parts = name.split()
+                if parts:
+                    last = parts[-1]
+                    espn_last_by_team.setdefault((last, cid), []).append(idx)
 
         # Now build NCAA pitcher_id → ESPN idx
         ncaa_reg = self.registry[
@@ -328,7 +396,26 @@ class StarterLookup:
             if espn_idx is None:
                 # Try last name only
                 last = name_part.split()[-1] if name_part.split() else name_part
-                espn_idx = espn_by_name_team.get((last, team_cid))
+                last_candidates = espn_last_by_team.get((last, team_cid), [])
+                if len(last_candidates) == 1:
+                    espn_idx = last_candidates[0]
+                elif len(last_candidates) > 1:
+                    # Disambiguate by first initial when possible
+                    first_initial = name_part[0] if name_part else ""
+                    initial_hits: list[int] = []
+                    if first_initial:
+                        for (full_name, cid), idx in espn_by_name_team.items():
+                            if cid != team_cid:
+                                continue
+                            fn_parts = full_name.split()
+                            if not fn_parts:
+                                continue
+                            if fn_parts[-1] != last:
+                                continue
+                            if fn_parts[0].startswith(first_initial):
+                                initial_hits.append(idx)
+                    if len(initial_hits) == 1:
+                        espn_idx = initial_hits[0]
             if espn_idx is not None:
                 self._ncaa_to_espn_idx[ncaa_pid] = espn_idx
                 matched += 1

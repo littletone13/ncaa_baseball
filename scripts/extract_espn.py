@@ -312,6 +312,7 @@ def extract(
                                 espn_id = str(espn_id)
                         pitcher_name = (athlete.get("name") or "").strip()
                         starter = bool(athlete.get("starter"))
+                        role = "starter" if starter else "reliever"
                         ip_raw = stats.get("IP")
                         ip = parse_ip(ip_raw)
                         h = _safe_int(stats.get("H"))
@@ -327,11 +328,13 @@ def extract(
                             "game_date": game_date,
                             "season": yr,
                             "pitcher_espn_id": espn_id or "",
+                            "pitcher_id": f"ESPN_{espn_id}" if espn_id else "",
                             "pitcher_name": pitcher_name,
                             "team_canonical_id": team_canonical_id,
                             "team_name": team_name,
                             "side": side,
                             "starter": starter,
+                            "role": role,
                             "ip": ip,
                             "h": h,
                             "r": r,
@@ -490,8 +493,8 @@ def main() -> int:
     pitcher_path = args.out_dir / "pitcher_appearances.csv"
     pitcher_df = pd.DataFrame(pitcher_rows, columns=[
         "event_id", "game_date", "season",
-        "pitcher_espn_id", "pitcher_name",
-        "team_canonical_id", "team_name", "side", "starter",
+        "pitcher_espn_id", "pitcher_id", "pitcher_name",
+        "team_canonical_id", "team_name", "side", "starter", "role",
         "ip", "h", "r", "er", "bb", "k", "hr", "pc",
     ])
     pitcher_df.to_csv(pitcher_path, index=False)

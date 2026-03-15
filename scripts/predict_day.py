@@ -25,6 +25,8 @@ from resolve_schedule import resolve_schedule
 from resolve_starters import resolve_starters
 from resolve_weather import resolve_weather
 from simulate import simulate_games, format_predictions
+from build_calibration_report import build_calibration_report
+from build_starter_qa_report import build_starter_qa_report
 
 
 def main() -> int:
@@ -32,9 +34,27 @@ def main() -> int:
     parser.add_argument("--date", required=True, help="Game date YYYY-MM-DD")
     parser.add_argument("--N", type=int, default=5000, help="Simulations per game")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--phase",
+        type=str,
+        default="standard",
+        choices=["early", "refresh", "standard"],
+        help="Execution phase for early deploy and scheduled refresh runs.",
+    )
     parser.add_argument("--out", type=Path, help="Output CSV path")
     parser.add_argument("--json", action="store_true", help="Output JSON instead of text")
     parser.add_argument("--no-weather", action="store_true", help="Skip weather API")
+    parser.add_argument(
+        "--include-started",
+        action="store_true",
+        help="Include games that have already started (default drops started/in-progress).",
+    )
+    parser.add_argument(
+        "--start-buffer-min",
+        type=int,
+        default=15,
+        help="Minutes of buffer when filtering started games (default: 15).",
+    )
     # Data file paths
     parser.add_argument("--posterior", type=Path,
                         default=Path("data/processed/run_event_posterior_2k.csv"))
@@ -57,7 +77,25 @@ def main() -> int:
                         default=Path("data/processed/pitcher_appearances.csv"))
     parser.add_argument("--pitcher-registry", type=Path,
                         default=Path("data/processed/pitcher_registry.csv"))
+    parser.add_argument(
+        "--calibration-out",
+        type=Path,
+        default=None,
+        help="Calibration CSV output path (default: data/processed/calibration_{date}_{phase}.csv)",
+    )
+    parser.add_argument(
+        "--calibration-md-out",
+        type=Path,
+        default=None,
+        help="Calibration markdown output path (default: data/processed/calibration_{date}_{phase}.md)",
+    )
     args = parser.parse_args()
+    user_set_n = "--N" in sys.argv
+    if not user_set_n:
+        if args.phase == "early":
+            args.N = 2000
+        elif args.phase == "refresh":
+            args.N = 4000
 
     daily_dir = Path(f"data/daily/{args.date}")
     daily_dir.mkdir(parents=True, exist_ok=True)
@@ -69,6 +107,8 @@ def main() -> int:
         date=args.date,
         team_table_csv=args.team_table,
         canonical_csv=args.canonical,
+        drop_started=not args.include_started,
+        start_buffer_min=args.start_buffer_min,
         out_csv=schedule_csv,
     )
     n_games = len(schedule)
@@ -78,7 +118,7 @@ def main() -> int:
         return 0
 
     # ── Step 2: Starters ──
-    print("Step 2/4: Resolving starters...", file=sys.stderr)
+    print("Step 2/5: Resolving starters...", file=sys.stderr)
     starters_csv = daily_dir / "starters.csv"
     resolve_starters(
         schedule_csv=schedule_csv,
@@ -91,8 +131,18 @@ def main() -> int:
         out_csv=starters_csv,
     )
 
+    # ── Step 2b: Starter QA report ──
+    starter_qa_csv = Path(f"data/processed/starter_qa_{args.date}_{args.phase}.csv")
+    starter_qa_md = Path(f"data/processed/starter_qa_{args.date}_{args.phase}.md")
+    build_starter_qa_report(
+        starters_csv=starters_csv,
+        out_csv=starter_qa_csv,
+        out_md=starter_qa_md,
+    )
+    print(f"Starter QA report -> {starter_qa_csv}", file=sys.stderr)
+
     # ── Step 3: Weather ──
-    print("Step 3/4: Fetching weather...", file=sys.stderr)
+    print("Step 3/5: Fetching weather...", file=sys.stderr)
     weather_csv = daily_dir / "weather.csv"
     if args.no_weather:
         weather = schedule[["game_num"]].copy()
@@ -114,7 +164,7 @@ def main() -> int:
         )
 
     # ── Step 4: Simulate ──
-    print(f"Step 4/4: Simulating ({args.N} draws per game)...", file=sys.stderr)
+    print(f"Step 4/5: Simulating ({args.N} draws per game)...", file=sys.stderr)
     predictions = simulate_games(
         schedule_csv=schedule_csv,
         starters_csv=starters_csv,
@@ -127,9 +177,20 @@ def main() -> int:
     )
 
     # ── Output ──
-    out_csv = args.out or Path(f"data/processed/predictions_{args.date}.csv")
+    default_pred = Path(f"data/processed/predictions_{args.date}_{args.phase}.csv")
+    out_csv = args.out or default_pred
     predictions.to_csv(out_csv, index=False)
     print(f"\nWrote {len(predictions)} predictions -> {out_csv}", file=sys.stderr)
+
+    # ── Step 5: Calibration report (market-coherent checks) ──
+    calib_csv = args.calibration_out or Path(f"data/processed/calibration_{args.date}_{args.phase}.csv")
+    calib_md = args.calibration_md_out or Path(f"data/processed/calibration_{args.date}_{args.phase}.md")
+    build_calibration_report(
+        predictions_csv=out_csv,
+        out_csv=calib_csv,
+        out_md=calib_md,
+    )
+    print(f"Calibration report -> {calib_csv}", file=sys.stderr)
 
     if args.json:
         print(json.dumps(predictions.to_dict("records"), indent=2))

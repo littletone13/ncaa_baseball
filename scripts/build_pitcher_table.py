@@ -36,7 +36,7 @@ LEAGUE_AVG_FB = 38.9  # D1 average fly-ball % (used as denominator for fb_sensit
 ABILITY_STD_EST = 0.05  # Estimated std of pitcher_ability posterior
 ERA_SLOPE = 0.027       # Linear ERA→ability mapping slope (for rotation-page ERA)
 ERA_INTERCEPT = -0.01
-ERA_BASELINE = 3.4
+ERA_BASELINE = 5.2      # NCAA D1-scale baseline for ERA fallback mapping
 
 
 # ── Normal inverse CDF approximation ──────────────────────────────────────────
@@ -138,6 +138,57 @@ def load_pitcher_index(path: Path) -> dict[str, int]:
     return idx
 
 
+def _parse_season_from_path(path: Path) -> int | None:
+    parent = path.parent.name
+    if parent.isdigit() and len(parent) == 4:
+        return int(parent)
+    return None
+
+
+def _collect_season_files(root: Path, basename: str, explicit_path: Path | None = None) -> list[tuple[int | None, Path]]:
+    """Collect multi-season files from root and root/YYYY/."""
+    seen: set[Path] = set()
+    out: list[tuple[int | None, Path]] = []
+
+    candidates: list[Path] = []
+    if explicit_path is not None:
+        candidates.append(explicit_path)
+    candidates.append(root / basename)
+    for p in sorted(root.glob(f"*/{basename}")):
+        candidates.append(p)
+
+    for p in candidates:
+        if not p.exists():
+            continue
+        rp = p.resolve()
+        if rp in seen:
+            continue
+        seen.add(rp)
+        out.append((_parse_season_from_path(p), p))
+    return out
+
+
+def _season_weighted_value(records: list[tuple[int, float]], target_season: int, max_back: int = 3, decay: float = 0.65) -> float | None:
+    """Recency-weighted value using records up to target season."""
+    elig = [(s, v) for (s, v) in records if s <= target_season and s >= (target_season - max_back)]
+    if not elig:
+        # fallback: nearest season record in either direction
+        if not records:
+            return None
+        nearest = sorted(records, key=lambda x: abs(x[0] - target_season))[0]
+        return float(nearest[1])
+
+    num = 0.0
+    den = 0.0
+    for s, v in elig:
+        w = decay ** max(0, target_season - s)
+        num += w * float(v)
+        den += w
+    if den <= 0:
+        return None
+    return num / den
+
+
 # ── Main build function ────────────────────────────────────────────────────────
 
 def build_pitcher_table(
@@ -150,6 +201,8 @@ def build_pitcher_table(
     d1b_crosswalk_csv: Path,
     canonical_csv: Path,
     out_csv: Path,
+    d1b_root: Path,
+    as_of_season: int | None = None,
 ) -> pd.DataFrame:
 
     # ── 1. Build crosswalk lookups ─────────────────────────────────────────
@@ -165,10 +218,27 @@ def build_pitcher_table(
     # ── 2. Load pitcher_appearances.csv ────────────────────────────────────
     print("Loading pitcher appearances...", file=sys.stderr)
     app = pd.read_csv(appearances_csv, dtype=str)
+    # Backward compatibility: older extracts used pitcher_espn_id + starter
+    # while downstream logic expects pitcher_id + role.
+    if "pitcher_id" not in app.columns:
+        pid_series = app["pitcher_espn_id"] if "pitcher_espn_id" in app.columns else pd.Series([""] * len(app))
+        app["pitcher_id"] = pid_series.apply(
+            lambda x: f"ESPN_{str(x).strip()}" if str(x).strip() else ""
+        )
+    if "role" not in app.columns:
+        starter_series = app["starter"] if "starter" in app.columns else pd.Series([""] * len(app))
+        app["role"] = starter_series.apply(
+            lambda x: "starter" if str(x).strip().lower() in ("true", "1", "yes") else "reliever"
+        )
     for col in ["ip", "er"]:
         app[col] = pd.to_numeric(app[col], errors="coerce")
     app["game_date"] = pd.to_datetime(app["game_date"], errors="coerce")
     app["season"] = app["game_date"].dt.year
+    if as_of_season is None:
+        if app["season"].dropna().empty:
+            as_of_season = 2026
+        else:
+            as_of_season = int(app["season"].dropna().max())
 
     # Strip ESPN_ prefix from pitcher_id to get numeric ESPN id
     app["pitcher_espn_id"] = app["pitcher_id"].apply(
@@ -249,12 +319,15 @@ def build_pitcher_table(
 
     # ── 3. Load D1B advanced stats (FIP, SIERA) ────────────────────────────
     print("Loading D1B advanced stats...", file=sys.stderr)
-    # Build FIP distribution first for percentile mapping
+    # Build FIP/SIERA distributions for percentile mapping
     all_fips: list[float] = []
+    all_sieras: list[float] = []
     d1b_adv_data: list[dict] = []  # (cid, name, fip, siera)
 
-    if pitching_advanced_tsv.exists():
-        adv = pd.read_csv(pitching_advanced_tsv, sep="\t", dtype=str)
+    adv_files = _collect_season_files(d1b_root, "pitching_advanced.tsv", pitching_advanced_tsv)
+    for season_hint, adv_path in adv_files:
+        season_val = season_hint if season_hint is not None else as_of_season
+        adv = pd.read_csv(adv_path, sep="\t", dtype=str)
         for _, r in adv.iterrows():
             pname = _norm_name(str(r.get("Player", "")))
             team = _norm_str(str(r.get("Team", "")))
@@ -268,25 +341,29 @@ def build_pitcher_table(
                 fip = None
             try:
                 siera = float(r["SIERA"])
+                all_sieras.append(siera)
             except (ValueError, TypeError):
                 siera = None
-            d1b_adv_data.append({"cid": cid, "name": pname, "fip": fip, "siera": siera})
+            d1b_adv_data.append({"cid": cid, "name": pname, "season": int(season_val), "fip": fip, "siera": siera})
 
     all_fips_arr = np.array(sorted(all_fips)) if all_fips else np.array([4.5])
+    all_sieras_arr = np.array(sorted(all_sieras)) if all_sieras else all_fips_arr
     print(f"  FIP distribution: {len(all_fips)} pitchers, mean={all_fips_arr.mean():.2f}", file=sys.stderr)
 
     # Build (cid, normalized_name) → {fip, siera} dict
-    d1b_adv_map: dict[tuple[str, str], dict] = {}
+    d1b_adv_map: dict[tuple[str, str], list[dict]] = {}
     for row in d1b_adv_data:
         key = (row["cid"], row["name"])
-        d1b_adv_map[key] = {"fip": row["fip"], "siera": row["siera"]}
+        d1b_adv_map.setdefault(key, []).append({"season": int(row["season"]), "fip": row["fip"], "siera": row["siera"]})
 
     # ── 4. Load D1B standard stats (ERA for non-advanced pitchers) ─────────
     print("Loading D1B standard stats...", file=sys.stderr)
     d1b_std_map: dict[tuple[str, str], dict] = {}
 
-    if pitching_standard_tsv.exists():
-        std = pd.read_csv(pitching_standard_tsv, sep="\t", dtype=str)
+    std_files = _collect_season_files(d1b_root, "pitching_standard.tsv", pitching_standard_tsv)
+    for season_hint, std_path in std_files:
+        season_val = season_hint if season_hint is not None else as_of_season
+        std = pd.read_csv(std_path, sep="\t", dtype=str)
         for _, r in std.iterrows():
             pname = _norm_name(str(r.get("Player", "")))
             team = _norm_str(str(r.get("Team", "")))
@@ -298,7 +375,7 @@ def build_pitcher_table(
                 ip = float(r.get("IP", "0") or "0")
             except (ValueError, TypeError):
                 continue
-            d1b_std_map[(cid, pname)] = {"era_d1b": era, "ip_d1b": ip}
+            d1b_std_map[(cid, pname)] = {"season": int(season_val), "era_d1b": era, "ip_d1b": ip}
 
     print(f"  D1B standard: {len(d1b_std_map)} entries", file=sys.stderr)
 
@@ -306,8 +383,10 @@ def build_pitcher_table(
     print("Loading batted ball data (FB%)...", file=sys.stderr)
     d1b_fb_map: dict[tuple[str, str], float] = {}  # (cid, name) → FB% as raw number
 
-    if pitching_batted_ball_tsv.exists():
-        bb = pd.read_csv(pitching_batted_ball_tsv, sep="\t", dtype=str)
+    bb_files = _collect_season_files(d1b_root, "pitching_batted_ball.tsv", pitching_batted_ball_tsv)
+    for season_hint, bb_path in bb_files:
+        season_val = season_hint if season_hint is not None else as_of_season
+        bb = pd.read_csv(bb_path, sep="\t", dtype=str)
         for _, r in bb.iterrows():
             pname = _norm_name(str(r.get("Player", "")))
             team = _norm_str(str(r.get("Team", "")))
@@ -317,7 +396,7 @@ def build_pitcher_table(
             fb_str = str(r.get("FB%", "")).strip().rstrip("%")
             try:
                 fb_pct = float(fb_str)
-                d1b_fb_map[(cid, pname)] = fb_pct
+                d1b_fb_map[(cid, pname)] = {"season": int(season_val), "fb_pct": fb_pct}
             except (ValueError, TypeError):
                 pass
 
@@ -438,9 +517,11 @@ def build_pitcher_table(
         fip = None
         siera = None
         if d1b_name and (cid, d1b_name) in d1b_adv_map:
-            adv_entry = d1b_adv_map[(cid, d1b_name)]
-            fip = adv_entry.get("fip")
-            siera = adv_entry.get("siera")
+            adv_entries = d1b_adv_map[(cid, d1b_name)]
+            fip_records = [(int(x["season"]), float(x["fip"])) for x in adv_entries if x.get("fip") is not None]
+            siera_records = [(int(x["season"]), float(x["siera"])) for x in adv_entries if x.get("siera") is not None]
+            fip = _season_weighted_value(fip_records, season)
+            siera = _season_weighted_value(siera_records, season)
 
         # ── D1B standard ERA ───────────────────────────────────────────────
         era_d1b = None
@@ -452,7 +533,8 @@ def build_pitcher_table(
         # ── FB% ────────────────────────────────────────────────────────────
         fb_pct = None
         if d1b_name and (cid, d1b_name) in d1b_fb_map:
-            fb_pct = d1b_fb_map[(cid, d1b_name)]
+            fb_entry = d1b_fb_map[(cid, d1b_name)]
+            fb_pct = float(fb_entry["fb_pct"])
 
         fb_sens = _fb_sensitivity(fb_pct)
 
@@ -484,8 +566,7 @@ def build_pitcher_table(
             d1b_ability_adj = _fip_pctile_to_ability(fip, all_fips_arr)
             d1b_ability_source = "fip"
         elif siera is not None and siera > 0:
-            # Use FIP distribution as proxy for SIERA percentile mapping
-            d1b_ability_adj = _fip_pctile_to_ability(siera, all_fips_arr)
+            d1b_ability_adj = _fip_pctile_to_ability(siera, all_sieras_arr)
             d1b_ability_source = "siera"
         elif era_d1b is not None and era_d1b > 0:
             d1b_ability_adj = _fip_pctile_to_ability(era_d1b, all_fips_arr)
@@ -579,6 +660,8 @@ def main() -> int:
     parser.add_argument("--pitching-advanced", type=Path, default=Path("data/raw/d1baseball/pitching_advanced.tsv"))
     parser.add_argument("--pitching-standard", type=Path, default=Path("data/raw/d1baseball/pitching_standard.tsv"))
     parser.add_argument("--pitching-batted-ball", type=Path, default=Path("data/raw/d1baseball/pitching_batted_ball.tsv"))
+    parser.add_argument("--d1b-root", type=Path, default=Path("data/raw/d1baseball"))
+    parser.add_argument("--as-of-season", type=int, default=None)
     parser.add_argument("--rotations", type=Path, default=Path("data/processed/d1baseball_rotations.csv"))
     parser.add_argument("--d1b-crosswalk", type=Path, default=Path("data/registries/d1baseball_crosswalk.csv"))
     parser.add_argument("--canonical", type=Path, default=Path("data/registries/canonical_teams_2026.csv"))
@@ -594,6 +677,8 @@ def main() -> int:
         d1b_crosswalk_csv=args.d1b_crosswalk,
         canonical_csv=args.canonical,
         out_csv=args.out,
+        d1b_root=args.d1b_root,
+        as_of_season=args.as_of_season,
     )
     return 0
 

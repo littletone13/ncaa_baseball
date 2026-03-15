@@ -296,6 +296,7 @@ def main():
     # Build output rows
     rows: list[dict] = []
     unresolved: set[str] = set()
+    n_skipped_unresolved = 0
 
     for matchup in matchups:
         for day, side, team_name, pitcher in matchup["pitchers"]:
@@ -305,7 +306,8 @@ def main():
             cid = resolve_team(team_name, lookup)
             if cid is None:
                 unresolved.add(team_name)
-                cid = f"UNRESOLVED_{team_name}"
+                n_skipped_unresolved += 1
+                continue
 
             rows.append({
                 "canonical_id": cid,
@@ -347,6 +349,7 @@ def main():
         print(f"\nWARNING: {len(unresolved)} team(s) could not be resolved to canonical_id:")
         for t in sorted(unresolved):
             print(f"  - {t}")
+        print(f"Skipped {n_skipped_unresolved} unresolved pitcher row(s).")
 
 
 if __name__ == "__main__":

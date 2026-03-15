@@ -18,7 +18,9 @@ Output schema (weather.csv):
     temp_f          - temperature in Fahrenheit
     wind_mph        - wind speed
     wind_dir_deg    - wind direction (meteorological, FROM direction)
+    rain_chance_pct - precipitation probability (0-100)
     weather_mode    - "hourly_avg" or "current"
+    weather_status  - quality flag: ok_hourly/ok_current/missing_stadium/api_error/...
     elevation_ft    - stadium elevation in feet
 
 Usage:
@@ -123,13 +125,20 @@ def resolve_weather(
         temp_f = 72.0
         wind_mph = 0.0
         wind_dir_deg = 0.0
+        rain_chance_pct = 0.0
         weather_mode = "current"
+        weather_status = "ok_current"
+        weather_error = ""
         elevation_ft = 0.0
 
         if not home_cid:
             print(f"  Warning: no home_cid for game {game_num} — using neutral weather", file=sys.stderr)
+            weather_status = "missing_home_cid"
+            weather_error = "no_home_cid"
         elif sinfo is None:
             print(f"  Warning: no stadium data for {home_cid} — using neutral weather", file=sys.stderr)
+            weather_status = "missing_stadium"
+            weather_error = "no_stadium_data"
         else:
             elevation_ft = sinfo.get("elevation_ft", 0.0)
             try:
@@ -149,12 +158,18 @@ def resolve_weather(
                     temp_f = w.get("temp_f", 72.0)
                     wind_mph = w.get("wind_speed_mph", 0.0)
                     wind_dir_deg = w.get("wind_dir_deg", 0.0)
+                    rain_chance_pct = w.get("precip_prob_pct", 0.0)
                     weather_mode = w.get("weather_mode", "current")
+                    weather_status = "ok_hourly" if weather_mode == "hourly_avg" else "ok_current"
                     elevation_ft = w.get("elevation_ft", elevation_ft)
                 else:
                     print(f"  Weather warning: {w['error']}", file=sys.stderr)
+                    weather_status = "api_error"
+                    weather_error = str(w.get("error", "api_error"))
             except Exception as e:
                 print(f"  Weather failed for {home_cid}: {e}", file=sys.stderr)
+                weather_status = "exception"
+                weather_error = str(e)
 
         rows.append(
             {
@@ -170,7 +185,10 @@ def resolve_weather(
                 "temp_f": round(temp_f, 1),
                 "wind_mph": round(wind_mph, 1),
                 "wind_dir_deg": round(wind_dir_deg, 1),
+                "rain_chance_pct": round(rain_chance_pct, 1),
                 "weather_mode": weather_mode,
+                "weather_status": weather_status,
+                "weather_error": weather_error,
                 "elevation_ft": round(elevation_ft, 1),
             }
         )

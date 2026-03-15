@@ -111,12 +111,13 @@ def get_stadium_info(
 def fetch_current_weather(lat: float, lon: float) -> dict | None:
     """
     Fetch current weather from Open-Meteo API.
-    Returns dict with wind_speed_mph, wind_direction_deg, temperature_f, wind_gusts_mph.
+    Returns dict with wind_speed_mph, wind_direction_deg, temperature_f,
+    wind_gusts_mph, precip_prob_pct.
     """
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={lat}&longitude={lon}"
-        f"&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+        f"&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation"
         f"&temperature_unit=fahrenheit"
         f"&wind_speed_unit=mph"
         f"&timezone=auto"
@@ -130,11 +131,17 @@ def fetch_current_weather(lat: float, lon: float) -> dict | None:
         return None
 
     current = data.get("current", {})
+    precip_mm = float(current.get("precipitation", 0) or 0)
+    # Open-Meteo current endpoint doesn't provide probability directly.
+    # Use a conservative binary proxy when only current precipitation is available.
+    precip_prob_pct = 100.0 if precip_mm > 0 else 0.0
     return {
         "wind_speed_mph": float(current.get("wind_speed_10m", 0)),
         "wind_direction_deg": float(current.get("wind_direction_10m", 0)),
         "temperature_f": float(current.get("temperature_2m", TEMP_BASELINE_F)),
         "wind_gusts_mph": float(current.get("wind_gusts_10m", 0)),
+        "precipitation_mm": precip_mm,
+        "precip_prob_pct": precip_prob_pct,
     }
 
 
@@ -146,13 +153,14 @@ def fetch_hourly_weather(lat: float, lon: float, date: str) -> list[dict] | None
         lat, lon: stadium coordinates
         date: YYYY-MM-DD
 
-    Returns list of 24 hourly dicts with keys:
-        time (ISO str), wind_speed_mph, wind_direction_deg, temperature_f, wind_gusts_mph
+    Returns list of hourly dicts with keys:
+        time (ISO str), wind_speed_mph, wind_direction_deg, temperature_f,
+        wind_gusts_mph, precip_prob_pct
     """
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={lat}&longitude={lon}"
-        f"&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
+        f"&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability,precipitation"
         f"&temperature_unit=fahrenheit"
         f"&wind_speed_unit=mph"
         f"&timezone=auto"
@@ -179,6 +187,8 @@ def fetch_hourly_weather(lat: float, lon: float, date: str) -> list[dict] | None
             "wind_direction_deg": float(hourly.get("wind_direction_10m", [0])[i]),
             "temperature_f": float(hourly.get("temperature_2m", [TEMP_BASELINE_F])[i]),
             "wind_gusts_mph": float(hourly.get("wind_gusts_10m", [0])[i]),
+            "precip_prob_pct": float(hourly.get("precipitation_probability", [0])[i]),
+            "precipitation_mm": float(hourly.get("precipitation", [0])[i]),
         })
     return results
 
@@ -214,6 +224,8 @@ def average_weather(weather_list: list[dict]) -> dict:
             "wind_direction_deg": 0,
             "temperature_f": TEMP_BASELINE_F,
             "wind_gusts_mph": 0,
+            "precip_prob_pct": 0,
+            "precipitation_mm": 0,
         }
     n = len(weather_list)
     # For wind direction, use vector averaging to handle wraparound (e.g., 350° + 10°)
@@ -226,6 +238,8 @@ def average_weather(weather_list: list[dict]) -> dict:
         "wind_direction_deg": round(avg_dir, 1),
         "temperature_f": sum(w["temperature_f"] for w in weather_list) / n,
         "wind_gusts_mph": sum(w["wind_gusts_mph"] for w in weather_list) / n,
+        "precip_prob_pct": sum(float(w.get("precip_prob_pct", 0) or 0) for w in weather_list) / n,
+        "precipitation_mm": sum(float(w.get("precipitation_mm", 0) or 0) for w in weather_list) / n,
     }
 
 
@@ -466,6 +480,8 @@ def get_weather_park_adj(
                         "wind_out_rf": round(dw["wind_out_rf"], 1),
                         "temp_f": round(h["temperature_f"], 1),
                         "wind_gusts_mph": round(h["wind_gusts_mph"], 1),
+                        "precip_prob_pct": round(float(h.get("precip_prob_pct", 0) or 0), 1),
+                        "precipitation_mm": round(float(h.get("precipitation_mm", 0) or 0), 2),
                     })
                 weather = average_weather(hours)
             else:
@@ -490,6 +506,8 @@ def get_weather_park_adj(
         "wind_speed_mph": weather["wind_speed_mph"],
         "wind_dir_deg": weather["wind_direction_deg"],
         "wind_gusts_mph": weather.get("wind_gusts_mph", 0),
+        "precip_prob_pct": weather.get("precip_prob_pct", 0),
+        "precipitation_mm": weather.get("precipitation_mm", 0),
         "temp_f": weather["temperature_f"],
         "hp_bearing_deg": hp_bearing,
         "venue_name": venue_name,

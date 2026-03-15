@@ -38,6 +38,20 @@ def prob_to_american(p: float) -> int:
     return int(round(100 * (1 - p) / p))
 
 
+def _logit(p: float) -> float:
+    x = min(1.0 - 1e-6, max(1e-6, float(p)))
+    return float(np.log(x / (1.0 - x)))
+
+
+def _inv_logit(x: float) -> float:
+    z = float(np.exp(np.clip(x, -20.0, 20.0)))
+    return z / (1.0 + z)
+
+
+def _clamp(x: float, lo: float, hi: float) -> float:
+    return float(max(lo, min(hi, x)))
+
+
 # ── Posterior Loading ────────────────────────────────────────────────────────
 
 def load_posterior(
@@ -173,8 +187,7 @@ def simulate_games(
     weather_by_game = {int(r["game_num"]): r for _, r in weather.iterrows()}
 
     # ── Constants ─────────────────────────────────────────────────────────
-    STARTER_IP_FRAC = 0.61  # ~5.5 / 9
-    BULLPEN_IP_FRAC = 1.0 - STARTER_IP_FRAC
+    DEFAULT_STARTER_IP = 5.5
 
     # ── Simulate each game ───────────────────────────────────────────────
     rng = np.random.default_rng(seed)
@@ -186,6 +199,10 @@ def simulate_games(
         a_cid = str(sched_row["away_cid"]).strip()
         h_name = str(sched_row["home_name"]).strip()
         a_name = str(sched_row["away_name"]).strip()
+        mkt_anchor_weight = _safe_float(sched_row, "mkt_anchor_weight", 0.0)
+        mkt_home_win_prob = _safe_float_or_none(sched_row, "mkt_home_win_prob")
+        mkt_total_line = _safe_float_or_none(sched_row, "mkt_total_line")
+        time_to_start_min = _safe_float_or_none(sched_row, "time_to_start_min")
 
         # Team indices (clamp to posterior size)
         h_idx = team_idx_map.get(h_cid, 0)
@@ -215,6 +232,18 @@ def simulate_games(
         ap_fb_sens = _safe_float(st, "ap_fb_sens", 1.0)
         hp_bp_fb_sens = _safe_float(st, "hp_bp_fb_sens", 1.0)
         ap_bp_fb_sens = _safe_float(st, "ap_bp_fb_sens", 1.0)
+        hp_expected_ip = _safe_float(st, "hp_expected_ip", DEFAULT_STARTER_IP)
+        ap_expected_ip = _safe_float(st, "ap_expected_ip", DEFAULT_STARTER_IP)
+        hp_expected_ip = float(np.clip(hp_expected_ip, 3.5, 7.5))
+        ap_expected_ip = float(np.clip(ap_expected_ip, 3.5, 7.5))
+        hp_starter_ip_frac = hp_expected_ip / 9.0
+        ap_starter_ip_frac = ap_expected_ip / 9.0
+        hp_bullpen_ip_frac = 1.0 - hp_starter_ip_frac
+        ap_bullpen_ip_frac = 1.0 - ap_starter_ip_frac
+        home_res_method = _safe_str(st, "home_resolution_method", "")
+        away_res_method = _safe_str(st, "away_resolution_method", "")
+        home_d1b_fallback = _safe_int(st, "home_d1b_fallback", 0)
+        away_d1b_fallback = _safe_int(st, "away_d1b_fallback", 0)
 
         # Offense adjustments (wRC+ for non-model teams)
         h_att_adj = _safe_float(st, "home_wrc_adj", 0.0)
@@ -242,19 +271,22 @@ def simulate_games(
         wind_out_cf = _safe_float_or_none(wx, "wind_out_cf")
         wind_out_rf = _safe_float_or_none(wx, "wind_out_rf")
         weather_mode = _safe_str(wx, "weather_mode", "")
+        weather_status = _safe_str(wx, "weather_status", "")
+        weather_error = _safe_str(wx, "weather_error", "")
+        rain_chance_pct = _safe_float_or_none(wx, "rain_chance_pct")
 
         # Display-level weather adj (average of both starters for summary)
         weather_adj = wind_adj_raw * (hp_fb_sens + ap_fb_sens) / 2.0 + non_wind_adj
 
         # Park + weather decomposition
-        base_pf = pf + non_wind_adj
+        base_pf = pf
 
         # Home scoring: away pitcher on mound
-        ap_blended_sens = STARTER_IP_FRAC * ap_fb_sens + BULLPEN_IP_FRAC * ap_bp_fb_sens
+        ap_blended_sens = ap_starter_ip_frac * ap_fb_sens + ap_bullpen_ip_frac * ap_bp_fb_sens
         wind_adj_home = wind_adj_raw * ap_blended_sens
 
         # Away scoring: home pitcher on mound
-        hp_blended_sens = STARTER_IP_FRAC * hp_fb_sens + BULLPEN_IP_FRAC * hp_bp_fb_sens
+        hp_blended_sens = hp_starter_ip_frac * hp_fb_sens + hp_bullpen_ip_frac * hp_bp_fb_sens
         wind_adj_away = wind_adj_raw * hp_blended_sens
 
         # Pure bullpen wind (for extra innings)
@@ -265,23 +297,92 @@ def simulate_games(
         h_bp = bp_map.get(h_cid, 0.0)
         a_bp = bp_map.get(a_cid, 0.0)
 
-        print(f"  Game {game_num+1}: {a_name} @ {h_name}  "
+        print(f"  Game {game_num}: {a_name} @ {h_name}  "
               f"[h_idx={h_idx}, a_idx={a_idx}, hp={hp_idx}, ap={ap_idx}]",
               file=sys.stderr)
+
+        # ── Market anchor adjustment (time-aware, pilot calibrated) ────────
+        anchor_home_shift = 0.0
+        anchor_away_shift = 0.0
+        pilot_home_prob = None
+        pilot_total = None
+        if mkt_anchor_weight > 0 and (mkt_home_win_prob is not None or mkt_total_line is not None):
+            n_pilot = int(max(250, min(800, n_sims // 8)))
+            pilot_wins = 0
+            pilot_h_sum = 0.0
+            pilot_a_sum = 0.0
+            for _ in range(n_pilot):
+                d = rng.integers(0, n_draws)
+                base_park_eff = beta_park[d] * base_pf
+                park_eff_h = base_park_eff + non_wind_adj + wind_adj_home
+                park_eff_a = base_park_eff + non_wind_adj + wind_adj_away
+                bp_h_eff = beta_bullpen[d] * a_bp
+                bp_a_eff = beta_bullpen[d] * h_bp
+                home_runs_sim, away_runs_sim = 0, 0
+                eh, ea = 0.0, 0.0
+                for k in range(4):
+                    log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
+                                 + home_adv[d] + pitcher_ab[d, ap_idx] + ap_era_adj
+                                 + park_eff_h + bp_h_eff + platoon_h + h_att_adj)
+                    log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
+                                 + pitcher_ab[d, hp_idx] + hp_era_adj
+                                 + park_eff_a + bp_a_eff + platoon_a + a_att_adj)
+                    mu_h = np.exp(log_lam_h)
+                    mu_a = np.exp(log_lam_a)
+                    eh += (k + 1) * mu_h
+                    ea += (k + 1) * mu_a
+                    if k <= 1:
+                        theta = max(1e-6, theta_run[d, k])
+                        p_h = theta / (theta + max(1e-8, mu_h))
+                        p_a = theta / (theta + max(1e-8, mu_a))
+                        home_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_h)
+                        away_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_a)
+                    else:
+                        home_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_h))
+                        away_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_a))
+                if home_runs_sim > away_runs_sim:
+                    pilot_wins += 1
+                pilot_h_sum += eh
+                pilot_a_sum += ea
+            pilot_home_prob = pilot_wins / max(1, n_pilot)
+            pilot_total = (pilot_h_sum + pilot_a_sum) / max(1, n_pilot)
+
+            total_shift = 0.0
+            side_shift = 0.0
+            if mkt_total_line is not None and pilot_total and pilot_total > 0:
+                total_shift = _clamp(
+                    mkt_anchor_weight * np.log(max(0.01, float(mkt_total_line)) / pilot_total) / 2.0,
+                    -0.25,
+                    0.25,
+                )
+            if mkt_home_win_prob is not None:
+                side_shift = _clamp(
+                    mkt_anchor_weight * (_logit(float(mkt_home_win_prob)) - _logit(pilot_home_prob or 0.5)) / 2.0,
+                    -0.35,
+                    0.35,
+                )
+            anchor_home_shift = total_shift + side_shift
+            anchor_away_shift = total_shift - side_shift
 
         # ── Monte Carlo loop ──────────────────────────────────────────────
         wins_home = 0
         exp_h_sum, exp_a_sum = 0.0, 0.0
         home_rl_cover = 0
         away_rl_cover = 0
+        rl_steps = [2, 3, 4, 5, 6]
+        home_win_by: dict[int, int] = {k: 0 for k in rl_steps}
+        away_win_by: dict[int, int] = {k: 0 for k in rl_steps}
         overs = 0
         total_line = 11.5
+        home_runs_mc = np.zeros(n_sims, dtype=np.int16)
+        away_runs_mc = np.zeros(n_sims, dtype=np.int16)
+        total_runs_mc = np.zeros(n_sims, dtype=np.int16)
 
-        for _ in range(n_sims):
+        for i in range(n_sims):
             d = rng.integers(0, n_draws)
             base_park_eff = beta_park[d] * base_pf
-            park_eff_h = base_park_eff + wind_adj_home
-            park_eff_a = base_park_eff + wind_adj_away
+            park_eff_h = base_park_eff + non_wind_adj + wind_adj_home
+            park_eff_a = base_park_eff + non_wind_adj + wind_adj_away
             bp_h_eff = beta_bullpen[d] * a_bp   # home batting: away bullpen
             bp_a_eff = beta_bullpen[d] * h_bp   # away batting: home bullpen
 
@@ -291,10 +392,12 @@ def simulate_games(
             for k in range(4):
                 log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
                              + home_adv[d] + pitcher_ab[d, ap_idx] + ap_era_adj
-                             + park_eff_h + bp_h_eff + platoon_h + h_att_adj)
+                             + park_eff_h + bp_h_eff + platoon_h + h_att_adj
+                             + anchor_home_shift)
                 log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
                              + pitcher_ab[d, hp_idx] + hp_era_adj
-                             + park_eff_a + bp_a_eff + platoon_a + a_att_adj)
+                             + park_eff_a + bp_a_eff + platoon_a + a_att_adj
+                             + anchor_away_shift)
                 mu_h = np.exp(log_lam_h)
                 mu_a = np.exp(log_lam_a)
                 eh += (k + 1) * mu_h
@@ -314,17 +417,19 @@ def simulate_games(
             exp_a_sum += ea
 
             # Extra innings (bullpen pitching -> use bullpen FB sensitivity for wind)
-            park_eff_h_bp = base_park_eff + wind_adj_home_bp
-            park_eff_a_bp = base_park_eff + wind_adj_away_bp
+            park_eff_h_bp = base_park_eff + non_wind_adj + wind_adj_home_bp
+            park_eff_a_bp = base_park_eff + non_wind_adj + wind_adj_away_bp
             extra = 0
             while home_runs_sim == away_runs_sim and extra < 20:
                 for k in range(4):
+                    # Extra innings are bullpen-only; starter ability should not apply.
                     log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
-                                 + home_adv[d] + pitcher_ab[d, ap_idx]
-                                 + park_eff_h_bp + bp_h_eff)
+                                 + home_adv[d]
+                                 + park_eff_h_bp + bp_h_eff
+                                 + anchor_home_shift)
                     log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
-                                 + pitcher_ab[d, hp_idx]
-                                 + park_eff_a_bp + bp_a_eff)
+                                 + park_eff_a_bp + bp_a_eff
+                                 + anchor_away_shift)
                     mu_h = np.exp(log_lam_h) / 9.0
                     mu_a = np.exp(log_lam_a) / 9.0
                     if k <= 1:
@@ -350,17 +455,53 @@ def simulate_games(
                 home_rl_cover += 1
             if margin < -1.5:
                 away_rl_cover += 1
+            for k in rl_steps:
+                if margin >= k:
+                    home_win_by[k] += 1
+                if margin <= -k:
+                    away_win_by[k] += 1
             if (home_runs_sim + away_runs_sim) > total_line:
                 overs += 1
+            home_runs_mc[i] = int(home_runs_sim)
+            away_runs_mc[i] = int(away_runs_sim)
+            total_runs_mc[i] = int(home_runs_sim + away_runs_sim)
 
         # ── Aggregate results ─────────────────────────────────────────────
         N = n_sims
         win_prob = wins_home / N
         exp_h = exp_h_sum / N
         exp_a = exp_a_sum / N
+        exp_total = exp_h + exp_a
+        total_p10 = float(np.quantile(total_runs_mc, 0.10))
+        total_p50 = float(np.quantile(total_runs_mc, 0.50))
+        total_p90 = float(np.quantile(total_runs_mc, 0.90))
+        margin_mc = home_runs_mc.astype(np.int32) - away_runs_mc.astype(np.int32)
+        margin_p10 = float(np.quantile(margin_mc, 0.10))
+        margin_p50 = float(np.quantile(margin_mc, 0.50))
+        margin_p90 = float(np.quantile(margin_mc, 0.90))
+        win_se = float(np.sqrt(max(1e-8, win_prob * (1.0 - win_prob) / N)))
+        home_win_ci_lo = max(0.0, win_prob - 1.96 * win_se)
+        home_win_ci_hi = min(1.0, win_prob + 1.96 * win_se)
+
+        starter_missing = int(hp_idx == 0) + int(ap_idx == 0)
+        any_team_fallback = int(h_idx == 0 or a_idx == 0)
+        weather_bad = 0 if (weather_status.startswith("ok") or weather_status == "") else 1
+        any_d1b = int(abs(hp_era_adj) > 1e-12 or abs(ap_era_adj) > 1e-12)
+        fragility = 0.0
+        fragility += 0.20 * float(starter_missing)
+        fragility += 0.20 * float(any_team_fallback)
+        fragility += 0.20 * float(weather_bad)
+        fragility += 0.10 * float(any_d1b)
+        fragility = _clamp(fragility, 0.0, 1.0)
+        if fragility >= 0.60:
+            fragility_flag = "high"
+        elif fragility >= 0.30:
+            fragility_flag = "medium"
+        else:
+            fragility_flag = "low"
 
         result = {
-            "game_num": game_num + 1,
+            "game_num": game_num,
             "away": a_name,
             "home": h_name,
             "home_cid": h_cid,
@@ -377,9 +518,27 @@ def simulate_games(
             "ml_away": prob_to_american(1 - win_prob),
             "exp_home": exp_h,
             "exp_away": exp_a,
-            "exp_total": exp_h + exp_a,
+            "exp_total": exp_total,
+            "home_win_ci_lo": home_win_ci_lo,
+            "home_win_ci_hi": home_win_ci_hi,
+            "exp_total_p10": total_p10,
+            "exp_total_p50": total_p50,
+            "exp_total_p90": total_p90,
+            "margin_p10": margin_p10,
+            "margin_p50": margin_p50,
+            "margin_p90": margin_p90,
             "home_rl_cover": home_rl_cover / N,
             "away_rl_cover": away_rl_cover / N,
+            "home_win_by_2plus": home_win_by[2] / N,
+            "away_win_by_2plus": away_win_by[2] / N,
+            "home_win_by_3plus": home_win_by[3] / N,
+            "away_win_by_3plus": away_win_by[3] / N,
+            "home_win_by_4plus": home_win_by[4] / N,
+            "away_win_by_4plus": away_win_by[4] / N,
+            "home_win_by_5plus": home_win_by[5] / N,
+            "away_win_by_5plus": away_win_by[5] / N,
+            "home_win_by_6plus": home_win_by[6] / N,
+            "away_win_by_6plus": away_win_by[6] / N,
             "over_prob": overs / N,
             "park_factor": pf,
             "wind_adj_raw": round(wind_adj_raw, 4),
@@ -389,6 +548,16 @@ def simulate_games(
             "ap_fb_sens": round(ap_fb_sens, 3),
             "hp_bp_fb_sens": round(hp_bp_fb_sens, 3),
             "ap_bp_fb_sens": round(ap_bp_fb_sens, 3),
+            "hp_expected_ip": round(hp_expected_ip, 2),
+            "ap_expected_ip": round(ap_expected_ip, 2),
+            "hp_starter_ip_frac": round(hp_starter_ip_frac, 3),
+            "ap_starter_ip_frac": round(ap_starter_ip_frac, 3),
+            "home_resolution_method": home_res_method if home_res_method else None,
+            "away_resolution_method": away_res_method if away_res_method else None,
+            "home_d1b_fallback": int(home_d1b_fallback),
+            "away_d1b_fallback": int(away_d1b_fallback),
+            "home_bullpen_adj": round(h_bp, 4),
+            "away_bullpen_adj": round(a_bp, 4),
             "temp_f": temp_f,
             "wind_mph": wind_mph,
             "wind_out_mph": wind_out_mph,
@@ -396,6 +565,9 @@ def simulate_games(
             "wind_out_cf": wind_out_cf,
             "wind_out_rf": wind_out_rf,
             "weather_mode": weather_mode if weather_mode else None,
+            "weather_status": weather_status if weather_status else None,
+            "weather_error": weather_error if weather_error else None,
+            "rain_chance_pct": rain_chance_pct,
             "hp_d1b_adj": round(hp_era_adj, 4) if hp_era_adj != 0 else None,
             "ap_d1b_adj": round(ap_era_adj, 4) if ap_era_adj != 0 else None,
             "hp_d1b_src": hp_adj_src if hp_era_adj != 0 else None,
@@ -404,6 +576,16 @@ def simulate_games(
             "away_wrc_adj": round(a_att_adj, 4) if a_att_adj != 0 else None,
             "platoon_adj_home": round(platoon_h, 4),
             "platoon_adj_away": round(platoon_a, 4),
+            "fragility_score": round(fragility, 3),
+            "fragility_flag": fragility_flag,
+            "mkt_anchor_weight": round(float(mkt_anchor_weight), 3),
+            "mkt_home_win_prob": mkt_home_win_prob,
+            "mkt_total_line": mkt_total_line,
+            "time_to_start_min": time_to_start_min,
+            "pilot_home_win_prob": pilot_home_prob,
+            "pilot_exp_total": pilot_total,
+            "anchor_home_shift": round(anchor_home_shift, 4),
+            "anchor_away_shift": round(anchor_away_shift, 4),
         }
         all_results.append(result)
 

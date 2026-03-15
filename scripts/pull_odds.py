@@ -121,6 +121,36 @@ def build_game_record(
     return record
 
 
+def _parse_iso_utc(ts: str | None) -> datetime | None:
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def _filter_started_events(
+    events: list[dict[str, Any]],
+    buffer_minutes: int = 0,
+) -> tuple[list[dict[str, Any]], int]:
+    """
+    Keep only events that have not started yet.
+    Events with missing/invalid commence_time are kept (cannot classify).
+    """
+    now_utc = datetime.now(timezone.utc)
+    cutoff = now_utc - timedelta(minutes=buffer_minutes)
+    kept: list[dict[str, Any]] = []
+    dropped = 0
+    for ev in events:
+        commence = _parse_iso_utc(ev.get("commence_time"))
+        if commence is not None and commence <= cutoff:
+            dropped += 1
+            continue
+        kept.append(ev)
+    return kept, dropped
+
+
 def process_events(
     events: list[dict[str, Any]], snapshot_ts: str | None = None
 ) -> list[dict[str, Any]]:
@@ -308,6 +338,17 @@ def main() -> int:
         default=None,
         help="Output JSONL path (default: data/raw/odds/odds_<sport>_<date>.jsonl)",
     )
+    parser.add_argument(
+        "--include-started",
+        action="store_true",
+        help="Keep games whose commence_time has already passed (default drops started/in-progress for current mode).",
+    )
+    parser.add_argument(
+        "--start-buffer-min",
+        type=int,
+        default=15,
+        help="Treat games as started this many minutes before commence_time check (default: 15).",
+    )
     args = parser.parse_args()
 
     api_key = os.environ.get("ODDS_API_KEY", "").strip()
@@ -397,6 +438,12 @@ def main() -> int:
             api_key, sport=args.sport, regions=args.regions, markets=args.markets
         )
         print_quota_headers(resp)
+        if not args.include_started:
+            events, n_dropped = _filter_started_events(events, buffer_minutes=args.start_buffer_min)
+            if n_dropped:
+                print(
+                    f"Dropped {n_dropped} started/in-progress current event(s) using commence_time guard.",
+                )
         records = process_events(events, snapshot_ts=None)
         stamp = utc_now_iso()[:10].replace("-", "")
 

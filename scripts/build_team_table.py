@@ -21,6 +21,33 @@ ATT_STD_EST = 0.109   # from posterior att_run_1 team mean std
 BULLPEN_SCALE = 0.1   # bullpen_adj = -bullpen_depth_score * BULLPEN_SCALE
 
 
+def _parse_season_from_path(path: Path) -> int | None:
+    parent = path.parent.name
+    if parent.isdigit() and len(parent) == 4:
+        return int(parent)
+    return None
+
+
+def _collect_season_files(root: Path, basename: str, explicit_path: Path | None = None) -> list[tuple[int | None, Path]]:
+    seen: set[Path] = set()
+    out: list[tuple[int | None, Path]] = []
+    candidates: list[Path] = []
+    if explicit_path is not None:
+        candidates.append(explicit_path)
+    candidates.append(root / basename)
+    for p in sorted(root.glob(f"*/{basename}")):
+        candidates.append(p)
+    for p in candidates:
+        if not p.exists():
+            continue
+        rp = p.resolve()
+        if rp in seen:
+            continue
+        seen.add(rp)
+        out.append((_parse_season_from_path(p), p))
+    return out
+
+
 def load_canonical_teams(path: Path) -> pd.DataFrame:
     """Load canonical team registry as the base table."""
     df = pd.read_csv(path, dtype=str)
@@ -76,7 +103,7 @@ def build_d1b_crosswalk(xwalk_path: Path) -> dict[str, str]:
     return d1b_to_cid
 
 
-def load_wrc_plus(bat_path: Path, xwalk_path: Path) -> pd.DataFrame:
+def load_wrc_plus(bat_path: Path, xwalk_path: Path, d1b_root: Path, as_of_season: int) -> pd.DataFrame:
     """
     Load D1B batting_advanced.tsv and compute team mean wRC+.
 
@@ -85,21 +112,34 @@ def load_wrc_plus(bat_path: Path, xwalk_path: Path) -> pd.DataFrame:
     """
     d1b_to_cid = build_d1b_crosswalk(xwalk_path)
 
-    bat_df = pd.read_csv(bat_path, sep="\t", dtype=str)
-
     team_wrc: dict[str, list[float]] = {}
-    for _, r in bat_df.iterrows():
-        team = str(r.get("Team", "")).strip()
-        # Normalize apostrophes for lookup
-        team_key = team.lower().replace("\u2019", "'")
-        cid = d1b_to_cid.get(team_key) or d1b_to_cid.get(team.lower(), "")
-        if not cid:
-            continue
-        try:
-            wrc_val = float(r["wRC+"])
-            team_wrc.setdefault(cid, []).append(wrc_val)
-        except (ValueError, TypeError, KeyError):
-            pass
+    season_rows: list[dict[str, object]] = []
+    bat_files = _collect_season_files(d1b_root, "batting_advanced.tsv", bat_path)
+    for season_hint, fpath in bat_files:
+        season_val = int(season_hint) if season_hint is not None else int(as_of_season)
+        bat_df = pd.read_csv(fpath, sep="\t", dtype=str)
+        for _, r in bat_df.iterrows():
+            team = str(r.get("Team", "")).strip()
+            team_key = team.lower().replace("\u2019", "'")
+            cid = d1b_to_cid.get(team_key) or d1b_to_cid.get(team.lower(), "")
+            if not cid:
+                continue
+            try:
+                wrc_val = float(r["wRC+"])
+                season_rows.append({"canonical_id": cid, "season": season_val, "wrc_plus": wrc_val})
+            except (ValueError, TypeError, KeyError):
+                pass
+
+    if season_rows:
+        s_df = pd.DataFrame(season_rows)
+        # Recency-weighted aggregation across seasons up to as_of_season.
+        for cid, grp in s_df.groupby("canonical_id"):
+            grp = grp[grp["season"] <= as_of_season]
+            if grp.empty:
+                continue
+            weights = (0.65 ** (as_of_season - grp["season"].astype(int))).clip(lower=0.15)
+            val = float(np.average(grp["wrc_plus"].astype(float), weights=weights))
+            team_wrc.setdefault(cid, []).append(val)
 
     if not team_wrc:
         print("  WARNING: No wRC+ data loaded — check batting_advanced.tsv and crosswalk",
@@ -131,6 +171,8 @@ def build_team_table(
     bullpen_path: Path,
     bat_path: Path,
     xwalk_path: Path,
+    d1b_root: Path,
+    as_of_season: int | None = None,
 ) -> pd.DataFrame:
     """Merge all sources into a single team table."""
 
@@ -138,6 +180,9 @@ def build_team_table(
     print("Loading canonical team registry...", file=sys.stderr)
     base = load_canonical_teams(registry_path)
     print(f"  {len(base)} teams in registry", file=sys.stderr)
+    if as_of_season is None:
+        s = pd.to_numeric(base.get("season"), errors="coerce").dropna()
+        as_of_season = int(s.max()) if not s.empty else 2026
 
     # 2. Stan model team indices
     print("Loading Stan model team indices...", file=sys.stderr)
@@ -166,7 +211,7 @@ def build_team_table(
     # 4. D1B wRC+ offense adjustment
     print("Loading D1B wRC+ batting stats...", file=sys.stderr)
     if bat_path.exists() and xwalk_path.exists():
-        wrc_df = load_wrc_plus(bat_path, xwalk_path)
+        wrc_df = load_wrc_plus(bat_path, xwalk_path, d1b_root=d1b_root, as_of_season=as_of_season)
         print(f"  {len(wrc_df)} teams with wRC+ data", file=sys.stderr)
         base = base.merge(wrc_df, on="canonical_id", how="left")
     else:
@@ -239,6 +284,17 @@ def main() -> None:
         default="data/registries/d1baseball_crosswalk.csv",
         help="D1B team name → canonical_id crosswalk CSV",
     )
+    parser.add_argument(
+        "--d1b-root",
+        default="data/raw/d1baseball",
+        help="Root directory for seasonized D1B files (supports YYYY subdirs).",
+    )
+    parser.add_argument(
+        "--as-of-season",
+        type=int,
+        default=None,
+        help="As-of season for recency weighting (default inferred from registry).",
+    )
     args = parser.parse_args()
 
     # Resolve paths relative to repo root (script lives in scripts/)
@@ -249,6 +305,7 @@ def main() -> None:
     bullpen_path = repo_root / args.bullpen
     bat_path = repo_root / args.batting
     xwalk_path = repo_root / args.crosswalk
+    d1b_root = repo_root / args.d1b_root
 
     print(f"Building team table...", file=sys.stderr)
 
@@ -258,6 +315,8 @@ def main() -> None:
         bullpen_path=bullpen_path,
         bat_path=bat_path,
         xwalk_path=xwalk_path,
+        d1b_root=d1b_root,
+        as_of_season=args.as_of_season,
     )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
