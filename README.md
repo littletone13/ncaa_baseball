@@ -72,6 +72,33 @@ python3 scripts/project_game.py --team-a "Michigan" --team-b "Kansas St" --neutr
 
 Optional: `--home-sp-id`, `--away-sp-id` (ESPN pitcher ids) when starters are known. See [docs/MODEL_BUILD_REFINEMENTS.md](docs/MODEL_BUILD_REFINEMENTS.md) §2.5–2.6 (pitcher model, early-season profit).
 
+### Daily probable/announced starter pipeline (today's games)
+
+Use the starter pipeline to build `data/processed/todays_starters.csv` with source tags (manual announced, D1 same-day lineup, ESPN started-game summary, or inferred fallback):
+
+```bash
+# 1) Build today's game template for manual announced starters
+python3 scripts/build_todays_starters.py --date 2026-02-25 --write-manual-template --manual-template-only
+
+# 2) Fill data/raw/starters_manual/manual_starters_2026-02-25.csv
+#    from D1Baseball/team sites/social posts (names and/or ESPN ids)
+
+# 3) Build final starter table (with fallbacks for missing entries)
+python3 scripts/build_todays_starters.py --date 2026-02-25 --write-manual-template
+```
+
+Then print/run downstream commands:
+
+```bash
+# Print project_game.py commands (dry run)
+python3 scripts/run_today_with_starters.py --mode project
+
+# Execute project_game.py commands
+python3 scripts/run_today_with_starters.py --mode project --execute
+```
+
+Details and schema: [docs/PROBABLE_STARTERS_PIPELINE.md](docs/PROBABLE_STARTERS_PIPELINE.md).
+
 ## Rosters (2026)
 
 2026 (2025–26) rosters use roster year_id **614802** (see `data/registries/ncaa_roster_year_id_lu.csv`).
