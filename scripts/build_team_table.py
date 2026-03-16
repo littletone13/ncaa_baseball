@@ -165,6 +165,62 @@ def load_wrc_plus(bat_path: Path, xwalk_path: Path, d1b_root: Path, as_of_season
     return pd.DataFrame(rows)
 
 
+def load_batting_fb_factor(bb_path: Path, xwalk_path: Path, d1b_root: Path, as_of_season: int) -> pd.DataFrame:
+    """
+    Load D1B batting_batted_ball.tsv and compute team fly-ball factor.
+
+    batting_fb_factor = team_mean_FB% / league_mean_FB%
+    Values > 1.0 = team hits more fly balls than average (more wind-sensitive).
+    Values < 1.0 = ground-ball-heavy team (less wind-sensitive).
+
+    Returns a DataFrame with columns:
+        canonical_id, batting_fb_pct, batting_fb_factor
+    """
+    d1b_to_cid = build_d1b_crosswalk(xwalk_path)
+
+    team_fb: dict[str, list[float]] = {}
+    bb_files = _collect_season_files(d1b_root, "batting_batted_ball.tsv", bb_path)
+    for season_hint, fpath in bb_files:
+        season_val = int(season_hint) if season_hint is not None else int(as_of_season)
+        if season_val > as_of_season:
+            continue
+        bb_df = pd.read_csv(fpath, sep="\t", dtype=str)
+        for _, r in bb_df.iterrows():
+            team = str(r.get("Team", "")).strip()
+            team_key = team.lower().replace("\u2019", "'")
+            cid = d1b_to_cid.get(team_key) or d1b_to_cid.get(team.lower(), "")
+            if not cid:
+                continue
+            try:
+                fb_str = str(r.get("FB%", "")).strip().rstrip("%")
+                fb_val = float(fb_str)
+                team_fb.setdefault(cid, []).append(fb_val)
+            except (ValueError, TypeError):
+                pass
+
+    if not team_fb:
+        print("  WARNING: No batting FB% data loaded", file=sys.stderr)
+        return pd.DataFrame(columns=["canonical_id", "batting_fb_pct", "batting_fb_factor"])
+
+    team_means = {cid: float(np.mean(vals)) for cid, vals in team_fb.items()}
+    all_means = np.array(list(team_means.values()))
+    league_avg = float(np.mean(all_means))
+
+    print(f"  Batting FB% loaded: {len(team_means)} teams, "
+          f"league avg={league_avg:.1f}%", file=sys.stderr)
+
+    rows = []
+    for cid, fb_mean in team_means.items():
+        factor = fb_mean / league_avg if league_avg > 0 else 1.0
+        rows.append({
+            "canonical_id": cid,
+            "batting_fb_pct": round(fb_mean, 1),
+            "batting_fb_factor": round(factor, 4),
+        })
+
+    return pd.DataFrame(rows)
+
+
 def build_team_table(
     registry_path: Path,
     team_index_path: Path,
@@ -227,10 +283,24 @@ def build_team_table(
     # Fill missing wrc_offense_adj with 0.0 (no adjustment for unknown teams)
     base["wrc_offense_adj"] = base["wrc_offense_adj"].fillna(0.0)
 
-    # 5. n_games — not available yet, set to None
+    # 5. Batting FB% factor (fly ball tendency for wind model)
+    print("Loading D1B batting batted-ball stats (FB%)...", file=sys.stderr)
+    bb_path = d1b_root / "batting_batted_ball.tsv"
+    if bb_path.exists() and xwalk_path.exists():
+        fb_df = load_batting_fb_factor(bb_path, xwalk_path, d1b_root=d1b_root,
+                                        as_of_season=as_of_season)
+        print(f"  {len(fb_df)} teams with batting FB% data", file=sys.stderr)
+        base = base.merge(fb_df, on="canonical_id", how="left")
+    else:
+        print(f"  WARNING: Missing batted ball data — batting_fb_factor set to 1.0",
+              file=sys.stderr)
+    base["batting_fb_pct"] = base.get("batting_fb_pct", pd.Series(dtype=float)).fillna(0.0)
+    base["batting_fb_factor"] = base.get("batting_fb_factor", pd.Series(dtype=float)).fillna(1.0)
+
+    # 6. n_games — not available yet, set to None
     base["n_games"] = np.nan
 
-    # 6. Final column ordering per spec
+    # 7. Final column ordering per spec
     output_cols = [
         "canonical_id",
         "team_idx",
@@ -241,6 +311,8 @@ def build_team_table(
         "bullpen_adj",
         "wrc_plus",
         "wrc_offense_adj",
+        "batting_fb_pct",
+        "batting_fb_factor",
         "n_games",
     ]
     # Only include columns that exist
@@ -327,6 +399,7 @@ def main() -> None:
     print(f"  With bullpen_quality_z: {tt['bullpen_quality_z'].notna().sum()}", file=sys.stderr)
     print(f"  With wRC+:            {tt['wrc_plus'].notna().sum()}", file=sys.stderr)
     print(f"  With wrc_offense_adj != 0: {(tt['wrc_offense_adj'] != 0).sum()}", file=sys.stderr)
+    print(f"  With batting_fb_factor:   {(tt['batting_fb_factor'] != 1.0).sum()}", file=sys.stderr)
 
 
 if __name__ == "__main__":

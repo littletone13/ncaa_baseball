@@ -274,19 +274,23 @@ def resolve_starters(
         vals = grp["fb_sensitivity"].dropna()
         bp_fb_by_team[str(cid)] = float(vals.mean()) if len(vals) > 0 else 1.0
 
-    # ── Load team_table for wRC+ offense adjustment ───────────────────────────
+    # ── Load team_table for wRC+ offense adjustment + batting FB factor ──────
     wrc_adj_by_team: dict[str, float] = {}  # canonical_id → adj (only for team_idx=0)
+    batting_fb_by_team: dict[str, float] = {}  # canonical_id → FB factor (for wind model)
     team_idx_by_cid: dict[str, int] = {}
     if team_table_csv.exists():
         tt = pd.read_csv(team_table_csv, dtype=str)
         tt["team_idx"] = pd.to_numeric(tt["team_idx"], errors="coerce").fillna(0).astype(int)
         tt["wrc_offense_adj"] = pd.to_numeric(tt["wrc_offense_adj"], errors="coerce").fillna(0.0)
+        tt["batting_fb_factor"] = pd.to_numeric(tt.get("batting_fb_factor"), errors="coerce").fillna(1.0)
         for _, row in tt.iterrows():
             cid = str(row.get("canonical_id", "")).strip()
             if not cid:
                 continue
             tidx = int(row["team_idx"])
             team_idx_by_cid[cid] = tidx
+            # Batting FB factor for wind scaling (all teams)
+            batting_fb_by_team[cid] = float(row["batting_fb_factor"])
             # Only apply wRC+ adj to teams NOT in the Stan model
             if tidx == 0:
                 adj = float(row["wrc_offense_adj"])
@@ -378,6 +382,10 @@ def resolve_starters(
         home_wrc_adj = wrc_adj_by_team.get(h_cid, 0.0)
         away_wrc_adj = wrc_adj_by_team.get(a_cid, 0.0)
 
+        # Batting fly ball factor for wind model scaling
+        home_batting_fb = batting_fb_by_team.get(h_cid, 1.0)
+        away_batting_fb = batting_fb_by_team.get(a_cid, 1.0)
+
         print(
             f"  Game {game_num}: {a_cid} @ {h_cid} | "
             f"HP={hp_name} (idx={hp_idx_final}, throws={hp_info['throws'] or '?'}, "
@@ -415,6 +423,8 @@ def resolve_starters(
             "away_d1b_fallback": int(str(ap_id).startswith("d1b_")),
             "home_wrc_adj": home_wrc_adj,
             "away_wrc_adj": away_wrc_adj,
+            "home_batting_fb": home_batting_fb,
+            "away_batting_fb": away_batting_fb,
             "platoon_adj_home": 0.0,
             "platoon_adj_away": 0.0,
         })

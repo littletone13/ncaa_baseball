@@ -89,6 +89,9 @@ def main() -> int:
         default=None,
         help="Calibration markdown output path (default: data/processed/calibration_{date}_{phase}.md)",
     )
+    parser.add_argument("--ha-target", type=float, default=0.05,
+                        help="Target home_advantage mean (post-hoc correction). "
+                             "0.05 = ~53-54%% home win rate. 0 = no correction.")
     args = parser.parse_args()
     user_set_n = "--N" in sys.argv
     if not user_set_n:
@@ -165,6 +168,7 @@ def main() -> int:
 
     # ── Step 4: Simulate ──
     print(f"Step 4/5: Simulating ({args.N} draws per game)...", file=sys.stderr)
+    ha_target = args.ha_target if args.ha_target > 0 else None
     predictions = simulate_games(
         schedule_csv=schedule_csv,
         starters_csv=starters_csv,
@@ -174,6 +178,7 @@ def main() -> int:
         team_table_csv=args.team_table,
         n_sims=args.N,
         seed=args.seed,
+        ha_target=ha_target,
     )
 
     # ── Output ──

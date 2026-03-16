@@ -41,7 +41,12 @@ def main() -> int:
         return 1
 
     df = pd.read_csv(args.run_events, dtype=str)
-    for c in ("home_canonical_id", "away_canonical_id", "home_pitcher_espn_id", "away_pitcher_espn_id"):
+    # Support both column name conventions:
+    #   run_events.csv uses home_pitcher_espn_id / away_pitcher_espn_id
+    #   run_events_expanded.csv uses home_pitcher_id / away_pitcher_id
+    hp_col = "home_pitcher_id" if "home_pitcher_id" in df.columns else "home_pitcher_espn_id"
+    ap_col = "away_pitcher_id" if "away_pitcher_id" in df.columns else "away_pitcher_espn_id"
+    for c in ("home_canonical_id", "away_canonical_id", hp_col, ap_col):
         if c in df.columns:
             df[c] = df[c].fillna("").astype(str).str.strip()
 
@@ -53,8 +58,8 @@ def main() -> int:
     team_index = pd.DataFrame({"canonical_id": teams, "team_idx": range(1, len(teams) + 1)})
 
     # Unique pitchers; use 0 for unknown/missing
-    home_p = df["home_pitcher_espn_id"].loc[df["home_pitcher_espn_id"].astype(str).str.strip() != ""]
-    away_p = df["away_pitcher_espn_id"].loc[df["away_pitcher_espn_id"].astype(str).str.strip() != ""]
+    home_p = df[hp_col].loc[df[hp_col].astype(str).str.strip() != ""]
+    away_p = df[ap_col].loc[df[ap_col].astype(str).str.strip() != ""]
     pitchers = pd.Series(pd.unique(pd.concat([home_p, away_p], ignore_index=True)))
     pitchers = pitchers.loc[pitchers.astype(str).str.strip() != ""].dropna()
     pitchers = pitchers.astype(str).str.strip()

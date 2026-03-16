@@ -39,8 +39,8 @@ parameters {
   real<lower=0> theta_run_1;
   real<lower=0> theta_run_2;
 
-  // Home advantage — single scalar (Mack Ch 18)
-  real<lower=0> home_advantage;
+  // Home advantage — unconstrained (allow data to determine sign)
+  real home_advantage;
 
   // Intercepts on log scale — unconstrained (rate = exp(int), can be <1 or >1)
   // College baseball run_1 is common (~3.3/game), run_2..4 are rare (<1/game)
@@ -48,6 +48,11 @@ parameters {
   real int_run_2;
   real int_run_3;
   real int_run_4;
+
+  // Hierarchical scales (learned from data)
+  real<lower=0.01, upper=0.6> sigma_att;
+  real<lower=0.01, upper=0.6> sigma_def;
+  real<lower=0.01, upper=0.4> sigma_pitcher;
 
   // Raw team abilities (per-run-type att/def)
   vector[N_teams] att_run_1_raw;
@@ -82,7 +87,8 @@ transformed parameters {
 
 model {
   // Priors — global parameters
-  home_advantage ~ normal(0, 0.1);
+  // Informative HFA prior: ~53-54% home win rate → ~0.05 on log-rate scale
+  home_advantage ~ normal(0.05, 0.03);
   int_run_1 ~ normal(1.2, 0.3);          // ~3.3 run_1 events/game -> log(3.3) ~ 1.19
   int_run_2 ~ normal(-0.1, 0.3);         // ~0.88 run_2 events/game -> log(0.88) ~ -0.13
   int_run_3 ~ normal(-1.3, 0.5);         // ~0.26 run_3 events/game -> log(0.26) ~ -1.35
@@ -90,18 +96,23 @@ model {
   theta_run_1 ~ gamma(30, 1);
   theta_run_2 ~ gamma(30, 1);
 
-  // Priors — team abilities
-  att_run_1_raw ~ normal(0, 0.2);
-  def_run_1_raw ~ normal(0, 0.2);
-  att_run_2_raw ~ normal(0, 0.2);
-  def_run_2_raw ~ normal(0, 0.2);
-  att_run_3_raw ~ normal(0, 0.2);
-  def_run_3_raw ~ normal(0, 0.2);
-  att_run_4_raw ~ normal(0, 0.2);
-  def_run_4_raw ~ normal(0, 0.2);
+  // Priors — hierarchical scales (learned from data)
+  sigma_att ~ normal(0.15, 0.05);
+  sigma_def ~ normal(0.15, 0.05);
+  sigma_pitcher ~ normal(0.10, 0.03);
 
-  // Priors — pitcher ability (single scalar, tighter for college sample sizes)
-  pitcher_ability_raw ~ normal(0, 0.15);
+  // Priors — team abilities (hierarchical: scale learned from data)
+  att_run_1_raw ~ normal(0, sigma_att);
+  def_run_1_raw ~ normal(0, sigma_def);
+  att_run_2_raw ~ normal(0, sigma_att);
+  def_run_2_raw ~ normal(0, sigma_def);
+  att_run_3_raw ~ normal(0, sigma_att);
+  def_run_3_raw ~ normal(0, sigma_def);
+  att_run_4_raw ~ normal(0, sigma_att);
+  def_run_4_raw ~ normal(0, sigma_def);
+
+  // Priors — pitcher ability (hierarchical: scale learned from data)
+  pitcher_ability_raw ~ normal(0, sigma_pitcher);
 
   // Priors — park and bullpen coefficients
   beta_park ~ normal(1, 0.3);             // ~1 means park_factor translates directly to log-rate

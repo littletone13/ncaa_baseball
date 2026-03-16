@@ -133,12 +133,16 @@ def simulate_games(
     team_table_csv: Path,
     n_sims: int = 5000,
     seed: int = 42,
+    ha_target: float | None = None,
 ) -> pd.DataFrame:
     """
     Pure Monte Carlo simulation. No API calls. Deterministic.
 
     Reads pre-resolved schedule, starters, and weather CSVs plus the
     Stan posterior and team table. Returns DataFrame with one row per game.
+
+    ha_target: if set, shift home_advantage posterior mean to this value.
+               Use 0.05 for ~53-54% NCAA home win rate. None = no correction.
     """
     # ── Load posterior ────────────────────────────────────────────────────
     print("Loading posterior...", file=sys.stderr)
@@ -155,6 +159,14 @@ def simulate_games(
     N_teams = post["N_teams"]
     N_pitchers = post["N_pitchers"]
     print(f"  {n_draws} draws, {N_teams} teams, {N_pitchers} pitchers", file=sys.stderr)
+
+    # ── Fix 1: Post-hoc home advantage correction ────────────────────────
+    if ha_target is not None:
+        ha_mean = float(home_adv.mean())
+        if ha_mean > ha_target + 0.02:
+            ha_shift = ha_mean - ha_target
+            home_adv -= ha_shift
+            print(f"  HA correction: {ha_mean:.4f} → {home_adv.mean():.4f}", file=sys.stderr)
 
     # ── Load team table (bullpen quality + team index) ────────────────────
     team_table = pd.read_csv(team_table_csv, dtype=str)
@@ -249,6 +261,11 @@ def simulate_games(
         h_att_adj = _safe_float(st, "home_wrc_adj", 0.0)
         a_att_adj = _safe_float(st, "away_wrc_adj", 0.0)
 
+        # Batting fly ball factor (team batting FB% / league avg FB%)
+        # Scales wind effect for the batting team: high-FB teams benefit more from tailwind
+        h_bat_fb = _safe_float(st, "home_batting_fb", 1.0)
+        a_bat_fb = _safe_float(st, "away_batting_fb", 1.0)
+
         # Platoon
         platoon_h = _safe_float(st, "platoon_adj_home", 0.0)
         platoon_a = _safe_float(st, "platoon_adj_away", 0.0)
@@ -281,17 +298,18 @@ def simulate_games(
         # Park + weather decomposition
         base_pf = pf
 
-        # Home scoring: away pitcher on mound
+        # Home scoring: away pitcher on mound, home team batting
+        # Wind effect = wind_raw × pitcher_FB_sens × batting_team_FB_factor
         ap_blended_sens = ap_starter_ip_frac * ap_fb_sens + ap_bullpen_ip_frac * ap_bp_fb_sens
-        wind_adj_home = wind_adj_raw * ap_blended_sens
+        wind_adj_home = wind_adj_raw * ap_blended_sens * h_bat_fb
 
-        # Away scoring: home pitcher on mound
+        # Away scoring: home pitcher on mound, away team batting
         hp_blended_sens = hp_starter_ip_frac * hp_fb_sens + hp_bullpen_ip_frac * hp_bp_fb_sens
-        wind_adj_away = wind_adj_raw * hp_blended_sens
+        wind_adj_away = wind_adj_raw * hp_blended_sens * a_bat_fb
 
         # Pure bullpen wind (for extra innings)
-        wind_adj_home_bp = wind_adj_raw * ap_bp_fb_sens
-        wind_adj_away_bp = wind_adj_raw * hp_bp_fb_sens
+        wind_adj_home_bp = wind_adj_raw * ap_bp_fb_sens * h_bat_fb
+        wind_adj_away_bp = wind_adj_raw * hp_bp_fb_sens * a_bat_fb
 
         # Bullpen quality
         h_bp = bp_map.get(h_cid, 0.0)
@@ -350,16 +368,18 @@ def simulate_games(
             total_shift = 0.0
             side_shift = 0.0
             if mkt_total_line is not None and pilot_total and pilot_total > 0:
+                # Anchor toward market total — stronger caps to let market pull harder
                 total_shift = _clamp(
                     mkt_anchor_weight * np.log(max(0.01, float(mkt_total_line)) / pilot_total) / 2.0,
-                    -0.25,
-                    0.25,
+                    -0.40,
+                    0.40,
                 )
             if mkt_home_win_prob is not None:
+                # Anchor toward market side — stronger caps for more market influence
                 side_shift = _clamp(
                     mkt_anchor_weight * (_logit(float(mkt_home_win_prob)) - _logit(pilot_home_prob or 0.5)) / 2.0,
-                    -0.35,
-                    0.35,
+                    -0.50,
+                    0.50,
                 )
             anchor_home_shift = total_shift + side_shift
             anchor_away_shift = total_shift - side_shift
@@ -548,6 +568,8 @@ def simulate_games(
             "ap_fb_sens": round(ap_fb_sens, 3),
             "hp_bp_fb_sens": round(hp_bp_fb_sens, 3),
             "ap_bp_fb_sens": round(ap_bp_fb_sens, 3),
+            "home_batting_fb": round(h_bat_fb, 3),
+            "away_batting_fb": round(a_bat_fb, 3),
             "hp_expected_ip": round(hp_expected_ip, 2),
             "ap_expected_ip": round(ap_expected_ip, 2),
             "hp_starter_ip_frac": round(hp_starter_ip_frac, 3),
@@ -757,6 +779,9 @@ def main() -> int:
                         help="Date label for formatted output (YYYY-MM-DD)")
     parser.add_argument("--quiet", action="store_true",
                         help="Suppress formatted output, only write CSV")
+    parser.add_argument("--ha-target", type=float, default=None,
+                        help="Target home_advantage mean (post-hoc correction). "
+                             "E.g., 0.05 for ~53-54%% home win rate. None=no correction.")
     args = parser.parse_args()
 
     # Validate inputs
@@ -789,6 +814,7 @@ def main() -> int:
         team_table_csv=args.team_table,
         n_sims=args.N,
         seed=args.seed,
+        ha_target=args.ha_target,
     )
 
     # Save CSV

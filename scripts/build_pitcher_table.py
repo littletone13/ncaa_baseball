@@ -33,7 +33,7 @@ import numpy as np
 # ── Constants ──────────────────────────────────────────────────────────────────
 
 LEAGUE_AVG_FB = 38.9  # D1 average fly-ball % (used as denominator for fb_sensitivity)
-ABILITY_STD_EST = 0.05  # Estimated std of pitcher_ability posterior
+ABILITY_STD_EST = 0.08  # Estimated std of pitcher_ability posterior (bumped from 0.05 for more differentiation)
 ERA_SLOPE = 0.027       # Linear ERA→ability mapping slope (for rotation-page ERA)
 ERA_INTERCEPT = -0.01
 ERA_BASELINE = 5.2      # NCAA D1-scale baseline for ERA fallback mapping
@@ -122,7 +122,11 @@ def load_espn_to_canonical(canonical_path: Path) -> dict[str, str]:
 
 
 def load_pitcher_index(path: Path) -> dict[str, int]:
-    """Return dict: pitcher_espn_id (str, numeric) → Stan model index."""
+    """Return dict: pitcher_espn_id (str, numeric) → Stan model index.
+
+    Indexes BOTH the raw key (e.g. 'ESPN_59632') and the stripped numeric
+    form ('59632') so lookups work regardless of which format callers use.
+    """
     idx: dict[str, int] = {}
     if not path.exists():
         return idx
@@ -135,6 +139,10 @@ def load_pitcher_index(path: Path) -> dict[str, int]:
             pidx = 0
         if eid and eid != "unknown":
             idx[eid] = pidx
+            # Also index without ESPN_ prefix for numeric lookups
+            if eid.startswith("ESPN_"):
+                numeric = eid[5:]
+                idx[numeric] = pidx
     return idx
 
 
