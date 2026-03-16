@@ -80,7 +80,12 @@ def load_bullpen_quality(path: Path) -> pd.DataFrame:
     cols = ["canonical_id", "bullpen_quality_z", "bullpen_adj"]
     if "n_relievers" in df.columns:
         cols.append("n_relievers")
-    return df[cols].copy()
+    result = df[cols].copy()
+    # Deduplicate: keep the row with most recent/best data per team
+    # (multi-season bullpen data creates duplicates)
+    result = result.sort_values("bullpen_quality_z", ascending=False, na_position="last")
+    result = result.drop_duplicates("canonical_id", keep="first")
+    return result
 
 
 def build_d1b_crosswalk(xwalk_path: Path) -> dict[str, str]:
