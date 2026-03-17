@@ -372,7 +372,10 @@ def load_espn_games(
                         })
                         continue
 
-                # Score-only game (no PBP)
+                # Score-only game (no PBP) — capture line_scores if available
+                espn_ls = g.get("line_scores") or {}
+                espn_home_innings = espn_ls.get("home", [])
+                espn_away_innings = espn_ls.get("away", [])
                 score_rows.append({
                     "event_id": event_id,
                     "game_date": game_date,
@@ -384,6 +387,8 @@ def load_espn_games(
                     "home_score": home_score,
                     "away_score": away_score,
                     "source": "espn_score",
+                    "_home_innings": espn_home_innings,
+                    "_away_innings": espn_away_innings,
                 })
 
     return pbp_rows, score_rows
@@ -551,6 +556,7 @@ def main() -> int:
     parser.add_argument("--espn-dir", type=Path, default=Path("data/raw/espn"))
     parser.add_argument("--ncaa-boxscores", type=Path, default=Path("data/raw/ncaa/boxscores_2026.jsonl"))
     parser.add_argument("--ncaa-linescores", type=Path, default=Path("data/raw/ncaa/linescores_2026.jsonl"))
+    parser.add_argument("--appearances", type=Path, default=Path("data/processed/pitcher_appearances.csv"))
     parser.add_argument("--canonical", type=Path, default=Path("data/registries/canonical_teams_2026.csv"))
     parser.add_argument("--out", type=Path, default=Path("data/processed/run_events_expanded.csv"))
     parser.add_argument("--seasons", type=str, default="2024,2025,2026")
@@ -620,6 +626,54 @@ def main() -> int:
     )
     print(f"  NCAA boxscore games (non-duplicate): {len(ncaa_rows)}")
 
+    # ── Backfill pitcher IDs from pitcher_appearances.csv ─────────────────────
+    # ESPN score-only games (~85% of ESPN data) have no embedded starter info.
+    # We can fill many of these from pitcher_appearances.csv (which includes
+    # both ESPN-scraped and NCAA boxscore starters).
+    if args.appearances.exists():
+        import csv
+        starter_lookup: dict[str, tuple[str, str]] = {}  # (date|team) -> (pitcher_id, name)
+        with args.appearances.open(encoding="utf-8") as af:
+            reader = csv.DictReader(af)
+            for arow in reader:
+                if str(arow.get("starter", "")).strip().lower() != "true":
+                    continue
+                date = str(arow.get("game_date", ""))[:10]
+                team = str(arow.get("team_canonical_id", "")).strip()
+                pid = str(arow.get("pitcher_id", "")).strip()
+                name = str(arow.get("pitcher_name", "")).strip()
+                if date and team and name:
+                    key = f"{date}|{team}"
+                    if key not in starter_lookup:
+                        # Build NCAA-format pitcher ID if not already present
+                        if not pid or pid.startswith("NCAA_"):
+                            pid = _make_ncaa_pitcher_id(name, team)
+                        starter_lookup[key] = (pid, name)
+
+        n_backfilled_home = 0
+        n_backfilled_away = 0
+        for row in score_rows:
+            if row.get("home_pitcher_id"):
+                continue  # Already has pitcher
+            date = str(row.get("game_date", ""))[:10]
+            home_cid = str(row.get("home_canonical_id", "")).strip()
+            away_cid = str(row.get("away_canonical_id", "")).strip()
+
+            h_key = f"{date}|{home_cid}"
+            a_key = f"{date}|{away_cid}"
+
+            if h_key in starter_lookup:
+                row["home_pitcher_id"] = starter_lookup[h_key][0]
+                n_backfilled_home += 1
+            if a_key in starter_lookup:
+                row["away_pitcher_id"] = starter_lookup[a_key][0]
+                n_backfilled_away += 1
+
+        print(f"  Backfilled pitcher IDs from appearances: "
+              f"home={n_backfilled_home}, away={n_backfilled_away}")
+    else:
+        print(f"  No pitcher_appearances.csv found, skipping backfill")
+
     # ── Estimate run events for score-only games ──────────────────────────────
     # Strategy:
     #   1. For NCAA games with matching linescores: inning-level decomposition
@@ -633,7 +687,7 @@ def main() -> int:
     for row in score_rows + ncaa_rows:
         event_id = str(row.get("event_id", ""))
 
-        # Look up linescore for NCAA games
+        # Look up linescore — NCAA games from linescores file, ESPN from embedded line_scores
         ls = None
         if event_id.startswith("NCAA_") and decomp_table:
             raw_gid = event_id[5:]  # strip "NCAA_" prefix
@@ -646,8 +700,14 @@ def main() -> int:
             used_ls = False
 
             # Try inning-level decomposition if linescore available
+            innings_raw = None
             if ls:
                 innings_raw = ls.get(f"{side}_innings", [])
+            elif decomp_table:
+                # Check for embedded ESPN line_scores
+                innings_raw = row.get(f"_{side}_innings", [])
+
+            if innings_raw:
                 try:
                     innings_int = [int(x) for x in innings_raw if x is not None]
                 except (TypeError, ValueError):
@@ -673,14 +733,22 @@ def main() -> int:
 
             side_used_ls[side] = used_ls
 
+        # Clean up temporary linescore fields
+        row.pop("_home_innings", None)
+        row.pop("_away_innings", None)
+
         # Update source tag and counters
         if side_used_ls["home"] and side_used_ls["away"]:
             if row.get("source") == "ncaa_score":
                 row["source"] = "ncaa_linescore"
+            elif row.get("source") == "espn_score":
+                row["source"] = "espn_linescore"
             n_linescore_full += 1
         elif side_used_ls["home"] or side_used_ls["away"]:
             if row.get("source") == "ncaa_score":
                 row["source"] = "ncaa_linescore_partial"
+            elif row.get("source") == "espn_score":
+                row["source"] = "espn_linescore_partial"
             n_linescore_partial += 1
         else:
             n_bootstrap += 1
