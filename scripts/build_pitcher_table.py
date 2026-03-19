@@ -318,9 +318,56 @@ def build_pitcher_table(
     agg = agg.drop_duplicates(subset=["pitcher_id", "team_canonical_id"], keep="first")
 
     # Add pitcher_idx from pitcher index map
-    agg["pitcher_idx"] = agg["pitcher_espn_id"].apply(
-        lambda eid: pitcher_idx_map.get(str(eid), 0) if eid else 0
-    )
+    # The index has two ID formats:
+    #   ESPN: "ESPN_65678" (with numeric-stripped keys too)
+    #   NCAA: "NCAA_john_smith__BSB_UCLA" (name__team format from run_events_expanded)
+    # Appearances have:
+    #   pitcher_espn_id: "65678.0" (float) or ""
+    #   pitcher_id: "NCAA_6541986_John_Smith" (different NCAA format)
+    #   pitcher_name + team_canonical_id (can build NCAA format key)
+    import unicodedata, re as re_mod
+
+    _SUFFIX_RE_LOCAL = re_mod.compile(r"\s+(Jr\.?|Sr\.?|III|II|IV|V)\s*$", re_mod.IGNORECASE)
+
+    def _make_ncaa_index_key(name: str, team_cid: str) -> str:
+        """Build NCAA_name__team key matching run_events_expanded format exactly."""
+        if not name or not team_cid:
+            return ""
+        # Must match _normalize_pitcher_name() in build_run_events_expanded.py exactly:
+        n = name.strip()
+        n = unicodedata.normalize("NFKD", n)
+        n = "".join(c for c in n if not unicodedata.combining(c))
+        n = _SUFFIX_RE_LOCAL.sub("", n).strip()
+        n = n.replace(".", "")
+        n = re_mod.sub(r"\s+", "_", n.lower().strip())
+        n = re_mod.sub(r"[^a-z0-9_]", "", n)
+        if not n:
+            return ""
+        team_clean = team_cid.replace(" ", "_")
+        return f"NCAA_{n}__{team_clean}"
+
+    def _lookup_pitcher_idx(row):
+        eid = row.get("pitcher_espn_id", "")
+        # Try ESPN numeric ID first
+        if eid and str(eid) not in ("", "nan", "None"):
+            s = str(eid)
+            if s in pitcher_idx_map:
+                return pitcher_idx_map[s]
+            if s.endswith(".0"):
+                s = s[:-2]
+            if s in pitcher_idx_map:
+                return pitcher_idx_map[s]
+            if s.isdigit() and f"ESPN_{s}" in pitcher_idx_map:
+                return pitcher_idx_map[f"ESPN_{s}"]
+        # Try NCAA name__team format
+        pname = str(row.get("pitcher_name", ""))
+        tcid = str(row.get("team_canonical_id", ""))
+        ncaa_key = _make_ncaa_index_key(pname, tcid)
+        if ncaa_key and ncaa_key in pitcher_idx_map:
+            return pitcher_idx_map[ncaa_key]
+        return 0
+
+    agg["pitcher_idx"] = agg.apply(_lookup_pitcher_idx, axis=1)
 
     print(f"  {len(agg)} unique (pitcher, team) combinations", file=sys.stderr)
     print(f"  With pitcher_idx > 0: {(agg['pitcher_idx'] > 0).sum()}", file=sys.stderr)
@@ -443,6 +490,29 @@ def build_pitcher_table(
 
     print(f"  Rotation handedness: {len(rotation_map)} entries", file=sys.stderr)
 
+    # ── 6b. Load handedness from sidearm rosters (fallback) ──────────────
+    sidearm_csv = Path("data/processed/sidearm_rosters.csv")
+    sidearm_map: dict[tuple[str, str], str] = {}  # (cid, norm_name) → throws
+    sidearm_lastname_idx: dict[tuple[str, str], list[tuple[str, str]]] = {}  # (cid, lastname) → [(fullname, throws)]
+    if sidearm_csv.exists():
+        sr = pd.read_csv(sidearm_csv, dtype=str)
+        sr_pitchers = sr[sr["position"].str.contains("P", na=False)]
+        for _, r in sr_pitchers.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            pname = _norm_name(str(r.get("player_name", "")))
+            throws = str(r.get("throws", "")).strip()
+            if cid and pname and throws in ("L", "R"):
+                if (cid, pname) not in sidearm_map:
+                    sidearm_map[(cid, pname)] = throws
+                # Also build last-name index for abbreviated name matching
+                parts = pname.split()
+                if parts:
+                    lastname = parts[-1]
+                    sidearm_lastname_idx.setdefault((cid, lastname), []).append((pname, throws))
+        print(f"  Sidearm handedness: {len(sidearm_map)} pitcher entries from {sr_pitchers['canonical_id'].nunique()} teams", file=sys.stderr)
+    else:
+        print("  Sidearm rosters not found, skipping", file=sys.stderr)
+
     # ── 7. Build last-name index for D1B fuzzy matching ───────────────────
     # D1B pitchers have full names; appearances may use "J. Cheeseman" style.
     # Index by (cid, last_name) for fallback lookups.
@@ -556,6 +626,26 @@ def build_pitcher_table(
             norm_pname = _norm_name(pitcher_name)
             if (cid, norm_pname) in rotation_map:
                 throws = rotation_map[(cid, norm_pname)].get("throws", "")
+        # Fallback to sidearm roster data
+        if not throws:
+            norm_pname = _norm_name(pitcher_name)
+            if (cid, norm_pname) in sidearm_map:
+                throws = sidearm_map[(cid, norm_pname)]
+            else:
+                # Try last-name matching for abbreviated names (e.g., "J. Smith")
+                parts = norm_pname.split()
+                if parts:
+                    lastname = parts[-1]
+                    candidates = sidearm_lastname_idx.get((cid, lastname), [])
+                    if len(candidates) == 1:
+                        throws = candidates[0][1]
+                    elif len(candidates) > 1 and len(parts) >= 2:
+                        first_part = parts[0].rstrip(".")
+                        for fullname, t in candidates:
+                            fname_parts = fullname.split()
+                            if fname_parts and fname_parts[0].startswith(first_part):
+                                throws = t
+                                break
 
         # ERA from rotation map
         era_rot = None

@@ -94,6 +94,8 @@ class StarterLookup:
                 file=sys.stderr,
             )
         # pitcher_id -> pitcher_idx (int)
+        # Index under multiple key formats so lookups work regardless of caller format:
+        #   "ESPN_65678", "65678", "65678.0", "NCAA_XXX_Name"
         pi_df = pd.read_csv(pitcher_index_csv, dtype=str)
         self.pid_to_idx: dict[str, int] = {}
         for _, r in pi_df.iterrows():
@@ -101,6 +103,10 @@ class StarterLookup:
             idx = int(r.get("pitcher_idx", 0))
             if pid and pid.lower() != "unknown":
                 self.pid_to_idx[pid] = idx
+                if pid.startswith("ESPN_"):
+                    numeric = pid[5:]
+                    self.pid_to_idx[numeric] = idx
+                    self.pid_to_idx[numeric + ".0"] = idx
 
         # pitcher_id -> (pitcher_name, pitcher_idx)
         # Use run_event_pitcher_index (pid_to_idx) for posterior-aligned indices

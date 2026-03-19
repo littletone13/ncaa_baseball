@@ -25,6 +25,21 @@ import numpy as np
 import pandas as pd
 
 
+# ── Scoring constants ────────────────────────────────────────────────────────
+
+# Run-event multipliers: run_1=1, run_2=2, run_3=3, run_4=5.4
+# run_4 represents "4+ runs in an inning". Actual avg is ~5.4 runs
+# when 4+ score (includes 5, 6, 7+ run innings capped at run_4 count).
+RUN_MULT = [1, 2, 3, 5.4]
+
+# Global scoring calibration: Stan regularization shrinks intercepts
+# below true rate. This log-rate shift corrects for it.
+# Calibrated from 7,898 actual game outcomes:
+#   actual avg total = 13.13, model base (no calib) = 12.09
+#   C = log(13.13 / 12.09) = 0.083
+# Updated 2026-03-17 after refit with 4874 pitchers / 308 teams.
+SCORING_CALIBRATION = 0.083
+
 # ── Utility ──────────────────────────────────────────────────────────────────
 
 def prob_to_american(p: float) -> int:
@@ -80,6 +95,8 @@ def load_posterior(
 
     for k in range(4):
         int_run[:, k] = draws_df[f"int_run_{k+1}"].values
+    # Apply global scoring calibration to intercepts (corrects for Stan shrinkage)
+    int_run += SCORING_CALIBRATION
     for k in range(2):
         theta_run[:, k] = draws_df[f"theta_run_{k+1}"].values
     home_adv[:] = draws_df["home_advantage"].values
@@ -134,6 +151,7 @@ def simulate_games(
     n_sims: int = 5000,
     seed: int = 42,
     ha_target: float | None = None,
+    fatigue_csv: Path | None = None,
 ) -> pd.DataFrame:
     """
     Pure Monte Carlo simulation. No API calls. Deterministic.
@@ -189,6 +207,19 @@ def simulate_games(
             except (ValueError, TypeError):
                 bp_map[cid] = 0.0
 
+    # ── Load bullpen fatigue adjustments (optional) ─────────────────────
+    fatigue_map: dict[str, float] = {}  # canonical_id -> fatigue_adj (log-rate)
+    if fatigue_csv is not None and Path(fatigue_csv).exists():
+        fat_df = pd.read_csv(fatigue_csv, dtype=str)
+        for _, r in fat_df.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            adj = float(r.get("fatigue_adj", 0))
+            if cid:
+                fatigue_map[cid] = adj
+        n_fatigued = sum(1 for v in fatigue_map.values() if v > 0)
+        print(f"  Bullpen fatigue: {len(fatigue_map)} teams loaded, {n_fatigued} with positive adj",
+              file=sys.stderr)
+
     # ── Load input CSVs ──────────────────────────────────────────────────
     schedule = pd.read_csv(schedule_csv, dtype=str)
     starters = pd.read_csv(starters_csv, dtype=str)
@@ -200,6 +231,8 @@ def simulate_games(
 
     # ── Constants ─────────────────────────────────────────────────────────
     DEFAULT_STARTER_IP = 5.5
+
+    pass  # constants moved to module level
 
     # ── Simulate each game ───────────────────────────────────────────────
     rng = np.random.default_rng(seed)
@@ -315,6 +348,12 @@ def simulate_games(
         h_bp = bp_map.get(h_cid, 0.0)
         a_bp = bp_map.get(a_cid, 0.0)
 
+        # Bullpen fatigue: fatigued bullpen → opponent scores more
+        # h_fatigue_adj applied when home bullpen pitches (away team batting)
+        # a_fatigue_adj applied when away bullpen pitches (home team batting)
+        h_fatigue_adj = fatigue_map.get(h_cid, 0.0)
+        a_fatigue_adj = fatigue_map.get(a_cid, 0.0)
+
         print(f"  Game {game_num}: {a_name} @ {h_name}  "
               f"[h_idx={h_idx}, a_idx={a_idx}, hp={hp_idx}, ap={ap_idx}]",
               file=sys.stderr)
@@ -334,8 +373,8 @@ def simulate_games(
                 base_park_eff = beta_park[d] * base_pf
                 park_eff_h = base_park_eff + non_wind_adj + wind_adj_home
                 park_eff_a = base_park_eff + non_wind_adj + wind_adj_away
-                bp_h_eff = beta_bullpen[d] * a_bp
-                bp_a_eff = beta_bullpen[d] * h_bp
+                bp_h_eff = beta_bullpen[d] * a_bp + a_fatigue_adj  # away BP fatigued → home scores more
+                bp_a_eff = beta_bullpen[d] * h_bp + h_fatigue_adj  # home BP fatigued → away scores more
                 home_runs_sim, away_runs_sim = 0, 0
                 eh, ea = 0.0, 0.0
                 for k in range(4):
@@ -347,17 +386,17 @@ def simulate_games(
                                  + park_eff_a + bp_a_eff + platoon_a + a_att_adj)
                     mu_h = np.exp(log_lam_h)
                     mu_a = np.exp(log_lam_a)
-                    eh += (k + 1) * mu_h
-                    ea += (k + 1) * mu_a
+                    eh += RUN_MULT[k] * mu_h
+                    ea += RUN_MULT[k] * mu_a
                     if k <= 1:
                         theta = max(1e-6, theta_run[d, k])
                         p_h = theta / (theta + max(1e-8, mu_h))
                         p_a = theta / (theta + max(1e-8, mu_a))
-                        home_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_h)
-                        away_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_a)
+                        home_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_h)
+                        away_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_a)
                     else:
-                        home_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_h))
-                        away_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_a))
+                        home_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_h))
+                        away_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_a))
                 if home_runs_sim > away_runs_sim:
                     pilot_wins += 1
                 pilot_h_sum += eh
@@ -403,8 +442,8 @@ def simulate_games(
             base_park_eff = beta_park[d] * base_pf
             park_eff_h = base_park_eff + non_wind_adj + wind_adj_home
             park_eff_a = base_park_eff + non_wind_adj + wind_adj_away
-            bp_h_eff = beta_bullpen[d] * a_bp   # home batting: away bullpen
-            bp_a_eff = beta_bullpen[d] * h_bp   # away batting: home bullpen
+            bp_h_eff = beta_bullpen[d] * a_bp + a_fatigue_adj  # home batting: away bullpen
+            bp_a_eff = beta_bullpen[d] * h_bp + h_fatigue_adj  # away batting: home bullpen
 
             home_runs_sim, away_runs_sim = 0, 0
             eh, ea = 0.0, 0.0
@@ -420,18 +459,18 @@ def simulate_games(
                              + anchor_away_shift)
                 mu_h = np.exp(log_lam_h)
                 mu_a = np.exp(log_lam_a)
-                eh += (k + 1) * mu_h
-                ea += (k + 1) * mu_a
+                eh += RUN_MULT[k] * mu_h
+                ea += RUN_MULT[k] * mu_a
 
                 if k <= 1:
                     theta = max(1e-6, theta_run[d, k])
                     p_h = theta / (theta + max(1e-8, mu_h))
                     p_a = theta / (theta + max(1e-8, mu_a))
-                    home_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_h)
-                    away_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_a)
+                    home_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_h)
+                    away_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_a)
                 else:
-                    home_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_h))
-                    away_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_a))
+                    home_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_h))
+                    away_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_a))
 
             exp_h_sum += eh
             exp_a_sum += ea
@@ -456,11 +495,11 @@ def simulate_games(
                         theta = max(1e-6, theta_run[d, k])
                         p_h = theta / (theta + max(1e-8, mu_h))
                         p_a = theta / (theta + max(1e-8, mu_a))
-                        home_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_h)
-                        away_runs_sim += (k + 1) * rng.negative_binomial(n=theta, p=p_a)
+                        home_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_h)
+                        away_runs_sim += RUN_MULT[k] * rng.negative_binomial(n=theta, p=p_a)
                     else:
-                        home_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_h))
-                        away_runs_sim += (k + 1) * rng.poisson(lam=max(1e-8, mu_a))
+                        home_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_h))
+                        away_runs_sim += RUN_MULT[k] * rng.poisson(lam=max(1e-8, mu_a))
                 extra += 1
             if home_runs_sim == away_runs_sim:
                 if rng.random() < 0.5:
@@ -580,6 +619,8 @@ def simulate_games(
             "away_d1b_fallback": int(away_d1b_fallback),
             "home_bullpen_adj": round(h_bp, 4),
             "away_bullpen_adj": round(a_bp, 4),
+            "home_fatigue_adj": round(h_fatigue_adj, 4),
+            "away_fatigue_adj": round(a_fatigue_adj, 4),
             "temp_f": temp_f,
             "wind_mph": wind_mph,
             "wind_out_mph": wind_out_mph,

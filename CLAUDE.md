@@ -18,13 +18,15 @@ pitcher_appearances + D1B stats + Stan indices → build_pitcher_table.py → pi
 canonical_teams + Stan indices + bullpen/wRC+ → build_team_table.py → team_table.csv
 
 ── PREDICT PHASE (daily, orchestrated by predict_day.py) ──
-predict_day.py calls 4 modules in sequence:
+predict_day.py calls 5 modules in sequence:
   1. resolve_schedule.py  → data/daily/{date}/schedule.csv   (NCAA + ESPN + Odds APIs)
   2. resolve_starters.py  → data/daily/{date}/starters.csv   (StarterLookup + pitcher_table)
   3. resolve_weather.py   → data/daily/{date}/weather.csv    (Open-Meteo + park factors)
+  3b. bullpen_fatigue.py  → data/daily/{date}/fatigue.csv    (Rolling 3-day reliever IP)
   4. simulate.py          → predictions CSV                   (Monte Carlo, 5000 draws)
+  5. build_calibration_report.py → calibration CSV + markdown (market coherence checks)
 
-pull_odds.py → odds JSONL → compare model vs market
+pull_odds.py → odds JSONL → compare model vs market (ML, totals, spreads)
 ```
 
 ### Key Directories
@@ -46,13 +48,15 @@ pull_odds.py → odds JSONL → compare model vs market
 | `scripts/fit_run_event_model.py` | Fit Stan model via CmdStanPy (4 chains, 10K iter) |
 | `scripts/build_pitcher_table.py` | Unified pitcher lookup (Stan + D1B + handedness + FB%) |
 | `scripts/build_team_table.py` | Unified team lookup (Stan + bullpen + wRC+) |
+| `scripts/integrate_ncaa_boxscores.py` | Merge NCAA API boxscores into appearances (100% coverage) |
+| `scripts/build_linescore_run_events.py` | Convert NCAA inning-by-inning linescores → run_events |
 | `data/processed/pitcher_table.csv` | 9K+ pitchers with ability, handedness, FB sensitivity |
-| `data/processed/team_table.csv` | 308 teams with team_idx, bullpen_z, wrc_offense_adj |
+| `data/processed/team_table.csv` | 308 teams with team_idx, bullpen_z, wrc_offense_adj, batting_fb_factor |
 
 ### Critical Files — Predict Phase
 | File | Purpose |
 |------|---------|
-| `scripts/predict_day.py` | Thin orchestrator calling 4 modules below |
+| `scripts/predict_day.py` | Thin orchestrator calling 5 modules below |
 | `scripts/resolve_schedule.py` | NCAA + ESPN + Odds APIs → game schedule |
 | `scripts/resolve_starters.py` | StarterLookup + pitcher_table → projected starters |
 | `scripts/resolve_weather.py` | Open-Meteo + park factors → per-game weather |
@@ -61,9 +65,14 @@ pull_odds.py → odds JSONL → compare model vs market
 ### Critical Files — Other
 | File | Purpose |
 |------|---------|
-| `scripts/pull_odds.py` | Odds data fetcher (current + historical) |
+| `scripts/pull_odds.py` | Odds data fetcher (current + historical, ML + totals + spreads) |
 | `scripts/weather_park_adjustment.py` | Wind/temp → run scoring adjustment (directional wind model) |
 | `scripts/lookup_starters.py` | Starting pitcher inference (StarterLookup class) |
+| `scripts/bullpen_fatigue.py` | Rolling 3-day reliever IP tracker (fatigue_z + fatigue_adj) |
+| `scripts/backtest.py` | Systematic backtesting: Brier score, log-loss, total MAE, calibration |
+| `scripts/scrape_pregame_starters.py` | ESPN pregame + manual override starter updates |
+| `scripts/scrape_d1b_starters.py` | D1Baseball rotation page scraper (Playwright, subscription required) |
+| `scripts/integrate_ncaa_boxscores.py` | Merge NCAA boxscores into pitcher_appearances (100% coverage) |
 | `scripts/platoon_adjustment.py` | LHP/RHP platoon lookup (currently disabled) |
 | `data/registries/canonical_teams_2026.csv` | Team registry with odds_api_name + espn_name mappings |
 | `data/registries/stadium_orientations.csv` | Stadium lat/lon + HP→CF bearings |
@@ -117,6 +126,7 @@ pull_odds.py → odds JSONL → compare model vs market
 - Each bookmaker entry uses `bookmaker_key` (not `key`) for the sportsbook identifier
 - American odds conversion: negative → `|ml|/(|ml|+100)`, positive → `100/(ml+100)`
 - Available markets: `h2h`, `totals`, `spreads` — pass all three to `pull_odds.py --markets`
+- Simulation prices spreads from full margin distribution (5000 MC sims), can price any spread
 - Live games have shifted odds — filter by `commence_time` vs now to exclude in-progress games
 
 ### Weather & Altitude Model
@@ -176,6 +186,20 @@ make all        # Full rebuild + predict
 - D1B pitcher fallback: `hp_d1b_adj`, `ap_d1b_adj` (FIP/SIERA/ERA ability estimate), `hp_d1b_src`, `ap_d1b_src`
 - D1B team offense: `home_wrc_adj`, `away_wrc_adj` (wRC+-based att adjustment for non-model teams)
 
+### NCAA Boxscore Integration
+- `scripts/integrate_ncaa_boxscores.py` merges NCAA API boxscores into pitcher_appearances
+- NCAA API (`ncaa-api.henrygd.me`) has 100% D1 coverage (vs ESPN's ~15%)
+- Result: 36,484 appearances (19,057 ESPN + 17,427 novel NCAA)
+- Deduplication: prefers ESPN data when both sources have same (date, team, pitcher_name, starter)
+- NCAA boxscores provide starter flags, IP, hits, runs, ERs, Ks, BBs for all teams
+- Used to improve pitcher crosswalk: 59% of games have pitcher_idx > 0 (was 47%)
+
+### Linescore → Run Events Expansion
+- `scripts/build_linescore_run_events.py` converts inning-by-inning scores to run_events
+- NCAA linescores (2,214 games) provide per-inning run counts for ALL games
+- A 3-run inning = one `run_3` event, independent of play-by-play details
+- Massively expands Stan training data beyond ESPN PBP-only coverage
+
 ### Platoon Splits (LHP/RHP)
 - `scripts/platoon_adjustment.py` tracks pitcher handedness via D1B rotation data
 - Rate adjustment disabled (`DEFAULT_LHP_ADJ = 0.0`) — sign uncertain, double-counts with `pitcher_ability`
@@ -196,7 +220,8 @@ make rebuild
 # 2. Rebuild team/pitcher indices
 .venv/bin/python3 scripts/build_run_event_indices.py
 
-# 3. Refit Stan model (~10 min on M-series Mac)
+# 3. Refit Stan model (~15-20 min on M-series Mac)
+#    Current: 308 teams, 4874 pitchers, 7505+ games, 32K draws
 .venv/bin/python3 scripts/fit_run_event_model.py
 
 # 4. Rebuild unified lookup tables
@@ -206,6 +231,40 @@ make rebuild
 # 5. Subsample posterior for daily predictions
 python3 -c "import pandas as pd; d=pd.read_csv('data/processed/run_event_posterior.csv'); d.sample(2000,random_state=42).to_csv('data/processed/run_event_posterior_2k.csv',index=False)"
 ```
+
+## Model Calibration & Validation
+
+### Scoring Calibration (SCORING_CALIBRATION)
+- Located in `simulate.py`, currently `0.083`
+- Calibrated from **7,898 actual game outcomes**: actual avg total = 13.13, model base = 12.09
+- Formula: `C = log(actual_avg / model_base)` = `log(13.13 / 12.09)` = 0.083
+- Applied uniformly to all 4 intercepts in the posterior (additive log-rate shift)
+- Recalibrate after every Stan refit by running `backtest.py --tune-calibration`
+
+### Home Advantage
+- Stan posterior learns HA = 0.115 (log-rate), implying ~53% home win rate for equal teams
+- Market-implied home win rate: 52.7% — matches posterior almost exactly
+- Raw NCAA home win rate: 62-64% — higher because good teams play more home games (schedule bias)
+- **No post-hoc correction needed** — the model correctly separates team quality from HA
+- `--ha-target` defaults to 0.0 (use learned posterior as-is)
+
+### Bullpen Fatigue
+- `bullpen_fatigue.py` computes rolling 3-day reliever IP per team
+- `fatigue_z` = z-score of team's recent reliever usage vs all teams
+- `fatigue_adj` = `fatigue_z * FATIGUE_COEFF` (0.015 per z-unit) — only when z > 0
+- Applied in simulation: fatigued home bullpen → away team scores more, and vice versa
+- Stacks with static `bullpen_quality_z` from team_table
+
+### Batting FB% Wind Interaction
+- Teams with high fly-ball rates benefit more from tailwind (and are hurt more by headwind)
+- `batting_fb_factor` = team_FB% / league_avg_FB% (range 0.63–1.29)
+- Applied: `wind_adj = wind_adj_raw × pitcher_fb_sens × batting_fb_factor`
+- Data source: D1Baseball batted ball leaderboard TSVs
+
+### Backtest Framework
+- `scripts/backtest.py` compares predictions against actual outcomes
+- Metrics: Brier score, log-loss, total MAE/bias/correlation, calibration bins
+- Run: `.venv/bin/python3 scripts/backtest.py --out data/processed/backtest_results.csv`
 
 ## Common Pitfalls
 - Overpass API rate limits: Use 4-5s between queries, retry on 429/504 with exponential backoff

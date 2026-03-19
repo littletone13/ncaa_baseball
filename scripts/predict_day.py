@@ -24,6 +24,7 @@ import _bootstrap  # noqa: F401
 from resolve_schedule import resolve_schedule
 from resolve_starters import resolve_starters
 from resolve_weather import resolve_weather
+from bullpen_fatigue import compute_bullpen_fatigue
 from simulate import simulate_games, format_predictions
 from build_calibration_report import build_calibration_report
 from build_starter_qa_report import build_starter_qa_report
@@ -89,9 +90,10 @@ def main() -> int:
         default=None,
         help="Calibration markdown output path (default: data/processed/calibration_{date}_{phase}.md)",
     )
-    parser.add_argument("--ha-target", type=float, default=0.05,
+    parser.add_argument("--ha-target", type=float, default=0.0,
                         help="Target home_advantage mean (post-hoc correction). "
-                             "0.05 = ~53-54%% home win rate. 0 = no correction.")
+                             "0 = use learned posterior (recommended, NCAA HA is ~0.115). "
+                             "Set >0 to override.")
     args = parser.parse_args()
     user_set_n = "--N" in sys.argv
     if not user_set_n:
@@ -166,6 +168,22 @@ def main() -> int:
             out_csv=weather_csv,
         )
 
+    # ── Step 3b: Bullpen fatigue ──
+    fatigue_csv = daily_dir / "fatigue.csv"
+    print("Step 3b/5: Computing bullpen fatigue...", file=sys.stderr)
+    try:
+        fatigue = compute_bullpen_fatigue(
+            appearances_csv=args.appearances,
+            game_date=args.date,
+            window_days=3,
+        )
+        fatigue.to_csv(fatigue_csv, index=False)
+        n_fatigued = int((fatigue["fatigue_flag"] == 1).sum()) if not fatigue.empty else 0
+        print(f"  {len(fatigue)} teams, {n_fatigued} flagged as fatigued", file=sys.stderr)
+    except Exception as e:
+        print(f"  Fatigue computation failed: {e}", file=sys.stderr)
+        fatigue_csv = None
+
     # ── Step 4: Simulate ──
     print(f"Step 4/5: Simulating ({args.N} draws per game)...", file=sys.stderr)
     ha_target = args.ha_target if args.ha_target > 0 else None
@@ -179,6 +197,7 @@ def main() -> int:
         n_sims=args.N,
         seed=args.seed,
         ha_target=ha_target,
+        fatigue_csv=fatigue_csv,
     )
 
     # ── Output ──
