@@ -182,10 +182,51 @@ def main() -> int:
     else:
         print(f"Bullpen quality: {args.bullpen_quality} not found, using 0 for all games.")
 
+    # ── Conference index: team_idx → conf_idx ──────────────────────────────────
+    if "conf_idx" in team_df.columns:
+        team_conf_map = dict(zip(team_df["team_idx"].astype(int), team_df["conf_idx"].astype(int)))
+        N_conf = int(team_df["conf_idx"].max())
+    else:
+        # Fallback: all teams in one conference
+        team_conf_map = {}
+        N_conf = 1
+    team_conf_arr = [team_conf_map.get(t, 1) for t in range(1, N_teams + 1)]
+    print(f"Conference hierarchy: {N_conf} conferences")
+
+    # ── FIP informative priors for pitcher ability ────────────────────────────
+    pt_path = Path("data/processed/pitcher_table.csv")
+    fip_prior = [0.0] * N_pitchers  # length N_pitchers (1-indexed in Stan)
+    n_fip_priors = 0
+    if pt_path.exists():
+        pt = pd.read_csv(pt_path)
+        pt["pitcher_idx"] = pd.to_numeric(pt["pitcher_idx"], errors="coerce").fillna(0).astype(int)
+        pt["fip"] = pd.to_numeric(pt.get("fip"), errors="coerce")
+
+        valid_fip = pt.loc[pt["fip"].notna(), "fip"].values
+        if len(valid_fip) > 10:
+            fip_mean = float(np.mean(valid_fip))
+            fip_std = float(np.std(valid_fip))
+            if fip_std > 0.1:
+                for _, row in pt.iterrows():
+                    pidx = int(row["pitcher_idx"])
+                    fip_val = row["fip"]
+                    if 1 <= pidx <= N_pitchers and pd.notna(fip_val):
+                        # Positive z = high FIP = bad pitcher = positive ability (allows runs)
+                        z = (float(fip_val) - fip_mean) / fip_std
+                        z = float(np.clip(z, -2.0, 2.0))
+                        fip_prior[pidx - 1] = z * 0.08  # scale by estimated ability std
+                        n_fip_priors += 1
+        print(f"FIP priors: {n_fip_priors}/{N_pitchers} pitchers have informative priors "
+              f"(FIP μ={fip_mean:.2f} σ={fip_std:.2f})")
+    else:
+        print("FIP priors: pitcher_table.csv not found, using uninformative priors for all pitchers")
+
     stan_data = {
         "N_games": N_games,
         "N_teams": N_teams,
         "N_pitchers": N_pitchers,
+        "N_conf": N_conf,
+        "team_conf": team_conf_arr,
         "home_team_idx": fit_df["home_team_idx"].tolist(),
         "away_team_idx": fit_df["away_team_idx"].tolist(),
         "home_pitcher_idx": fit_df["home_pitcher_idx"].tolist(),
@@ -201,6 +242,7 @@ def main() -> int:
         "park_factor": park_factor_vec,
         "home_bullpen_adj": home_bullpen_vec,
         "away_bullpen_adj": away_bullpen_vec,
+        "fip_prior": fip_prior,
     }
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -232,6 +274,7 @@ def main() -> int:
     meta = {
         "N_teams": N_teams,
         "N_pitchers": N_pitchers,
+        "N_conf": N_conf,
         "n_draws": len(draws),
     }
     meta_json = args.out_dir / "run_event_fit_meta.json"

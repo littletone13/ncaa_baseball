@@ -21,3 +21,4 @@ data/processed/**
 
 # Optional: vendor sample repos locally without committing
 external/
+.firecrawl/

@@ -28,6 +28,7 @@ from bullpen_fatigue import compute_bullpen_fatigue
 from simulate import simulate_games, format_predictions
 from build_calibration_report import build_calibration_report
 from build_starter_qa_report import build_starter_qa_report
+from scrape_wrrundown import build_url, scrape_page, parse_wrrundown, write_csv as write_wrrundown_csv
 
 
 def main() -> int:
@@ -145,6 +146,26 @@ def main() -> int:
         out_md=starter_qa_md,
     )
     print(f"Starter QA report -> {starter_qa_csv}", file=sys.stderr)
+
+    # ── Step 2c: WR Rundown intel (sharp handicapper picks + analysis) ──
+    wrrundown_csv = daily_dir / "wrrundown_intel.csv"
+    try:
+        url = build_url(args.date)
+        cache_path = Path(".firecrawl") / f"wrrundown-{args.date}.md"
+        md_text = scrape_page(url, cache_path)
+        if md_text:
+            wr_picks = parse_wrrundown(md_text)
+            if wr_picks:
+                write_wrrundown_csv(wr_picks, wrrundown_csv)
+                n_with_analysis = sum(1 for p in wr_picks if p.get("analysis"))
+                print(f"  WR Rundown: {len(wr_picks)} picks ({n_with_analysis} with write-ups) -> {wrrundown_csv}",
+                      file=sys.stderr)
+            else:
+                print("  WR Rundown: no picks found (page may not have content yet)", file=sys.stderr)
+        else:
+            print("  WR Rundown: page not available yet", file=sys.stderr)
+    except Exception as e:
+        print(f"  WR Rundown scrape failed (non-fatal): {e}", file=sys.stderr)
 
     # ── Step 3: Weather ──
     print("Step 3/5: Fetching weather...", file=sys.stderr)

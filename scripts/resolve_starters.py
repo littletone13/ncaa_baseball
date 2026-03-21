@@ -25,6 +25,7 @@ import pandas as pd
 
 import _bootstrap  # noqa: F401 — adds scripts/ to sys.path so local imports work
 from lookup_starters import StarterLookup
+from platoon_adjustment import PlatoonLookup
 
 
 # ── Normalisation helpers ─────────────────────────────────────────────────────
@@ -275,9 +276,13 @@ def resolve_starters(
         bp_fb_by_team[str(cid)] = float(vals.mean()) if len(vals) > 0 else 1.0
 
     # ── Load team_table for wRC+ offense adjustment + batting FB factor ──────
-    wrc_adj_by_team: dict[str, float] = {}  # canonical_id → adj (only for team_idx=0)
+    wrc_adj_by_team: dict[str, float] = {}  # canonical_id → wRC+ offense adj (all teams)
     batting_fb_by_team: dict[str, float] = {}  # canonical_id → FB factor (for wind model)
     team_idx_by_cid: dict[str, int] = {}
+    # Scaling: teams WITH posteriors get partial wRC+ (posterior already captures
+    # some offense); teams WITHOUT posteriors get full wRC+ weight.
+    WRC_POSTERIOR_SCALE = 0.5   # half-weight for teams already in posterior
+    WRC_NO_POSTERIOR_SCALE = 1.0  # full weight for teams with no posterior
     if team_table_csv.exists():
         tt = pd.read_csv(team_table_csv, dtype=str)
         tt["team_idx"] = pd.to_numeric(tt["team_idx"], errors="coerce").fillna(0).astype(int)
@@ -291,11 +296,11 @@ def resolve_starters(
             team_idx_by_cid[cid] = tidx
             # Batting FB factor for wind scaling (all teams)
             batting_fb_by_team[cid] = float(row["batting_fb_factor"])
-            # Only apply wRC+ adj to teams NOT in the Stan model
-            if tidx == 0:
-                adj = float(row["wrc_offense_adj"])
-                if adj != 0.0:
-                    wrc_adj_by_team[cid] = adj
+            # Apply wRC+ adj to ALL teams, scaled by posterior presence
+            adj = float(row["wrc_offense_adj"])
+            if adj != 0.0:
+                scale = WRC_NO_POSTERIOR_SCALE if tidx == 0 else WRC_POSTERIOR_SCALE
+                wrc_adj_by_team[cid] = adj * scale
 
     # ── Instantiate StarterLookup ─────────────────────────────────────────────
     print("Loading StarterLookup...", file=sys.stderr)
@@ -313,6 +318,10 @@ def resolve_starters(
         sl_kwargs["d1baseball_rotations_csv"] = d1b_rotations_csv
 
     starter_lookup = StarterLookup(**sl_kwargs)
+
+    # ── Platoon lookup ────────────────────────────────────────────────────────
+    platoon = PlatoonLookup()
+    print(platoon.summary(), file=sys.stderr)
 
     # ── Resolve each game ─────────────────────────────────────────────────────
     rows = []
@@ -378,7 +387,7 @@ def resolve_starters(
         hp_expected_ip = _expected_starter_ip(app, h_cid, hp_id)
         ap_expected_ip = _expected_starter_ip(app, a_cid, ap_id)
 
-        # wRC+ offense adjustment (team_table, only for team_idx=0)
+        # wRC+ offense adjustment (team_table, all teams — scaled by posterior presence)
         home_wrc_adj = wrc_adj_by_team.get(h_cid, 0.0)
         away_wrc_adj = wrc_adj_by_team.get(a_cid, 0.0)
 
@@ -425,8 +434,12 @@ def resolve_starters(
             "away_wrc_adj": away_wrc_adj,
             "home_batting_fb": home_batting_fb,
             "away_batting_fb": away_batting_fb,
-            "platoon_adj_home": 0.0,
-            "platoon_adj_away": 0.0,
+            "platoon_adj_home": platoon.platoon_adj(
+                platoon.get_hand(a_cid, ap_name) if ap_name else None
+            ),
+            "platoon_adj_away": platoon.platoon_adj(
+                platoon.get_hand(h_cid, hp_name) if hp_name else None
+            ),
         })
 
     result = pd.DataFrame(rows)

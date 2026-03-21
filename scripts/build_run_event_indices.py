@@ -71,14 +71,39 @@ def main() -> int:
     unknown = pd.DataFrame([{"pitcher_espn_id": "unknown", "pitcher_idx": 0}])
     pitcher_index = pd.concat([unknown, pitcher_index], ignore_index=True)
 
+    # ── Conference index ────────────────────────────────────────────────────────
+    canon_path = Path("data/registries/canonical_teams_2026.csv")
+    if canon_path.exists():
+        canon = pd.read_csv(canon_path)
+        team_conf = dict(zip(canon["canonical_id"].astype(str).str.strip(),
+                             canon["conference"].astype(str).str.strip()))
+    else:
+        team_conf = {}
+
+    # Assign conference indices (1-based, alphabetical)
+    conferences = sorted(set(v for v in team_conf.values() if v and v != "nan"))
+    conf_to_idx = {c: i + 1 for i, c in enumerate(conferences)}
+
+    # Add conference info to team_index
+    team_index["conference"] = team_index["canonical_id"].map(team_conf).fillna("Unknown")
+    team_index["conf_idx"] = team_index["conference"].map(conf_to_idx).fillna(1).astype(int)
+
+    # Save conference index
+    conf_index = pd.DataFrame([
+        {"conference": c, "conf_idx": idx} for c, idx in conf_to_idx.items()
+    ])
+
     args.out_dir.mkdir(parents=True, exist_ok=True)
     team_path = args.out_dir / "run_event_team_index.csv"
     pitcher_path = args.out_dir / "run_event_pitcher_index.csv"
+    conf_path = args.out_dir / "run_event_conf_index.csv"
     team_index.to_csv(team_path, index=False)
     pitcher_index.to_csv(pitcher_path, index=False)
+    conf_index.to_csv(conf_path, index=False)
 
     print(f"Wrote {len(team_index)} teams -> {team_path}")
     print(f"Wrote {len(pitcher_index)} pitchers (incl. unknown=0) -> {pitcher_path}")
+    print(f"Wrote {len(conf_index)} conferences -> {conf_path}")
     return 0
 
 

@@ -9,11 +9,18 @@
 //   - park_factor is pre-computed (log-scale, 0 = neutral); pass 0 if unknown
 //   - bullpen_adj is pre-computed fatigue/quality composite; pass 0 if unknown
 //   - Intercept priors calibrated to college run-event base rates (higher than MLB)
+//
+// v2 (2026-03-21): Conference hierarchy for team priors + FIP informative pitcher priors.
+//   - Teams are nested within conferences (30 D1 conferences)
+//   - Conference means are hierarchical (centered on zero with learned scale)
+//   - Pitcher priors are centered on FIP z-score × ability_std (0 if no FIP data)
 
 data {
   int<lower=1> N_games;
   int<lower=1> N_teams;
   int<lower=1> N_pitchers;               // max pitcher index (1..N_pitchers); 0 = unknown
+  int<lower=1> N_conf;                    // number of conferences
+  array[N_teams] int<lower=1, upper=N_conf> team_conf;  // team → conference mapping
   array[N_games] int<lower=1, upper=N_teams> home_team_idx;
   array[N_games] int<lower=1, upper=N_teams> away_team_idx;
   array[N_games] int<lower=0, upper=N_pitchers> home_pitcher_idx;  // 0 = unknown
@@ -32,6 +39,8 @@ data {
   // Positive = worse bullpen (opponent scores more), Negative = better bullpen
   array[N_games] real home_bullpen_adj;
   array[N_games] real away_bullpen_adj;
+  // FIP-derived prior mean for pitcher ability (0 = no FIP data / uninformative)
+  array[N_pitchers] real fip_prior;
 }
 
 parameters {
@@ -54,6 +63,12 @@ parameters {
   real<lower=0.01, upper=0.6> sigma_def;
   real<lower=0.01, upper=0.4> sigma_pitcher;
 
+  // Conference-level random effects
+  real<lower=0.01, upper=0.3> sigma_conf_att;
+  real<lower=0.01, upper=0.3> sigma_conf_def;
+  vector[N_conf] conf_att_raw;
+  vector[N_conf] conf_def_raw;
+
   // Raw team abilities (per-run-type att/def)
   vector[N_teams] att_run_1_raw;
   vector[N_teams] def_run_1_raw;
@@ -73,6 +88,10 @@ parameters {
 }
 
 transformed parameters {
+  // Conference effects (sum-to-zero)
+  vector[N_conf] conf_att = conf_att_raw - mean(conf_att_raw);
+  vector[N_conf] conf_def = conf_def_raw - mean(conf_def_raw);
+
   // Sum-to-zero centering for identifiability
   vector[N_teams] att_run_1 = att_run_1_raw - mean(att_run_1_raw);
   vector[N_teams] def_run_1 = def_run_1_raw - mean(def_run_1_raw);
@@ -101,18 +120,28 @@ model {
   sigma_def ~ normal(0.15, 0.05);
   sigma_pitcher ~ normal(0.10, 0.03);
 
-  // Priors — team abilities (hierarchical: scale learned from data)
-  att_run_1_raw ~ normal(0, sigma_att);
-  def_run_1_raw ~ normal(0, sigma_def);
-  att_run_2_raw ~ normal(0, sigma_att);
-  def_run_2_raw ~ normal(0, sigma_def);
-  att_run_3_raw ~ normal(0, sigma_att);
-  def_run_3_raw ~ normal(0, sigma_def);
-  att_run_4_raw ~ normal(0, sigma_att);
-  def_run_4_raw ~ normal(0, sigma_def);
+  // Conference hierarchy priors
+  sigma_conf_att ~ normal(0.10, 0.05);
+  sigma_conf_def ~ normal(0.05, 0.03);
+  conf_att_raw ~ normal(0, sigma_conf_att);
+  conf_def_raw ~ normal(0, sigma_conf_def);
 
-  // Priors — pitcher ability (hierarchical: scale learned from data)
-  pitcher_ability_raw ~ normal(0, sigma_pitcher);
+  // Team priors — centered on conference means (nested hierarchy)
+  for (t in 1:N_teams) {
+    att_run_1_raw[t] ~ normal(conf_att[team_conf[t]], sigma_att);
+    def_run_1_raw[t] ~ normal(conf_def[team_conf[t]], sigma_def);
+    att_run_2_raw[t] ~ normal(conf_att[team_conf[t]], sigma_att);
+    def_run_2_raw[t] ~ normal(conf_def[team_conf[t]], sigma_def);
+    att_run_3_raw[t] ~ normal(conf_att[team_conf[t]], sigma_att);
+    def_run_3_raw[t] ~ normal(conf_def[team_conf[t]], sigma_def);
+    att_run_4_raw[t] ~ normal(conf_att[team_conf[t]], sigma_att);
+    def_run_4_raw[t] ~ normal(conf_def[team_conf[t]], sigma_def);
+  }
+
+  // Pitcher ability — informative FIP prior where available (0 = uninformative)
+  for (p in 1:N_pitchers) {
+    pitcher_ability_raw[p] ~ normal(fip_prior[p], sigma_pitcher);
+  }
 
   // Priors — park and bullpen coefficients
   beta_park ~ normal(1, 0.3);             // ~1 means park_factor translates directly to log-rate

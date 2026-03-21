@@ -302,10 +302,51 @@ def build_team_table(
     base["batting_fb_pct"] = base.get("batting_fb_pct", pd.Series(dtype=float)).fillna(0.0)
     base["batting_fb_factor"] = base.get("batting_fb_factor", pd.Series(dtype=float)).fillna(1.0)
 
-    # 6. n_games — not available yet, set to None
+    # 6. Conference strength from cross-conference win rates
+    print("Computing conference strength from cross-conf records...", file=sys.stderr)
+    games_path = Path("data/processed/games.csv")
+    if games_path.exists() and "conference" in base.columns:
+        team_conf_map = dict(zip(base["canonical_id"], base["conference"]))
+        try:
+            games = pd.read_csv(games_path, dtype=str)
+            games["home_score"] = pd.to_numeric(games["home_score"], errors="coerce")
+            games["away_score"] = pd.to_numeric(games["away_score"], errors="coerce")
+            games = games.dropna(subset=["home_score", "away_score"])
+            games["home_won"] = games["home_score"] > games["away_score"]
+            games["home_conf"] = games["home_canonical_id"].map(team_conf_map)
+            games["away_conf"] = games["away_canonical_id"].map(team_conf_map)
+
+            # Cross-conference only
+            cross = games[games["home_conf"] != games["away_conf"]]
+            conf_wins: dict[str, list] = {}
+            for _, g in cross.iterrows():
+                hc, ac = g["home_conf"], g["away_conf"]
+                if pd.notna(hc):
+                    conf_wins.setdefault(hc, []).append(1 if g["home_won"] else 0)
+                if pd.notna(ac):
+                    conf_wins.setdefault(ac, []).append(0 if g["home_won"] else 1)
+
+            # Convert to log-rate adjustment
+            conf_strength = {}
+            for conf, outcomes in conf_wins.items():
+                if len(outcomes) >= 20:
+                    win_rate = sum(outcomes) / len(outcomes)
+                    z = (win_rate - 0.5) / 0.15  # rough std of conference win rates
+                    conf_strength[conf] = float(np.clip(z * ATT_STD_EST * 0.5, -0.15, 0.15))
+
+            base["conf_strength_adj"] = base["conference"].map(conf_strength).fillna(0.0)
+            n_with_conf = (base["conf_strength_adj"] != 0.0).sum()
+            print(f"  {n_with_conf} teams have conference strength adjustment", file=sys.stderr)
+        except Exception as e:
+            print(f"  WARNING: Conference strength computation failed: {e}", file=sys.stderr)
+            base["conf_strength_adj"] = 0.0
+    else:
+        base["conf_strength_adj"] = 0.0
+
+    # 7. n_games — not available yet, set to None
     base["n_games"] = np.nan
 
-    # 7. Final column ordering per spec
+    # 8. Final column ordering per spec
     output_cols = [
         "canonical_id",
         "team_idx",
@@ -316,6 +357,7 @@ def build_team_table(
         "bullpen_adj",
         "wrc_plus",
         "wrc_offense_adj",
+        "conf_strength_adj",
         "batting_fb_pct",
         "batting_fb_factor",
         "n_games",

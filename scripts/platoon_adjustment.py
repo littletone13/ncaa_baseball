@@ -48,7 +48,7 @@ from pathlib import Path
 # 0.0 = disabled (handedness tracked but no rate adjustment)
 # Set to non-zero when empirically validated:
 #   negative = fewer runs vs LHP, positive = more runs vs LHP
-DEFAULT_LHP_ADJ = 0.0
+DEFAULT_LHP_ADJ = 0.03  # ~3% more runs vs LHP (platoon advantage for RHB-heavy lineups)
 
 
 def _normalize(s: str) -> str:
