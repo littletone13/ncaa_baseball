@@ -24,6 +24,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import _bootstrap  # noqa: F401
+from ncaa_baseball.model_runtime import (
+    FATIGUE_POLICY_CHOICES,
+    SCORING_CALIBRATION,
+    assert_scoring_calibration_parity,
+    enforce_fatigue_coverage_policy,
+)
 
 # ── Scoring constants ────────────────────────────────────────────────────────
 
@@ -32,15 +39,9 @@ import pandas as pd
 # when 4+ score (includes 5, 6, 7+ run innings capped at run_4 count).
 RUN_MULT = [1, 2, 3, 5.4]
 
-# Global scoring calibration: Stan regularization shrinks intercepts
-# below true rate. This log-rate shift corrects for it.
-# Calibrated from 7,898 actual game outcomes:
-#   actual avg total = 13.13, model base (no calib) = 12.09
-#   C = log(13.13 / 12.09) = 0.083
-# Updated 2026-03-21 after conference hierarchy + FIP priors refit.
-# Calibrated empirically: posterior base=8.64, team/pitcher effects add ~4 runs,
-# target ~13.1 actual. C=0.12 gives ~13 with full simulation pipeline.
-SCORING_CALIBRATION = 0.12
+# Script-level alias kept for backward compatibility and explicit parity checks.
+SIMULATE_SCORING_CALIBRATION = SCORING_CALIBRATION
+assert_scoring_calibration_parity("simulate.py", SIMULATE_SCORING_CALIBRATION)
 
 # ── Utility ──────────────────────────────────────────────────────────────────
 
@@ -154,6 +155,8 @@ def simulate_games(
     seed: int = 42,
     ha_target: float | None = None,
     fatigue_csv: Path | None = None,
+    fatigue_policy: str = "de-risk",
+    fatigue_min_coverage: float = 0.8,
 ) -> pd.DataFrame:
     """
     Pure Monte Carlo simulation. No API calls. Deterministic.
@@ -230,6 +233,21 @@ def simulate_games(
     # Index by game_num for fast lookup
     starters_by_game = {int(r["game_num"]): r for _, r in starters.iterrows()}
     weather_by_game = {int(r["game_num"]): r for _, r in weather.iterrows()}
+
+    # ── Fatigue coverage contract ────────────────────────────────────────
+    required_teams = set(schedule["home_cid"].dropna().astype(str).str.strip()) | set(
+        schedule["away_cid"].dropna().astype(str).str.strip()
+    )
+    fatigue_decision = enforce_fatigue_coverage_policy(
+        required_team_ids=required_teams,
+        fatigue_team_ids=set(fatigue_map.keys()),
+        policy=fatigue_policy,
+        min_coverage=fatigue_min_coverage,
+        context_label="simulate",
+    )
+    print(f"  {fatigue_decision.message}", file=sys.stderr)
+    if fatigue_decision.action == "de-risk":
+        fatigue_map = {}
 
     # ── Constants ─────────────────────────────────────────────────────────
     DEFAULT_STARTER_IP = 5.5
@@ -651,6 +669,9 @@ def simulate_games(
             "pilot_exp_total": pilot_total,
             "anchor_home_shift": round(anchor_home_shift, 4),
             "anchor_away_shift": round(anchor_away_shift, 4),
+            "fatigue_policy": fatigue_decision.policy,
+            "fatigue_coverage": round(fatigue_decision.coverage, 4),
+            "fatigue_action": fatigue_decision.action,
         }
         all_results.append(result)
 
@@ -825,6 +846,21 @@ def main() -> int:
     parser.add_argument("--ha-target", type=float, default=0.09,
                         help="Target home_advantage mean (post-hoc correction). "
                              "0.09 ≈ 52%% equal-team home win rate. None=no correction.")
+    parser.add_argument("--fatigue", type=Path, default=None,
+                        help="Optional bullpen fatigue CSV (canonical_id, fatigue_adj).")
+    parser.add_argument(
+        "--fatigue-policy",
+        type=str,
+        default="de-risk",
+        choices=FATIGUE_POLICY_CHOICES,
+        help="How to handle low fatigue coverage: abort, de-risk, or ignore.",
+    )
+    parser.add_argument(
+        "--fatigue-min-coverage",
+        type=float,
+        default=0.8,
+        help="Minimum fatigue team coverage required for apply behavior [0-1].",
+    )
     args = parser.parse_args()
 
     # Validate inputs
@@ -858,6 +894,9 @@ def main() -> int:
         n_sims=args.N,
         seed=args.seed,
         ha_target=args.ha_target,
+        fatigue_csv=args.fatigue,
+        fatigue_policy=args.fatigue_policy,
+        fatigue_min_coverage=args.fatigue_min_coverage,
     )
 
     # Save CSV

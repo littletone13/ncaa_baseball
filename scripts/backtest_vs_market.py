@@ -30,13 +30,32 @@ import json
 import math
 import sys
 from datetime import date as date_cls, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+import _bootstrap  # noqa: F401
+from ncaa_baseball.model_runtime import SCORING_CALIBRATION
+from robustness_reporting import (
+    add_regime_columns,
+    apply_uncertainty_columns,
+    build_regime_robustness_table,
+    evaluate_threshold_strategy,
+)
+
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
+
+
+def parse_iso_utc(ts: str | None) -> datetime | None:
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00")).astimezone(timezone.utc)
+    except Exception:
+        return None
 
 def american_to_prob(ml: int | float) -> float:
     """American odds → implied probability (no vig)."""
@@ -76,6 +95,65 @@ def profit_on_bet(ml: int | float, won: bool) -> float:
     return 100.0 / abs(ml)
 
 
+def apply_execution_slippage(
+    ml: int | float,
+    delay_sec: int,
+    slippage_cents_base: float,
+    slippage_cents_per_min: float,
+) -> int:
+    """Worsen a quoted moneyline by modeled delay/slippage."""
+    raw = float(ml)
+    slip = int(round(slippage_cents_base + slippage_cents_per_min * max(0.0, delay_sec / 60.0)))
+    if raw >= 100:
+        # Dogs: +150 -> +145 (worse)
+        return int(max(100, round(raw) - slip))
+    # Favorites: -150 -> -155 (worse)
+    return int(round(raw) - slip)
+
+
+def _max_drawdown(curve: list[float]) -> float:
+    if not curve:
+        return 0.0
+    peak = curve[0]
+    max_dd = 0.0
+    for x in curve:
+        if x > peak:
+            peak = x
+        dd = peak - x
+        if dd > max_dd:
+            max_dd = dd
+    return float(max_dd)
+
+
+def _sharpe_like(pnls: list[float]) -> float:
+    if len(pnls) < 2:
+        return 0.0
+    arr = np.asarray(pnls, dtype=float)
+    s = float(arr.std(ddof=1))
+    if s <= 1e-12:
+        return 0.0
+    return float(arr.mean() / s)
+
+
+def _sortino_like(pnls: list[float]) -> float:
+    if len(pnls) < 2:
+        return 0.0
+    arr = np.asarray(pnls, dtype=float)
+    downside = arr[arr < 0.0]
+    if len(downside) == 0:
+        return float(arr.mean() / 1e-9)
+    dstd = float(downside.std(ddof=1)) if len(downside) > 1 else abs(float(downside[0]))
+    if dstd <= 1e-12:
+        return 0.0
+    return float(arr.mean() / dstd)
+
+
+def anchored_prob(model_prob: float, market_prob: float, weight: float) -> float:
+    w = float(np.clip(weight, 0.0, 0.95))
+    x = (1.0 - w) * _logit(model_prob) + w * _logit(market_prob)
+    return float(np.clip(_inv_logit(x), 0.01, 0.99))
+
+
 def kelly_fraction(edge: float, odds_prob: float) -> float:
     """Half-Kelly fraction. edge = model_prob - implied_prob."""
     if edge <= 0 or odds_prob <= 0 or odds_prob >= 1:
@@ -83,6 +161,16 @@ def kelly_fraction(edge: float, odds_prob: float) -> float:
     b = (1.0 / odds_prob) - 1.0  # decimal payout - 1
     f = edge / (1.0 - odds_prob) if b > 0 else 0.0
     return max(0.0, min(f * 0.5, 0.10))  # half-Kelly, cap at 10%
+
+
+def parse_float_list(text: str) -> list[float]:
+    vals: list[float] = []
+    for chunk in str(text).split(","):
+        s = chunk.strip()
+        if not s:
+            continue
+        vals.append(float(s))
+    return vals
 
 
 # ── Platt Scaling (manual, no sklearn) ────────────────────────────────────────
@@ -303,6 +391,118 @@ def resolve_ncaa_pitcher(
     return 0, 0.0
 
 
+def _extract_best_h2h_prices(orec: dict, home_name: str, away_name: str) -> tuple[int | None, int | None]:
+    best_home_ml = None
+    best_away_ml = None
+    for bl in orec.get("bookmaker_lines", []):
+        for m in bl.get("markets", []):
+            if m.get("key") != "h2h":
+                continue
+            for o in m.get("outcomes", []):
+                nm = o.get("name")
+                px = o.get("price")
+                if px is None:
+                    continue
+                ml = int(px)
+                if nm == home_name and (best_home_ml is None or ml > best_home_ml):
+                    best_home_ml = ml
+                elif nm == away_name and (best_away_ml is None or ml > best_away_ml):
+                    best_away_ml = ml
+    return best_home_ml, best_away_ml
+
+
+def _extract_best_tradable_h2h_prices(
+    orec: dict,
+    home_name: str,
+    away_name: str,
+    decision_ts: datetime | None,
+    commence_ts: datetime | None,
+    max_quote_age_min: float,
+) -> tuple[int | None, int | None]:
+    if decision_ts is None:
+        return None, None
+    best_home_ml = None
+    best_away_ml = None
+    for bl in orec.get("bookmaker_lines", []):
+        bl_ts = parse_iso_utc(bl.get("last_update"))
+        for m in bl.get("markets", []):
+            if m.get("key") != "h2h":
+                continue
+            mk_ts = parse_iso_utc(m.get("last_update")) or bl_ts
+            if mk_ts is None:
+                continue
+            if mk_ts > decision_ts:
+                continue
+            age_min = (decision_ts - mk_ts).total_seconds() / 60.0
+            if age_min < 0 or age_min > max_quote_age_min:
+                continue
+            if commence_ts is not None and decision_ts >= commence_ts:
+                continue
+            for o in m.get("outcomes", []):
+                nm = o.get("name")
+                px = o.get("price")
+                if px is None:
+                    continue
+                ml = int(px)
+                if nm == home_name and (best_home_ml is None or ml > best_home_ml):
+                    best_home_ml = ml
+                elif nm == away_name and (best_away_ml is None or ml > best_away_ml):
+                    best_away_ml = ml
+    return best_home_ml, best_away_ml
+
+
+def evaluate_policy_metrics(df: pd.DataFrame, prob_col: str, edge_threshold: float) -> dict[str, float]:
+    edge_col = df[prob_col] - df["market_home_prob"]
+    sub = df[edge_col.abs() >= edge_threshold].copy()
+    if len(sub) == 0:
+        return {
+            "n": 0,
+            "roi": 0.0,
+            "pnl": 0.0,
+            "max_dd": 0.0,
+            "sharpe": 0.0,
+            "sortino": 0.0,
+            "risk_adj": -1e9,
+        }
+
+    sub["bet_home"] = edge_col.loc[sub.index] > 0
+    sub["bet_won"] = ((sub["bet_home"] & sub["home_won"]) | (~sub["bet_home"] & ~sub["home_won"])).astype(bool)
+    pnl = 0.0
+    curve: list[float] = []
+    pnls: list[float] = []
+    for _, row in sub.iterrows():
+        ml = row["tradable_home_ml"] if row["bet_home"] else row["tradable_away_ml"]
+        if pd.isna(ml):
+            continue
+        p = profit_on_bet(float(ml), bool(row["bet_won"]))
+        pnl += p
+        pnls.append(p)
+        curve.append(pnl)
+    n = len(pnls)
+    if n == 0:
+        return {
+            "n": 0,
+            "roi": 0.0,
+            "pnl": 0.0,
+            "max_dd": 0.0,
+            "sharpe": 0.0,
+            "sortino": 0.0,
+            "risk_adj": -1e9,
+        }
+    roi = pnl / n
+    sharpe = _sharpe_like(pnls)
+    sortino = _sortino_like(pnls)
+    return {
+        "n": int(n),
+        "roi": float(roi),
+        "pnl": float(pnl),
+        "max_dd": _max_drawdown(curve),
+        "sharpe": float(sharpe),
+        "sortino": float(sortino),
+        "risk_adj": float(sharpe),
+    }
+
+
 # ── Simulation Engine (vectorized, from backtest_fast.py) ────────────────────
 
 def load_posterior_arrays(
@@ -325,6 +525,8 @@ def load_posterior_arrays(
 
     for k in range(4):
         int_run[:, k] = draws_df[f"int_run_{k+1}"].values
+    # Keep scoring calibration coherent with simulate/backtest_posterior.
+    int_run += SCORING_CALIBRATION
     for k in range(2):
         theta_run[:, k] = draws_df[f"theta_run_{k+1}"].values
     home_adv[:] = draws_df["home_advantage"].values
@@ -477,60 +679,123 @@ def report_calibration(df: pd.DataFrame, prob_col: str, label: str) -> None:
             print(f"  [{lo:.1f}-{hi:.1f})  {n:5d}  {pred_avg:8.3f}  {actual_avg:8.3f}  {gap:+8.3f}")
 
 
-def report_roi(df: pd.DataFrame, prob_col: str, label: str) -> None:
-    """Report ROI at various edge thresholds."""
+def report_roi(df: pd.DataFrame, prob_col: str, label: str, thresholds: list[float]) -> pd.DataFrame:
+    """Report side-by-side idealized vs tradable ROI and return sweep rows."""
     print(f"\n  {label} — ROI by edge threshold (flat $1 bets):")
-    print(f"  {'Threshold':>10s}  {'Bets':>5s}  {'Won':>5s}  {'Win%':>6s}  {'P&L':>8s}  {'ROI':>8s}  {'Kelly ROI':>10s}")
+    print(
+        f"  {'Threshold':>10s}  {'Bets':>5s}  {'Won':>5s}  "
+        f"{'ROI(Ideal)':>11s}  {'ROI(Trad)':>10s}  "
+        f"{'DD(Ideal)':>10s}  {'DD(Trad)':>9s}  {'Sharpe(T)':>10s}"
+    )
 
-    for thresh in [0.03, 0.05, 0.08, 0.10, 0.15]:
-        # Find games where model disagrees with market
+    rows: list[dict] = []
+    for thresh in thresholds:
         edge_col = df[prob_col] - df["market_home_prob"]
-        mask = edge_col.abs() >= thresh
-
-        sub = df[mask].copy()
+        sub = df[edge_col.abs() >= thresh].copy()
         if len(sub) == 0:
             print(f"  {thresh:>9.0%}  {'--':>5s}")
+            rows.append(
+                {
+                    "threshold": float(thresh),
+                    "n": 0,
+                    "won": 0,
+                    "win_pct": np.nan,
+                    "pnl_ideal": 0.0,
+                    "roi_ideal": np.nan,
+                    "pnl_tradable": 0.0,
+                    "roi_tradable": np.nan,
+                    "max_dd_ideal": 0.0,
+                    "max_dd_tradable": 0.0,
+                    "sharpe_tradable": 0.0,
+                    "sortino_tradable": 0.0,
+                    "roi": np.nan,
+                    "max_dd": 0.0,
+                }
+            )
             continue
 
-        # Bet on whichever side the model favors
-        sub_edge = edge_col[mask]
-        sub["bet_home"] = sub_edge > 0
-        sub["bet_won"] = (
-            (sub["bet_home"] & sub["home_won"]) |
-            (~sub["bet_home"] & ~sub["home_won"])
-        )
+        sub["bet_home"] = edge_col.loc[sub.index] > 0
+        sub["bet_won"] = ((sub["bet_home"] & sub["home_won"]) | (~sub["bet_home"] & ~sub["home_won"])).astype(bool)
 
-        # Flat bet P&L: use best available market odds
-        flat_pnl = 0.0
-        kelly_pnl = 0.0
+        pnl_ideal = 0.0
+        pnl_trad = 0.0
+        curve_ideal: list[float] = []
+        curve_trad: list[float] = []
+        pnls_trad: list[float] = []
         kelly_bankroll = 1.0
+        kelly_bankroll_trad = 1.0
+        kelly_roi_ideal = 0.0
+        kelly_roi_trad = 0.0
 
         for _, row in sub.iterrows():
             if row["bet_home"]:
-                ml = row["best_home_ml"]
+                ml_ideal = row["best_home_ml"]
+                ml_trad = row.get("tradable_home_ml")
                 model_p = row[prob_col]
                 implied_p = row["market_home_prob"]
             else:
-                ml = row["best_away_ml"]
-                model_p = 1 - row[prob_col]
-                implied_p = 1 - row["market_home_prob"]
+                ml_ideal = row["best_away_ml"]
+                ml_trad = row.get("tradable_away_ml")
+                model_p = 1.0 - row[prob_col]
+                implied_p = 1.0 - row["market_home_prob"]
 
             won = bool(row["bet_won"])
-            flat_pnl += profit_on_bet(ml, won)
-
-            # Kelly sizing
+            pnl_ideal += profit_on_bet(ml_ideal, won)
+            curve_ideal.append(pnl_ideal)
             edge = model_p - implied_p
             kf = kelly_fraction(edge, implied_p)
             wager = kelly_bankroll * kf
-            kelly_bankroll += wager * profit_on_bet(ml, won)
+            kelly_bankroll += wager * profit_on_bet(ml_ideal, won)
+            kelly_roi_ideal = kelly_bankroll - 1.0
+
+            if pd.notna(ml_trad):
+                p = profit_on_bet(float(ml_trad), won)
+                pnl_trad += p
+                curve_trad.append(pnl_trad)
+                pnls_trad.append(p)
+                wager_t = kelly_bankroll_trad * kf
+                kelly_bankroll_trad += wager_t * p
+                kelly_roi_trad = kelly_bankroll_trad - 1.0
 
         n_bets = len(sub)
-        n_won = sub["bet_won"].sum()
-        win_pct = n_won / n_bets
-        flat_roi = flat_pnl / n_bets
-        kelly_roi = (kelly_bankroll - 1.0)
+        n_won = int(sub["bet_won"].sum())
+        roi_ideal = pnl_ideal / n_bets
+        trad_n = max(1, len(pnls_trad))
+        roi_trad = pnl_trad / trad_n
+        dd_ideal = _max_drawdown(curve_ideal)
+        dd_trad = _max_drawdown(curve_trad)
+        sharpe_t = _sharpe_like(pnls_trad)
+        sortino_t = _sortino_like(pnls_trad)
 
-        print(f"  {thresh:>9.0%}  {n_bets:5d}  {n_won:5d}  {win_pct:5.1%}  {flat_pnl:+8.2f}  {flat_roi:+7.1%}  {kelly_roi:+9.1%}")
+        print(
+            f"  {thresh:>9.0%}  {n_bets:5d}  {n_won:5d}  "
+            f"{roi_ideal:+10.2%}  {roi_trad:+9.2%}  "
+            f"{dd_ideal:10.2f}  {dd_trad:9.2f}  {sharpe_t:10.3f}"
+        )
+        print(
+            f"              Kelly ROI ideal={kelly_roi_ideal:+.2%} tradable={kelly_roi_trad:+.2%}"
+        )
+
+        rows.append(
+            {
+                "threshold": float(thresh),
+                "n": int(n_bets),
+                "won": int(n_won),
+                "win_pct": float(n_won / n_bets),
+                "pnl_ideal": float(pnl_ideal),
+                "roi_ideal": float(roi_ideal),
+                "pnl_tradable": float(pnl_trad),
+                "roi_tradable": float(roi_trad),
+                "max_dd_ideal": float(dd_ideal),
+                "max_dd_tradable": float(dd_trad),
+                "sharpe_tradable": float(sharpe_t),
+                "sortino_tradable": float(sortino_t),
+                # Backward-compatible columns expected by audit_scorecard
+                "roi": float(roi_trad),
+                "max_dd": float(dd_trad),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -548,6 +813,17 @@ def main() -> int:
     parser.add_argument("--N", type=int, default=2000, help="Simulations per game")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out", type=Path, default=Path("data/processed/backtest_vs_market.csv"))
+    parser.add_argument(
+        "--edge-thresholds",
+        type=str,
+        default="0.03,0.05,0.08,0.10,0.15",
+        help="Comma-separated edge thresholds for ROI sweeps.",
+    )
+    parser.add_argument("--execution-delay-sec", type=int, default=90, help="Decision-to-bet delay for tradable execution model.")
+    parser.add_argument("--slippage-cents-base", type=float, default=4.0, help="Base line slippage in cents.")
+    parser.add_argument("--slippage-cents-per-minute", type=float, default=1.5, help="Additional slippage cents per minute of modeled delay.")
+    parser.add_argument("--max-quote-age-min", type=float, default=20.0, help="Max age of quoted book line at decision time.")
+    parser.add_argument("--oos-edge-threshold", type=float, default=0.05, help="Edge threshold for anchor policy OOS test.")
 
     # ── Fix parameters ────────────────────────────────────────────────────
     parser.add_argument("--ha-target", type=float, default=0.05,
@@ -556,7 +832,24 @@ def main() -> int:
                         help="Scale att/def arrays by this factor (>1 widens spread)")
     parser.add_argument("--d1b-boost", type=float, default=1.0,
                         help="Multiply D1B ability adjustments by this factor")
+    parser.add_argument("--min-bet-confidence", type=float, default=0.55,
+                        help="Minimum uncertainty confidence required for bet gating.")
+    parser.add_argument("--default-weather-confidence", type=float, default=0.50,
+                        help="Fallback weather confidence when weather quality is unavailable.")
+    parser.add_argument("--default-fatigue-confidence", type=float, default=0.50,
+                        help="Fallback fatigue confidence when fatigue quality is unavailable.")
+    parser.add_argument("--robustness-out-dir", type=Path, default=Path("data/processed/audit_sweeps"),
+                        help="Directory for machine-readable threshold/regime robustness artifacts.")
+    parser.add_argument("--sweep-thresholds", type=str, default="0.02,0.03,0.05,0.08,0.10,0.15",
+                        help="Comma-separated thresholds for edge-threshold sweep.")
+    parser.add_argument("--sweep-prob-col", type=str, default="model_calibrated",
+                        help="Probability column used for sweep artifacts.")
+    parser.add_argument("--dd-penalty", type=float, default=1.0,
+                        help="Objective penalty for drawdown: ROI - dd_penalty*(max_dd/n).")
     args = parser.parse_args()
+    thresholds = [float(x.strip()) for x in args.edge_thresholds.split(",") if x.strip()]
+    if not thresholds:
+        thresholds = [0.03, 0.05, 0.08, 0.10, 0.15]
 
     # ── Load odds ────────────────────────────────────────────────────────────
     with open(args.odds) as f:
@@ -701,13 +994,42 @@ def main() -> int:
         actual_home, actual_away, hp_espn_id, ap_espn_id = found_actual
         home_won = actual_home > actual_away
 
-        # Extract market odds
+        # Extract market odds + timestamp discipline metadata
         consensus_home = orec.get("consensus_fair_home")
         consensus_away = orec.get("consensus_fair_away")
+        commence_ts = parse_iso_utc(str(orec.get("commence_time", "")))
+        snapshot_ts = parse_iso_utc(str(orec.get("snapshot_timestamp") or orec.get("fetched_at") or ""))
+        if snapshot_ts is None:
+            snapshot_ts = commence_ts
 
-        # Find best available moneyline from bookmakers
-        best_home_ml = None
-        best_away_ml = None
+        # Idealized odds: best available at snapshot payload.
+        best_home_ml, best_away_ml = _extract_best_h2h_prices(orec, home_name, away_name)
+        decision_ts = None
+        if snapshot_ts is not None:
+            decision_ts = snapshot_ts + timedelta(seconds=max(0, int(args.execution_delay_sec)))
+        trad_home_ml, trad_away_ml = _extract_best_tradable_h2h_prices(
+            orec=orec,
+            home_name=home_name,
+            away_name=away_name,
+            decision_ts=decision_ts,
+            commence_ts=commence_ts,
+            max_quote_age_min=float(args.max_quote_age_min),
+        )
+        if trad_home_ml is not None:
+            trad_home_ml = apply_execution_slippage(
+                trad_home_ml,
+                delay_sec=args.execution_delay_sec,
+                slippage_cents_base=args.slippage_cents_base,
+                slippage_cents_per_min=args.slippage_cents_per_minute,
+            )
+        if trad_away_ml is not None:
+            trad_away_ml = apply_execution_slippage(
+                trad_away_ml,
+                delay_sec=args.execution_delay_sec,
+                slippage_cents_base=args.slippage_cents_base,
+                slippage_cents_per_min=args.slippage_cents_per_minute,
+            )
+
         market_total_line = None
         n_books = 0
 
@@ -715,15 +1037,6 @@ def main() -> int:
             for m in bl.get("markets", []):
                 if m.get("key") == "h2h":
                     n_books += 1
-                    for o in m.get("outcomes", []):
-                        if o["name"] == home_name:
-                            ml = o["price"]
-                            if best_home_ml is None or ml > best_home_ml:
-                                best_home_ml = ml
-                        elif o["name"] == away_name:
-                            ml = o["price"]
-                            if best_away_ml is None or ml > best_away_ml:
-                                best_away_ml = ml
                 elif m.get("key") == "totals":
                     for o in m.get("outcomes", []):
                         if o.get("name") == "Over" and "point" in o:
@@ -816,6 +1129,17 @@ def main() -> int:
             "market_total_line": market_total_line,
             "best_home_ml": best_home_ml,
             "best_away_ml": best_away_ml,
+            "tradable_home_ml": trad_home_ml,
+            "tradable_away_ml": trad_away_ml,
+            "snapshot_timestamp": snapshot_ts.isoformat() if snapshot_ts is not None else None,
+            "decision_timestamp": decision_ts.isoformat() if decision_ts is not None else None,
+            "commence_timestamp": commence_ts.isoformat() if commence_ts is not None else None,
+            "minutes_to_start_snapshot": ((commence_ts - snapshot_ts).total_seconds() / 60.0)
+            if (commence_ts is not None and snapshot_ts is not None)
+            else None,
+            "minutes_to_start_decision": ((commence_ts - decision_ts).total_seconds() / 60.0)
+            if (commence_ts is not None and decision_ts is not None)
+            else None,
             "n_books": n_books,
             "model_edge_home": model_edge,
             "model_ml_home": prob_to_american(model_home_prob),
@@ -832,6 +1156,14 @@ def main() -> int:
     if df.empty:
         print("ERROR: No games to analyze.")
         return 1
+
+    df = apply_uncertainty_columns(
+        df=df,
+        min_bet_confidence=args.min_bet_confidence,
+        default_weather_confidence=args.default_weather_confidence,
+        default_fatigue_confidence=args.default_fatigue_confidence,
+    )
+    df = add_regime_columns(df, args.teams_csv)
 
     # ── SECTION 1: Model vs. Market Accuracy ─────────────────────────────────
     print_section("1. MODEL vs. MARKET — MONEYLINE ACCURACY")
@@ -995,10 +1327,59 @@ def main() -> int:
 
     # ── SECTION 5: ROI / P&L ────────────────────────────────────────────────
     print_section("5. ROI SIMULATION")
-    report_roi(df, "model_home_prob", "Raw model vs. Market")
+    sweep_raw = report_roi(df, "model_home_prob", "Raw model vs. Market", thresholds)
     if best_blend_probs is not None:
-        report_roi(df, "model_blended", "Blended model vs. Market")
-    report_roi(df, "model_calibrated", "Calibrated model vs. Market")
+        _ = report_roi(df, "model_blended", "Blended model vs. Market", thresholds)
+    _ = report_roi(df, "model_calibrated", "Calibrated model vs. Market", thresholds)
+
+    # Save robustness artifacts (backward-compatible schema + new tradable fields)
+    sweeps_dir = Path("data/processed/audit_sweeps")
+    sweeps_dir.mkdir(parents=True, exist_ok=True)
+    edge_sweep_path = sweeps_dir / "edge_threshold_sweep.csv"
+    sweep_raw.to_csv(edge_sweep_path, index=False)
+
+    # Regime robustness by chronological date blocks (tradable + ideal side-by-side)
+    tmp = df.copy()
+    tmp["date_dt"] = pd.to_datetime(tmp["date"], errors="coerce")
+    tmp = tmp.sort_values(["date_dt", "home", "away"]).reset_index(drop=True)
+    n_blocks = 3
+    block_size = max(1, len(tmp) // n_blocks)
+    regime_rows: list[dict] = []
+    main_thresh = float(args.oos_edge_threshold)
+    for b in range(n_blocks):
+        lo = b * block_size
+        hi = len(tmp) if b == n_blocks - 1 else min(len(tmp), (b + 1) * block_size)
+        block = tmp.iloc[lo:hi].copy()
+        if block.empty:
+            continue
+        block_metrics = evaluate_policy_metrics(block.assign(model_eval=block["model_home_prob"]), "model_eval", main_thresh)
+        # Idealized companion metric for visibility
+        edge_col = block["model_home_prob"] - block["market_home_prob"]
+        bets = block[edge_col.abs() >= main_thresh].copy()
+        pnl_ideal = 0.0
+        curve_ideal: list[float] = []
+        for _, row in bets.iterrows():
+            bet_home = bool(edge_col.loc[row.name] > 0)
+            won = bool((bet_home and row["home_won"]) or ((not bet_home) and (not row["home_won"])))
+            ml_i = row["best_home_ml"] if bet_home else row["best_away_ml"]
+            pnl_ideal += profit_on_bet(float(ml_i), won)
+            curve_ideal.append(pnl_ideal)
+        roi_ideal = pnl_ideal / max(1, len(bets))
+        regime_rows.append(
+            {
+                "slice": f"date_block_{b+1}",
+                "n": int(block_metrics["n"]),
+                "roi": float(block_metrics["roi"]),  # backward-compatible key (tradable)
+                "roi_tradable": float(block_metrics["roi"]),
+                "roi_ideal": float(roi_ideal),
+                "max_dd": float(block_metrics["max_dd"]),
+                "max_dd_tradable": float(block_metrics["max_dd"]),
+                "max_dd_ideal": float(_max_drawdown(curve_ideal)),
+                "sharpe_tradable": float(block_metrics["sharpe"]),
+            }
+        )
+    regime_path = sweeps_dir / "regime_robustness.csv"
+    pd.DataFrame(regime_rows).to_csv(regime_path, index=False)
 
     # ── SECTION 6: Totals Bias ───────────────────────────────────────────────
     print_section("6. TOTALS BIAS")
@@ -1079,9 +1460,186 @@ def main() -> int:
         print(f"    β₀ (bias):   {beta[2]:.4f}")
         print(f"    → Model adds {'positive' if beta[1] > 0.01 else 'negligible'} signal beyond market (β₂={'>' if beta[1] > 0.01 else '≈'}0)")
 
+    # ── SECTION 9: Dynamic anchor policy OOS test ───────────────────────────
+    print_section("9. ANCHOR POLICY OOS TEST")
+    df_eval = df.copy()
+    df_eval["event_time"] = pd.to_datetime(
+        df_eval["decision_timestamp"].fillna(df_eval["snapshot_timestamp"]).fillna(df_eval["date"]),
+        errors="coerce",
+        utc=True,
+    )
+    df_eval = df_eval.sort_values(["event_time", "date", "home", "away"]).reset_index(drop=True)
+    split = int(max(20, len(df_eval) * 0.7))
+    train = df_eval.iloc[:split].copy()
+    test = df_eval.iloc[split:].copy()
+    print(f"  Train/Test split: {len(train)} / {len(test)} games")
+
+    fixed_grid = np.arange(0.0, 0.85, 0.05)
+    best_fixed_w = 0.0
+    best_fixed_score = -1e9
+    for w in fixed_grid:
+        train[f"fixed_{w:.2f}"] = [
+            anchored_prob(mp, mkp, w) for mp, mkp in zip(train["model_home_prob"], train["market_home_prob"])
+        ]
+        m = evaluate_policy_metrics(train, f"fixed_{w:.2f}", args.oos_edge_threshold)
+        if m["risk_adj"] > best_fixed_score:
+            best_fixed_score = m["risk_adj"]
+            best_fixed_w = float(w)
+    train["anchor_fixed"] = [anchored_prob(mp, mkp, best_fixed_w) for mp, mkp in zip(train["model_home_prob"], train["market_home_prob"])]
+    test["anchor_fixed"] = [anchored_prob(mp, mkp, best_fixed_w) for mp, mkp in zip(test["model_home_prob"], test["market_home_prob"])]
+
+    # Dynamic candidate tuned on train (simple policy family)
+    best_dyn = (0.15, 0.35, 0.40)  # (base, time_coef, disagreement_coef)
+    best_dyn_score = -1e9
+    for base in [0.10, 0.15, 0.20, 0.25]:
+        for tcoef in [0.20, 0.35, 0.50]:
+            for dcoef in [0.20, 0.40, 0.60]:
+                mins = pd.to_numeric(train["minutes_to_start_snapshot"], errors="coerce").fillna(720.0).clip(lower=0.0, upper=1440.0)
+                proximity = (1.0 - mins / 720.0).clip(lower=0.0, upper=1.0)
+                disagreement = (train["model_home_prob"] - train["market_home_prob"]).abs()
+                w_dyn = (base + tcoef * proximity + dcoef * disagreement).clip(lower=0.0, upper=0.85)
+                train["anchor_dyn_tmp"] = [
+                    anchored_prob(mp, mkp, ww) for mp, mkp, ww in zip(train["model_home_prob"], train["market_home_prob"], w_dyn)
+                ]
+                m = evaluate_policy_metrics(train, "anchor_dyn_tmp", args.oos_edge_threshold)
+                if m["risk_adj"] > best_dyn_score:
+                    best_dyn_score = m["risk_adj"]
+                    best_dyn = (float(base), float(tcoef), float(dcoef))
+
+    def _apply_dynamic(frame: pd.DataFrame, base: float, tcoef: float, dcoef: float) -> pd.Series:
+        mins = pd.to_numeric(frame["minutes_to_start_snapshot"], errors="coerce").fillna(720.0).clip(lower=0.0, upper=1440.0)
+        proximity = (1.0 - mins / 720.0).clip(lower=0.0, upper=1.0)
+        disagreement = (frame["model_home_prob"] - frame["market_home_prob"]).abs()
+        return (base + tcoef * proximity + dcoef * disagreement).clip(lower=0.0, upper=0.85)
+
+    train_fixed_m = evaluate_policy_metrics(train, "anchor_fixed", args.oos_edge_threshold)
+    # Safety fallback: if dynamic family cannot beat fixed on train objective,
+    # use fixed anchor as the deployed dynamic candidate.
+    dyn_mode = "dynamic"
+    if best_dyn_score <= train_fixed_m["risk_adj"]:
+        dyn_mode = "fallback_fixed"
+        train["anchor_dynamic"] = train["anchor_fixed"]
+        test["anchor_dynamic"] = test["anchor_fixed"]
+    else:
+        train_w_dyn = _apply_dynamic(train, *best_dyn)
+        test_w_dyn = _apply_dynamic(test, *best_dyn)
+        train["anchor_dynamic"] = [
+            anchored_prob(mp, mkp, ww)
+            for mp, mkp, ww in zip(train["model_home_prob"], train["market_home_prob"], train_w_dyn)
+        ]
+        test["anchor_dynamic"] = [
+            anchored_prob(mp, mkp, ww)
+            for mp, mkp, ww in zip(test["model_home_prob"], test["market_home_prob"], test_w_dyn)
+        ]
+
+    test_fixed_m = evaluate_policy_metrics(test, "anchor_fixed", args.oos_edge_threshold)
+    train_dyn_m = evaluate_policy_metrics(train, "anchor_dynamic", args.oos_edge_threshold)
+    test_dyn_m = evaluate_policy_metrics(test, "anchor_dynamic", args.oos_edge_threshold)
+
+    print(f"  Fixed anchor (best train): w={best_fixed_w:.2f}, train Sharpe={train_fixed_m['sharpe']:.3f}")
+    print(
+        "  Dynamic anchor params "
+        f"(base={best_dyn[0]:.2f}, tcoef={best_dyn[1]:.2f}, dcoef={best_dyn[2]:.2f}), "
+        f"train Sharpe={train_dyn_m['sharpe']:.3f}, mode={dyn_mode}"
+    )
+    print(
+        "  OOS compare: "
+        f"Fixed ROI={test_fixed_m['roi']:+.2%}, Sharpe={test_fixed_m['sharpe']:.3f}, DD={test_fixed_m['max_dd']:.2f} | "
+        f"Dynamic ROI={test_dyn_m['roi']:+.2%}, Sharpe={test_dyn_m['sharpe']:.3f}, DD={test_dyn_m['max_dd']:.2f}"
+    )
+
+    anchor_oos_rows = pd.DataFrame(
+        [
+            {
+                "split": "train",
+                "policy": "fixed_anchor",
+                "anchor_weight": best_fixed_w,
+                "dynamic_mode": "fixed",
+                **train_fixed_m,
+            },
+            {
+                "split": "train",
+                "policy": "dynamic_anchor",
+                "anchor_weight": np.nan,
+                "dynamic_mode": dyn_mode,
+                **train_dyn_m,
+            },
+            {
+                "split": "test",
+                "policy": "fixed_anchor",
+                "anchor_weight": best_fixed_w,
+                "dynamic_mode": "fixed",
+                **test_fixed_m,
+            },
+            {
+                "split": "test",
+                "policy": "dynamic_anchor",
+                "anchor_weight": np.nan,
+                "dynamic_mode": dyn_mode,
+                **test_dyn_m,
+            },
+        ]
+    )
+    anchor_path = Path("data/processed/audit_sweeps/anchor_policy_oos.csv")
+    anchor_oos_rows.to_csv(anchor_path, index=False)
+
+    # ── SECTION 10: Promotion scorecard + automation checks ─────────────────
+    print_section("10. PROMOTION SCORECARD")
+    chosen_thresh = float(args.oos_edge_threshold)
+    best_row_idx = (sweep_raw["threshold"] - chosen_thresh).abs().idxmin()
+    best_row = sweep_raw.loc[best_row_idx]
+    scorecard_rows = [
+        {
+            "criterion": "tradable_roi_threshold",
+            "actual": float(best_row["roi_tradable"]),
+            "threshold": 0.0,
+            "comparison": ">=",
+            "passed": bool(float(best_row["roi_tradable"]) >= 0.0),
+            "blocking": True,
+        },
+        {
+            "criterion": "tradable_max_drawdown",
+            "actual": float(best_row["max_dd_tradable"]),
+            "threshold": 25.0,
+            "comparison": "<=",
+            "passed": bool(float(best_row["max_dd_tradable"]) <= 25.0),
+            "blocking": True,
+        },
+        {
+            "criterion": "canary_dynamic_vs_fixed_sharpe_oos",
+            "actual": float(test_dyn_m["sharpe"] - test_fixed_m["sharpe"]),
+            "threshold": 0.0,
+            "comparison": ">=",
+            "passed": bool(float(test_dyn_m["sharpe"]) >= float(test_fixed_m["sharpe"])),
+            "blocking": False,
+        },
+        {
+            "criterion": "fail_fast_quote_coverage",
+            "actual": float(df["tradable_home_ml"].notna().mean()),
+            "threshold": 0.80,
+            "comparison": ">=",
+            "passed": bool(float(df["tradable_home_ml"].notna().mean()) >= 0.80),
+            "blocking": True,
+        },
+    ]
+    scorecard = pd.DataFrame(scorecard_rows)
+    scorecard_path = Path("data/processed/audit_sweeps/promotion_scorecard.csv")
+    scorecard.to_csv(scorecard_path, index=False)
+    fail_fast_pass = bool(
+        scorecard[scorecard["criterion"] == "fail_fast_quote_coverage"]["passed"].iloc[0]
+        and scorecard[scorecard["criterion"] == "tradable_max_drawdown"]["passed"].iloc[0]
+    )
+    canary_pass = bool(scorecard[scorecard["criterion"] == "canary_dynamic_vs_fixed_sharpe_oos"]["passed"].iloc[0])
+    print(f"  Canary check (dynamic >= fixed OOS Sharpe): {'PASS' if canary_pass else 'FAIL'}")
+    print(f"  Fail-fast check (coverage+drawdown): {'PASS' if fail_fast_pass else 'FAIL'}")
+
     # ── Save detail CSV ──────────────────────────────────────────────────────
     df.to_csv(args.out, index=False)
     print(f"\n  Detail CSV: {args.out} ({len(df)} rows)")
+    print(f"  Edge sweep CSV: {edge_sweep_path}")
+    print(f"  Regime robustness CSV: {regime_path}")
+    print(f"  Anchor OOS CSV: {anchor_path}")
+    print(f"  Promotion scorecard CSV: {scorecard_path}")
 
     # ── Summary ──────────────────────────────────────────────────────────────
     print_section("SUMMARY")

@@ -197,6 +197,7 @@ def main() -> int:
             appearances_csv=args.appearances,
             game_date=args.date,
             window_days=3,
+            required_team_ids=set(schedule["home_cid"].astype(str)) | set(schedule["away_cid"].astype(str)),
         )
         fatigue.to_csv(fatigue_csv, index=False)
         n_fatigued = int((fatigue["fatigue_flag"] == 1).sum()) if not fatigue.empty else 0

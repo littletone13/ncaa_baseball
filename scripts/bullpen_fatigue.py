@@ -39,6 +39,7 @@ def compute_bullpen_fatigue(
     appearances_csv: Path,
     game_date: str,
     window_days: int = 3,
+    required_team_ids: set[str] | list[str] | None = None,
 ) -> pd.DataFrame:
     """
     Compute rolling bullpen workload for each team.
@@ -54,6 +55,11 @@ def compute_bullpen_fatigue(
             canonical_id, bp_ip_3d, bp_appearances_3d, games_3d,
             bp_ip_per_game_3d, fatigue_z, fatigue_flag, fatigue_adj
     """
+    required = {
+        str(t).strip()
+        for t in (required_team_ids or [])
+        if str(t).strip()
+    }
     app = pd.read_csv(appearances_csv, dtype=str)
     app["game_date"] = pd.to_datetime(app["game_date"], errors="coerce")
 
@@ -101,10 +107,24 @@ def compute_bullpen_fatigue(
     if recent.empty:
         print(f"  No reliever appearances in {window_days}-day window before {game_date}",
               file=sys.stderr)
-        return pd.DataFrame(columns=[
+        empty = pd.DataFrame(columns=[
             "canonical_id", "bp_ip_3d", "bp_appearances_3d", "games_3d",
-            "bp_ip_per_game_3d", "fatigue_z", "fatigue_flag", "fatigue_adj",
+            "bp_ip_per_game_3d", "fatigue_z", "fatigue_flag", "fatigue_adj", "fatigue_data_status",
         ])
+        if required:
+            # Explicitly emit neutral rows for required teams to preserve downstream
+            # contract coverage and avoid silent behavior changes.
+            base = pd.DataFrame({"canonical_id": sorted(required)})
+            base["bp_ip_3d"] = 0.0
+            base["bp_appearances_3d"] = 0
+            base["games_3d"] = 0
+            base["bp_ip_per_game_3d"] = 0.0
+            base["fatigue_z"] = 0.0
+            base["fatigue_flag"] = 0
+            base["fatigue_adj"] = 0.0
+            base["fatigue_data_status"] = "imputed_no_window_data"
+            return base
+        return empty
 
     team_stats = (
         recent.groupby("team_canonical_id")
@@ -141,6 +161,24 @@ def compute_bullpen_fatigue(
         0.0,
     )
     team_stats["fatigue_adj"] = team_stats["fatigue_adj"].round(4)
+    team_stats["fatigue_data_status"] = "observed_window_data"
+
+    # Fill missing required teams with neutral defaults so downstream simulation
+    # has explicit coverage metadata rather than sparse team rows.
+    if required:
+        observed = set(team_stats["canonical_id"].astype(str))
+        missing = sorted(required - observed)
+        if missing:
+            fill = pd.DataFrame({"canonical_id": missing})
+            fill["bp_ip_3d"] = 0.0
+            fill["bp_appearances_3d"] = 0
+            fill["games_3d"] = 0
+            fill["bp_ip_per_game_3d"] = 0.0
+            fill["fatigue_z"] = 0.0
+            fill["fatigue_flag"] = 0
+            fill["fatigue_adj"] = 0.0
+            fill["fatigue_data_status"] = "imputed_missing_window_data"
+            team_stats = pd.concat([team_stats, fill], ignore_index=True)
 
     # Round for display
     team_stats["bp_ip_3d"] = team_stats["bp_ip_3d"].round(1)

@@ -21,8 +21,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import _bootstrap  # noqa: F401
+from ncaa_baseball.model_runtime import (
+    FATIGUE_POLICY_CHOICES,
+    SCORING_CALIBRATION,
+    assert_scoring_calibration_parity,
+    enforce_fatigue_coverage_policy,
+)
 
-SCORING_CALIBRATION = 0.325  # Must match simulate.py
+# Script-level alias kept for backward compatibility and explicit parity checks.
+BACKTEST_SCORING_CALIBRATION = SCORING_CALIBRATION
+assert_scoring_calibration_parity("backtest_posterior.py", BACKTEST_SCORING_CALIBRATION)
 
 
 def main() -> int:
@@ -35,6 +44,21 @@ def main() -> int:
     parser.add_argument("--date-range", default="2026-02-14:2026-03-15")
     parser.add_argument("--N", type=int, default=1000, help="Simulations per game")
     parser.add_argument("--tune-calibration", action="store_true")
+    parser.add_argument("--fatigue", type=Path, default=None,
+                        help="Optional bullpen fatigue CSV (canonical_id, fatigue_adj).")
+    parser.add_argument(
+        "--fatigue-policy",
+        type=str,
+        default="de-risk",
+        choices=FATIGUE_POLICY_CHOICES,
+        help="How to handle low fatigue coverage: abort, de-risk, or ignore.",
+    )
+    parser.add_argument(
+        "--fatigue-min-coverage",
+        type=float,
+        default=0.8,
+        help="Minimum fatigue team coverage required for apply behavior [0-1].",
+    )
     args = parser.parse_args()
 
     # Parse date range
@@ -104,6 +128,32 @@ def main() -> int:
     subset["home_win"] = (subset["home_score"] > subset["away_score"]).astype(int)
     print(f"Games in range: {len(subset)}", file=sys.stderr)
 
+    # Optional fatigue map and coverage contract.
+    fatigue_map: dict[str, float] = {}
+    if args.fatigue is not None and args.fatigue.exists():
+        fat_df = pd.read_csv(args.fatigue, dtype=str)
+        for _, r in fat_df.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            if not cid:
+                continue
+            try:
+                fatigue_map[cid] = float(r.get("fatigue_adj", 0.0))
+            except (TypeError, ValueError):
+                fatigue_map[cid] = 0.0
+    required_teams = set(subset["home_canonical_id"].dropna().astype(str).str.strip()) | set(
+        subset["away_canonical_id"].dropna().astype(str).str.strip()
+    )
+    fatigue_decision = enforce_fatigue_coverage_policy(
+        required_team_ids=required_teams,
+        fatigue_team_ids=set(fatigue_map.keys()),
+        policy=args.fatigue_policy,
+        min_coverage=args.fatigue_min_coverage,
+        context_label="backtest_posterior",
+    )
+    print(fatigue_decision.message, file=sys.stderr)
+    if fatigue_decision.action == "de-risk":
+        fatigue_map = {}
+
     # Simulate
     rng = np.random.default_rng(42)
     results = []
@@ -122,6 +172,8 @@ def main() -> int:
         draw_indices = rng.choice(n_draws, size=args.N, replace=True)
         home_wins = 0
         totals = []
+        a_fatigue_adj = fatigue_map.get(g["away_canonical_id"], 0.0)
+        h_fatigue_adj = fatigue_map.get(g["home_canonical_id"], 0.0)
 
         for d in draw_indices:
             h_score = 0
@@ -139,6 +191,7 @@ def main() -> int:
                     + def_[d, a_tidx, k]
                     + ha
                     + p_away
+                    + a_fatigue_adj
                 )
                 # Away scoring
                 log_rate_a = (
@@ -146,6 +199,7 @@ def main() -> int:
                     + att[d, a_tidx, k]
                     + def_[d, h_tidx, k]
                     + p_home
+                    + h_fatigue_adj
                 )
 
                 rate_h = np.exp(np.clip(log_rate_h, -5, 5))
