@@ -39,6 +39,11 @@ def load_actual_results(games_csv: Path) -> pd.DataFrame:
     valid["home_win"] = (valid["home_score"] > valid["away_score"]).astype(int)
     valid["margin"] = valid["home_score"] - valid["away_score"]
     valid["game_date"] = pd.to_datetime(valid.get("game_date", valid.get("date", "")), errors="coerce")
+    # Normalize column names to match prediction format
+    if "home_canonical_id" in valid.columns:
+        valid["home_cid"] = valid["home_canonical_id"]
+    if "away_canonical_id" in valid.columns:
+        valid["away_cid"] = valid["away_canonical_id"]
     return valid
 
 
@@ -77,14 +82,35 @@ def match_predictions_to_outcomes(
     preds["exp_home"] = pd.to_numeric(preds["exp_home"], errors="coerce")
     preds["exp_away"] = pd.to_numeric(preds["exp_away"], errors="coerce")
 
+    # Extract date from filename (predictions_YYYY-MM-DD.csv)
+    import re
+    date_match = re.search(r"(\d{4}-\d{2}-\d{2})", predictions_csv.name)
+
+    if date_match and "game_date" in actuals.columns:
+        pred_date = pd.Timestamp(date_match.group(1))
+        # Filter actuals to same date for precise matching
+        day_actuals = actuals[actuals["game_date"] == pred_date]
+        if day_actuals.empty:
+            # Try +/- 1 day for timezone edge cases
+            day_actuals = actuals[
+                (actuals["game_date"] >= pred_date - pd.Timedelta(days=1))
+                & (actuals["game_date"] <= pred_date + pd.Timedelta(days=1))
+            ]
+    else:
+        day_actuals = actuals
+
+    actual_cols = ["home_cid", "away_cid", "home_score", "away_score",
+                   "actual_total", "home_win", "margin"]
+    actual_cols = [c for c in actual_cols if c in day_actuals.columns]
+
     # Match on home_cid + away_cid
     merged = preds.merge(
-        actuals[["home_cid", "away_cid", "home_score", "away_score",
-                 "actual_total", "home_win", "margin"]],
-        left_on=["home_cid", "away_cid"],
-        right_on=["home_cid", "away_cid"],
+        day_actuals[actual_cols],
+        on=["home_cid", "away_cid"],
         how="inner",
     )
+    # If still duplicated (doubleheaders), keep first
+    merged = merged.drop_duplicates(subset=["home_cid", "away_cid"], keep="first")
     return merged
 
 

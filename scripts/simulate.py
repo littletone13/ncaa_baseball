@@ -37,8 +37,10 @@ RUN_MULT = [1, 2, 3, 5.4]
 # Calibrated from 7,898 actual game outcomes:
 #   actual avg total = 13.13, model base (no calib) = 12.09
 #   C = log(13.13 / 12.09) = 0.083
-# Updated 2026-03-17 after refit with 4874 pitchers / 308 teams.
-SCORING_CALIBRATION = 0.083
+# Updated 2026-03-21 after conference hierarchy + FIP priors refit.
+# Calibrated empirically: posterior base=8.64, team/pitcher effects add ~4 runs,
+# target ~13.1 actual. C=0.12 gives ~13 with full simulation pipeline.
+SCORING_CALIBRATION = 0.12
 
 # ── Utility ──────────────────────────────────────────────────────────────────
 
@@ -181,7 +183,7 @@ def simulate_games(
     # ── Fix 1: Post-hoc home advantage correction ────────────────────────
     if ha_target is not None:
         ha_mean = float(home_adv.mean())
-        if ha_mean > ha_target + 0.02:
+        if abs(ha_mean - ha_target) > 0.005:
             ha_shift = ha_mean - ha_target
             home_adv -= ha_shift
             print(f"  HA correction: {ha_mean:.4f} → {home_adv.mean():.4f}", file=sys.stderr)
@@ -820,9 +822,9 @@ def main() -> int:
                         help="Date label for formatted output (YYYY-MM-DD)")
     parser.add_argument("--quiet", action="store_true",
                         help="Suppress formatted output, only write CSV")
-    parser.add_argument("--ha-target", type=float, default=None,
+    parser.add_argument("--ha-target", type=float, default=0.09,
                         help="Target home_advantage mean (post-hoc correction). "
-                             "E.g., 0.05 for ~53-54%% home win rate. None=no correction.")
+                             "0.09 ≈ 52%% equal-team home win rate. None=no correction.")
     args = parser.parse_args()
 
     # Validate inputs

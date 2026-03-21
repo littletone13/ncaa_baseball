@@ -48,6 +48,7 @@ def _norm_name_lower(name: str) -> str:
 
 def build_player_registry(
     sidearm_csv: Path = Path("data/processed/sidearm_rosters.csv"),
+    ncaa_rosters_csv: Path = Path("data/processed/ncaa_rosters.csv"),
     pitcher_table_csv: Path = Path("data/processed/pitcher_table.csv"),
     d1b_rotations_csv: Path = Path("data/processed/d1baseball_rotations.csv"),
     d1b_root: Path = Path("data/raw/d1baseball"),
@@ -126,6 +127,29 @@ def build_player_registry(
                 sources="sidearm",
             )
         print(f"  {len(sr)} players from sidearm", file=sys.stderr)
+
+    # ── 1b. NCAA roster scrapes (fills gaps from teams Sidearm missed) ──
+    print("Loading NCAA roster scrapes...", file=sys.stderr)
+    if ncaa_rosters_csv.exists():
+        nr = pd.read_csv(ncaa_rosters_csv, dtype=str)
+        for _, r in nr.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            name = str(r.get("player_name", "")).strip()
+            if not cid or not name:
+                continue
+            pos = str(r.get("position", "")).strip()
+            is_p = bool(re.search(r'\b(P|Pitcher|RHP|LHP|RHSP|LHSP)\b', pos, re.IGNORECASE)) if pos else False
+            is_b = not is_p
+            _upsert(
+                cid, name,
+                position=pos,
+                bats=str(r.get("bats", "")).strip(),
+                throws=str(r.get("throws", "")).strip(),
+                is_pitcher=is_p,
+                is_batter=is_b,
+                sources="ncaa_roster",
+            )
+        print(f"  {len(nr)} players from NCAA roster scrapes", file=sys.stderr)
 
     # ── 2. D1B rotation data ──
     print("Loading D1B rotations...", file=sys.stderr)
