@@ -19,6 +19,7 @@
 PYTHON = .venv/bin/python3
 DATE ?= $(shell date +%Y-%m-%d)
 N_SIMS ?= 5000
+DATABASE_URL ?=
 
 # ── Layer 1: Extract from ESPN JSONL ──────────────────────────────
 ESPN_JSONL = $(wildcard data/raw/espn/games_*.jsonl)
@@ -103,12 +104,21 @@ odds:
 	ODDS_API_KEY="$${THE_ODDS_API_KEY}" \
 	$(PYTHON) scripts/pull_odds.py --mode current --regions us,us2,eu --markets h2h,totals,spreads
 
+# ── Postgres odds warehouse ───────────────────────────────────────
+odds-db-bootstrap:
+	@if [ -z "$(DATABASE_URL)" ]; then echo "Set DATABASE_URL"; exit 1; fi
+	$(PYTHON) scripts/load_odds_to_postgres.py --dsn "$(DATABASE_URL)" --create-schema
+
+odds-db-load:
+	@if [ -z "$(DATABASE_URL)" ]; then echo "Set DATABASE_URL"; exit 1; fi
+	$(PYTHON) scripts/load_odds_to_postgres.py --dsn "$(DATABASE_URL)"
+
 # ── Convenience targets ──────────────────────────────────────────
 rebuild: extract indices park-factors bullpen rotations tables
 	@echo "✓ Full rebuild complete"
 
-daily: predict odds
-	@echo "✓ Daily pipeline complete for $(DATE)"
+daily: predict odds web-export web-push
+	@echo "✓ Daily pipeline complete for $(DATE) — live at hoopsbracketanalysis.shop"
 
 all: rebuild model predict
 	@echo "✓ Full pipeline complete"
@@ -116,4 +126,22 @@ all: rebuild model predict
 clean-daily:
 	rm -rf data/daily/$(DATE)
 
-.PHONY: extract indices park-factors bullpen rotations tables model predict odds rebuild daily all clean-daily
+# ── Web dashboard (standalone repo at ~/hoopsbracketanalysis) ────
+WEB_DIR ?= $(HOME)/hoopsbracketanalysis
+
+web-export:
+	$(PYTHON) scripts/export_web_data.py --date $(DATE) --out $(WEB_DIR)/public/data/
+	@echo "✓ Web data exported for $(DATE) → $(WEB_DIR)/public/data/"
+
+web-push:
+	cd $(WEB_DIR) && git add public/data/ && git diff --cached --quiet || \
+		(cd $(WEB_DIR) && git commit -m "data $(DATE)" && git push)
+	@echo "✓ Pushed to GitHub (auto-deploys to hoopsbracketanalysis.shop)"
+
+web-deploy: web-export web-push
+	@echo "✓ Deployed to hoopsbracketanalysis.shop"
+
+web-dev:
+	cd $(WEB_DIR) && npm run dev
+
+.PHONY: extract indices park-factors bullpen rotations tables model predict odds odds-db-bootstrap odds-db-load rebuild daily all clean-daily web-export web-push web-deploy web-dev
