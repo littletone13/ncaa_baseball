@@ -203,8 +203,6 @@ def main() -> int:
         pt["fip"] = pd.to_numeric(pt.get("fip"), errors="coerce")
 
         valid_fip = pt.loc[pt["fip"].notna(), "fip"].values
-        fip_mean = float("nan")
-        fip_std = float("nan")
         if len(valid_fip) > 10:
             fip_mean = float(np.mean(valid_fip))
             fip_std = float(np.std(valid_fip))
@@ -218,13 +216,8 @@ def main() -> int:
                         z = float(np.clip(z, -2.0, 2.0))
                         fip_prior[pidx - 1] = z * 0.08  # scale by estimated ability std
                         n_fip_priors += 1
-            print(f"FIP priors: {n_fip_priors}/{N_pitchers} pitchers have informative priors "
-                  f"(FIP μ={fip_mean:.2f} σ={fip_std:.2f})")
-        else:
-            print(
-                f"FIP priors: only {len(valid_fip)} valid FIP values found in pitcher_table.csv; "
-                "using uninformative priors for all pitchers"
-            )
+        print(f"FIP priors: {n_fip_priors}/{N_pitchers} pitchers have informative priors "
+              f"(FIP μ={fip_mean:.2f} σ={fip_std:.2f})")
     else:
         print("FIP priors: pitcher_table.csv not found, using uninformative priors for all pitchers")
 
