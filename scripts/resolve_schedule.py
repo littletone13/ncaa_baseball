@@ -426,22 +426,24 @@ def resolve_schedule(
             mkt_total_line = anchor.get("mkt_total_line")
 
         time_to_start_min = None
-        mkt_anchor_weight = 0.15  # very light default when start time is missing
+        mkt_anchor_weight = 0.10  # very light default when start time is missing
         if start_utc:
             try:
                 start_dt = datetime.fromisoformat(start_utc.replace("Z", "+00:00")).astimezone(timezone.utc)
                 tmin = (start_dt - now_utc).total_seconds() / 60.0
                 time_to_start_min = float(tmin)
-                # Time-aware blending:
-                # >12h: light, 3-12h: moderate, 0-3h: heavier.
+                # Time-aware blending: trust model early, lean market closer to game.
+                # Morning lines are soft — market sharpens 30-60 min pre-game.
                 if tmin <= 0:
-                    mkt_anchor_weight = 0.65
+                    mkt_anchor_weight = 0.50  # live/started: lean market
+                elif tmin <= 60:
+                    mkt_anchor_weight = 0.40  # <1h: market is sharpest
                 elif tmin <= 180:
-                    mkt_anchor_weight = 0.60
+                    mkt_anchor_weight = 0.25  # 1-3h: moderate blend
                 elif tmin <= 720:
-                    mkt_anchor_weight = 0.40
+                    mkt_anchor_weight = 0.15  # 3-12h: light blend
                 else:
-                    mkt_anchor_weight = 0.20
+                    mkt_anchor_weight = 0.10  # >12h: trust model
             except Exception:
                 pass
 
