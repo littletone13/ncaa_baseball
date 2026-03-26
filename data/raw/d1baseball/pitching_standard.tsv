@@ -1,0 +1,671 @@
+Qual.	Player	Team	Class	W	L	ERA	APP	GS	CG	SHO	SV	IP	H	R	ER	BB	K	HBP	BA
+0	Braden Gebhardt	Youngstown State	SR	0	1	0.00	4	4	0	0	0	26.0	12	2	0	9	32	2	.138
+0	Matt Sauser	UCF	JR	1	0	0.00	3	3	0	0	0	18.2	8	0	0	2	16	0	.127
+0	Mason Edwards	Southern California	JR	3	0	0.00	4	4	0	0	0	24.0	3	0	0	10	42	1	.039
+0	Landon Hood	Gonzaga	FR	2	0	0.00	4	0	0	0	1	16.1	5	0	0	5	25	2	.094
+0	Grant Govel	Southern California	SO	4	0	0.35	4	4	0	0	0	26.0	11	2	1	3	29	1	.126
+0	Jesus Tovar	Texas State	JR	4	0	0.36	4	4	0	0	0	25.0	10	1	1	8	26	8	.130
+0	LJ Mercurius	Oklahoma	JR	4	0	0.39	4	4	1	0	0	23.1	9	2	1	6	34	2	.118
+0	Will Labonte	Portland	FR	1	0	0.46	4	3	0	0	0	19.2	15	1	1	11	15	0	.211
+0	Cade Townsend	Ole Miss	SO	2	0	0.48	4	4	0	0	0	18.2	10	1	1	4	32	1	.152
+0	Daniel Quintana	Radford	JR	3	0	0.49	4	0	0	0	0	18.1	15	2	1	5	18	1	.221
+0	Nolan Moore	Texas State	FR	1	0	0.53	4	4	0	0	0	17.0	8	1	1	8	16	4	.145
+0	Christian Coppola	Saint Joseph’s	SR	0	0	0.57	4	1	0	0	0	15.2	9	4	1	5	31	3	.167
+0	Daniel Powell	Kennesaw State	JR	3	0	0.60	7	0	0	0	2	15.0	6	2	1	7	18	1	.133
+0	Colby Barker	Merrimack	JR	3	0	0.71	3	1	1	0	0	12.2	14	2	1	7	18	0	.219
+0	Michael Sharman	Clemson	SR	4	0	0.72	4	4	1	0	0	25.0	10	4	2	1	26	1	.115
+0	Matthew Mariano	Albany	SR	0	0	0.73	3	0	0	0	0	12.1	8	2	1	4	10	0	.178
+0	Ben Alekson	Fairfield	JR	0	1	0.82	4	4	0	0	0	22.0	19	4	2	8	22	1	.232
+0	Wes Mendes	Florida State	JR	4	0	0.83	4	4	0	0	0	21.2	9	5	2	7	30	1	.129
+0	Alex Walsh	Jacksonville	SR	2	1	0.87	4	4	0	0	0	20.2	17	3	2	7	19	2	.227
+0	Eli Pillsbury	Jacksonville State	SR	2	0	0.90	4	4	0	0	0	20.0	15	3	2	5	25	4	.214
+0	Ciaran Caughey	Kent State	SR	2	0	0.92	4	4	0	0	0	19.2	15	5	2	5	26	3	.200
+0	Will Sanford	Oregon	SO	3	0	0.92	4	4	0	0	0	19.2	10	4	2	9	26	3	.149
+0	Ty Uber	Notre Dame	GR	2	0	0.96	4	4	0	0	0	18.2	10	2	2	7	13	1	.154
+0	Logan Hastings	Maryland	SO	1	0	0.96	4	0	0	0	2	18.2	10	2	2	3	23	4	.156
+0	Garrett Grant	Florida Atlantic	FR	1	0	0.96	4	4	0	0	0	18.2	20	2	2	5	16	3	.278
+0	Brandon Stone	South Carolina	JR	2	0	1.00	5	2	0	0	0	18.0	16	3	2	4	20	2	.229
+0	Otto Espinoza	California	FR	1	0	1.00	4	1	0	0	2	18.0	10	3	2	6	24	2	.159
+0	Braxton Haywood	Central Arkansas	JR	1	1	1.04	8	0	0	0	1	17.1	8	8	2	8	23	2	.136
+0	Caylon Dygert	UT Arlington	JR	2	0	1.05	4	4	0	0	0	25.2	17	5	3	9	20	1	.183
+0	Maxx Yehl	West Virginia	JR	2	0	1.06	4	4	0	0	0	17.0	13	5	2	10	21	3	.217
+0	Owen Phypers	Navy	FR	3	0	1.06	3	3	0	0	0	17.0	12	2	2	6	14	2	.211
+0	Kyle Salvati	Central Connecticut	SR	0	0	1.08	2	2	0	0	0	8.1	6	1	1	6	7	1	.214
+0	Seth Benes	Lindenwood	JR	1	0	1.08	4	4	0	0	0	25.0	15	3	3	9	23	0	.174
+0	Chris Olivier	Lamar	SR	2	0	1.09	4	4	0	0	0	24.2	13	3	3	7	32	0	.151
+0	Jacob Dudan	NC State	JR	4	0	1.11	4	4	0	0	0	24.1	14	3	3	3	33	1	.163
+0	Dax Whitney	Oregon State	SO	2	0	1.11	4	4	0	0	0	24.1	12	3	3	8	45	1	.146
+0	Jacob Hines	Central Connecticut	SO	1	0	1.12	2	2	0	0	0	8.0	7	2	1	7	7	1	.241
+0	Michael Senay	South Florida	FR	2	0	1.14	4	3	0	0	0	23.2	15	5	3	4	20	2	.185
+0	Hekili Robello	Hawaii	JR	3	0	1.14	4	4	0	0	0	23.2	21	9	3	3	27	2	.228
+0	Colin Fisher	Arkansas	JR	2	1	1.17	4	4	1	1	0	23.0	13	5	3	3	30	1	.159
+0	Eric Nachtsheim	McNeese	SR	3	0	1.17	5	2	1	0	1	23.0	13	5	3	6	39	1	.157
+0	Tyler Weimer	Arkansas State	SO	2	0	1.17	7	0	0	0	1	23.0	10	4	3	6	20	0	.127
+0	Bryce Riggs	Eastern Illinois	JR	2	0	1.19	4	3	1	1	1	22.2	10	3	3	6	23	1	.132
+0	Gavin DeVooght	Michigan	JR	0	1	1.20	9	0	0	0	5	15.0	11	3	2	8	14	2	.196
+0	Brady Bendik	Navy	JR	2	1	1.21	4	4	0	0	0	22.1	19	5	3	8	23	0	.229
+0	Drew Turner	UNC Asheville	FR	3	1	1.21	4	2	1	0	0	22.1	13	5	3	10	26	1	.173
+0	Ruger Riojas	Texas	SR	3	0	1.23	4	4	0	0	0	22.0	11	3	3	3	42	2	.143
+0	Jake Marciano	Auburn	SO	2	0	1.23	4	4	0	0	0	22.0	12	3	3	1	35	5	.160
+0	Nate Bennett	Niagara	SO	1	0	1.29	4	4	0	0	0	21.0	14	4	3	6	27	3	.194
+0	Camden Sunstrom	Southern Miss	SO	1	0	1.29	7	1	0	0	1	21.0	20	4	3	1	26	2	.250
+0	Lucas Hartman	Virginia	GR	4	0	1.31	10	0	0	0	0	20.2	14	7	3	5	23	1	.197
+0	Trace Hartman	Stetson	JR	2	1	1.31	5	1	0	0	0	20.2	12	4	3	7	17	0	.169
+0	Alec Bouchard	Wofford	JR	2	1	1.33	4	4	0	0	0	20.1	16	4	3	10	26	2	.208
+0	Collin Aloisio	Sam Houston	FR	3	0	1.35	4	4	0	0	0	20.0	16	5	3	5	15	3	.213
+0	Andreas Alvarez	Auburn	SO	2	1	1.37	4	4	0	0	0	19.2	15	6	3	6	27	1	.217
+0	Danny Cihocki	Northern Illinois	JR	2	0	1.38	4	4	0	0	0	26.0	14	4	4	6	28	1	.163
+0	Brady Bickett	Charleston Southern	JR	1	1	1.42	4	4	0	0	0	19.0	8	4	3	8	14	2	.127
+0	Griffin Naess	Cal Poly	JR	2	1	1.44	4	4	0	0	0	25.0	11	4	4	6	30	2	.124
+0	Lucas Foley	Illinois State	JR	4	0	1.47	7	0	0	0	0	18.1	11	4	3	5	20	1	.175
+0	Tyler Lutz	James Madison	FR	0	1	1.47	5	2	0	0	0	18.1	13	4	3	3	18	0	.197
+0	Sawyer Pruitt	Louisiana	FR	2	1	1.48	7	3	0	0	1	24.1	22	6	4	6	29	0	.237
+0	Jackson Flora	UC Santa Barbara	JR	4	0	1.50	4	4	0	0	0	24.0	17	4	4	7	28	4	.195
+0	Brannon Westmoreland	Little Rock	JR	2	0	1.52	4	4	0	0	0	23.2	13	4	4	6	26	0	.155
+0	Cooper Katskee	Nebraska	JR	2	0	1.53	5	2	0	0	1	17.2	9	4	3	2	27	1	.143
+0	Carson Timothy	Sacramento State	SO	1	1	1.53	4	4	0	0	0	17.2	13	8	3	4	12	1	.191
+0	Jack Ohman	Yale	SO	1	0	1.53	3	3	0	0	0	17.2	6	4	3	9	25	0	.100
+0	Dylan Volantis	Texas	SO	1	0	1.54	4	4	0	0	0	23.1	14	5	4	7	29	2	.169
+0	Nathan Leininger	Toledo	SR	2	0	1.57	4	4	0	0	0	23.0	14	5	4	9	17	0	.173
+0	Hunter Sipe	VMI	SR	2	0	1.57	8	1	0	0	1	23.0	14	5	4	2	21	0	.177
+0	Gavin Eddy	California	SO	3	0	1.57	4	4	0	0	0	23.0	15	4	4	4	24	4	.188
+0	Jack Radel	Notre Dame	JR	2	1	1.57	4	4	0	0	0	23.0	9	6	4	5	33	0	.114
+0	Ryan Peterson	Sam Houston	JR	1	2	1.57	4	4	0	0	0	23.0	17	5	4	6	35	0	.205
+0	Cooper Allen	UNC Wilmington	JR	3	0	1.57	4	4	0	0	0	23.0	14	4	4	2	28	1	.173
+0	Mikiah Negrete	Cal State Fullerton	SR	2	1	1.59	4	4	0	0	0	22.2	24	4	4	2	24	2	.279
+0	Aiden Sims	Texas A&M	SO	3	0	1.59	4	4	0	0	0	22.2	11	4	4	5	25	4	.143
+0	Tate Jones	New Jersey Tech	SO	2	0	1.62	4	1	0	0	0	16.2	14	4	3	3	15	1	.230
+0	Gage Peterson	Appalachian State	JR	3	0	1.64	4	4	0	0	0	22.0	17	9	4	8	32	2	.215
+0	Zack Konstantinovsky	Rutgers	SO	3	0	1.69	4	4	0	0	0	21.1	10	4	4	7	24	0	.139
+0	Jason DeCaro	North Carolina	JR	3	1	1.71	4	4	1	1	0	21.0	22	8	4	7	21	1	.272
+0	Ethan Lund	Oklahoma State	SO	3	0	1.74	4	4	0	0	0	20.2	10	4	4	13	40	0	.141
+0	Tomas Valincius	Mississippi State	SO	3	0	1.74	4	4	0	0	0	20.2	17	4	4	6	26	2	.227
+0	Jake Moss	Pennsylvania	SR	1	0	1.76	3	3	0	0	0	15.1	14	3	3	6	12	1	.233
+0	Chase Hoover	UC Santa Barbara	JR	0	0	1.76	8	0	0	0	2	15.1	11	4	3	6	20	2	.200
+0	Andrew Johnson	Southern California	SO	2	0	1.77	4	4	0	0	0	20.1	15	4	4	8	23	1	.197
+0	Sean Jenkins	East Carolina	SO	2	0	1.77	7	0	0	0	1	20.1	13	5	4	5	28	1	.181
+0	Kurt Marton	Sacramento State	JR	1	1	1.80	5	3	0	0	0	20.0	15	4	4	3	21	2	.203
+0	Kade Shatwell	Austin Peay	SR	1	1	1.82	4	4	1	0	0	24.2	15	6	5	5	23	3	.176
+0	Chris Levonas	Wake Forest	SO	4	0	1.83	4	4	0	0	0	19.2	10	4	4	6	41	1	.143
+0	Jaxon Lloyd	Longwood	GR	3	0	1.85	4	4	0	0	0	24.1	18	6	5	6	34	2	.202
+0	Hudson Barrett	Oklahoma State	JR	2	1	1.86	4	4	0	0	0	19.1	11	8	4	5	29	2	.153
+0	Kevin Robinson	Northwestern State	JR	0	0	1.86	7	3	0	0	0	19.1	17	7	4	2	15	7	.227
+0	Smith Bailey	Arizona	SO	2	0	1.88	4	4	0	0	0	24.0	15	5	5	10	25	1	.183
+0	Oliver de la Torre	California	JR	1	2	1.89	4	4	0	0	0	19.0	13	8	4	3	23	2	.191
+0	Gabe LeBlanc	Stephen F. Austin	SR	1	0	1.89	4	4	0	0	0	19.0	14	6	4	3	10	2	.206
+0	Kendall Hoffman	Houston	SO	1	0	1.90	4	4	0	0	0	23.2	13	6	5	7	14	4	.160
+0	Andrelys Payamps	Iona	GR	0	1	1.93	3	3	0	0	0	14.0	9	7	3	10	17	4	.188
+0	Dylan Vigue	Georgia	JR	3	1	1.93	4	4	1	1	0	18.2	10	4	4	7	24	1	.164
+0	Callen Powers	Massachusetts	JR	1	1	1.93	3	3	0	0	0	18.2	15	4	4	5	17	1	.221
+0	Sam Simmons	UTSA	SR	3	1	1.93	7	0	0	0	1	18.2	18	5	4	4	15	2	.243
+0	Myles Upchurch	Alabama	FR	3	1	1.93	4	4	0	0	0	18.2	13	4	4	6	31	1	.200
+0	Tony Neubeck	Indiana	GR	1	1	1.96	4	4	0	0	0	18.1	15	5	4	5	17	0	.234
+0	Andrew Evans	Southern Illinois	SR	2	0	1.96	4	4	0	0	0	23.0	15	6	5	7	22	1	.188
+0	Jacob Sitton	Tennessee-Martin	SR	2	0	1.96	4	4	1	0	0	23.0	18	9	5	13	25	1	.212
+0	Ryan McPherson	Mississippi State	SO	2	0	1.96	4	4	0	0	0	23.0	19	6	5	5	28	1	.221
+0	Luke Niemeyer	Lindenwood	FR	0	1	1.96	4	3	0	0	0	18.1	16	9	4	4	10	2	.242
+0	Brandon Kosel	Utah Tech	JR	1	0	2.00	4	4	0	0	0	18.0	14	7	4	5	13	0	.219
+0	Casey Euper	Pepperdine	SO	1	1	2.00	5	2	0	0	0	18.0	11	6	4	8	10	2	.175
+0	Chansen Cole	West Virginia	SO	2	0	2.00	4	4	0	0	0	18.0	13	5	4	8	18	2	.194
+0	Ty Brooks	Indiana State	SO	3	0	2.00	5	5	0	0	0	27.0	12	6	6	5	20	2	.129
+0	Ben Blair	Liberty	JR	3	1	2.01	4	4	0	0	0	22.1	10	5	5	3	34	2	.128
+0	Luc Rising	Northeastern	SR	0	1	2.02	3	1	0	0	0	13.1	8	3	3	3	14	1	.167
+0	Drew Munn	Charlotte	SR	3	0	2.04	4	3	0	0	0	17.2	11	4	4	5	13	1	.190
+0	Mason Lei	Illinois-Chicago	JR	2	1	2.05	4	4	0	0	0	22.0	18	8	5	5	19	0	.220
+0	Spencer Seid	Georgetown	GR	3	0	2.08	4	4	0	0	0	21.2	12	7	5	7	22	5	.162
+0	Cameron Johnson	Oklahoma	JR	4	0	2.11	4	4	0	0	0	21.1	17	6	5	5	32	2	.218
+0	Jake Hilton	Saint Mary’s	GR	3	0	2.12	4	3	0	0	0	17.0	15	4	4	9	18	1	.227
+0	Eric Segura	Oregon State	JR	1	1	2.12	4	4	0	0	0	17.0	17	5	4	5	21	3	.266
+0	Ethan Calder	Baylor	SR	1	1	2.16	4	4	0	0	0	16.2	15	6	4	6	15	1	.242
+0	Max Bayles	Santa Clara	JR	1	0	2.16	4	4	0	0	0	16.2	9	4	4	13	30	0	.155
+0	Jaron Bleeker	Iowa	SO	3	0	2.16	4	1	0	0	0	16.2	14	4	4	3	15	2	.230
+0	Gavin Van Kempen	East Carolina	SR	1	1	2.18	4	4	0	0	0	20.2	11	7	5	5	29	2	.155
+0	Bradley Zayac	Liberty	SO	2	0	2.18	4	3	0	0	0	20.2	16	5	5	5	21	0	.222
+0	Brooks Roberson	Louisiana Tech	SO	3	1	2.21	4	4	0	0	0	20.1	14	6	5	8	14	3	.209
+0	Wade Walton	High Point	SO	1	1	2.22	4	4	0	0	0	24.1	19	13	6	11	21	0	.213
+0	Luc Fladda	Arizona	SR	2	0	2.25	4	3	0	0	0	20.0	16	6	5	0	20	2	.225
+0	John Damozonio	Saint Mary’s	SR	2	1	2.25	4	4	0	0	0	20.0	18	8	5	5	21	4	.240
+0	Tommy Egan	Troy	SR	2	0	2.25	4	4	0	0	0	20.0	14	5	5	6	27	2	.197
+0	Carter Monke	Michigan State	GR	1	1	2.25	4	4	0	0	0	20.0	21	7	5	8	14	3	.269
+0	Cooper Moore	LSU	JR	3	1	2.25	4	4	0	0	0	24.0	19	6	6	5	31	3	.213
+0	Brady Sasse	Toledo	SO	1	1	2.25	3	3	0	0	0	16.0	13	5	4	5	16	1	.228
+0	Bryce Blevins	Marshall	SR	3	1	2.28	4	4	0	0	0	27.2	26	11	7	2	30	2	.250
+0	Alex Lyon	College of Charleston	SR	1	1	2.33	6	0	0	0	1	19.1	14	5	5	2	7	3	.206
+0	Trevor Hansen	UC Irvine	JR	3	0	2.36	4	4	0	0	0	26.2	16	7	7	6	35	2	.174
+0	Kai Leckszas	Georgetown	SR	3	1	2.37	4	4	0	0	0	19.0	14	6	5	7	18	4	.209
+0	Alex Petrovic	Auburn	SO	3	0	2.37	4	4	0	0	0	19.0	13	6	5	2	23	1	.191
+0	Josh McDevitt	Missouri	JR	3	0	2.37	4	4	0	0	0	19.0	7	5	5	15	26	1	.117
+0	Daniel Gonzalez	South Alabama	JR	1	1	2.37	4	4	0	0	0	19.0	16	6	5	11	26	1	.219
+0	Cal Scolari	Oregon	SO	3	0	2.37	4	4	0	0	0	19.0	10	6	5	11	28	2	.164
+0	Elijah Griffith	Akron	JR	2	0	2.38	4	4	0	0	0	22.2	15	7	6	7	12	5	.195
+0	Landon Mack	Tennessee	SO	3	1	2.38	4	4	0	0	0	22.2	18	7	6	9	30	1	.217
+0	Gavin Blachowicz	Nebraska	SO	2	1	2.41	4	4	1	0	0	18.2	10	9	5	7	24	3	.159
+0	Tanner Walker	Florida A&M	SR	1	0	2.45	5	0	0	0	0	18.1	14	5	5	2	17	4	.219
+0	James Litman	Florida Atlantic	SO	3	1	2.45	4	4	1	0	0	22.0	22	7	6	4	32	0	.247
+0	William Schmidt	LSU	SO	3	1	2.45	4	4	0	0	0	22.0	14	7	6	4	33	2	.177
+0	Ethan Sanders	Rice	FR	1	2	2.45	5	3	0	0	1	25.2	13	7	7	6	28	1	.148
+0	Shane Sdao	Texas A&M	JR	3	0	2.49	4	4	0	0	0	25.1	18	7	7	2	25	1	.189
+0	Jack Nelson	Arkansas State	GR	2	1	2.49	4	4	0	0	0	21.2	10	6	6	7	21	4	.133
+0	Harrison Thayer	UT Rio Grande Valley	SO	3	1	2.49	5	2	0	0	0	21.2	13	7	6	8	19	0	.173
+0	Brady Pendley	Georgia Southern	SR	1	1	2.50	6	0	0	0	0	18.0	17	7	5	9	19	4	.254
+0	Liam O'Brien	Hawaii	SR	1	1	2.50	4	4	0	0	0	18.0	11	9	5	7	15	2	.169
+0	Jaxon Shineflew	South Alabama	JR	1	0	2.50	5	0	0	0	2	18.0	11	6	5	4	19	1	.172
+0	Chet Lax	Wright State	JR	4	0	2.50	5	2	0	0	0	18.0	16	6	5	3	16	1	.229
+0	Maddux Frese	Iowa	JR	0	1	2.50	4	0	0	0	1	18.0	15	5	5	3	13	0	.227
+0	Ian Mowad	St. John’s	JR	1	1	2.50	4	2	0	0	0	18.0	17	5	5	6	12	3	.258
+0	Jaxon Jelkin	Kentucky	JR	3	0	2.53	4	4	0	0	0	21.1	15	7	6	4	26	1	.200
+0	Rohan Lettow	San Diego State	JR	2	0	2.53	4	4	0	0	0	21.1	16	9	6	10	31	2	.203
+0	Bromley Thornton	UNC Wilmington	JR	2	1	2.53	4	4	1	0	0	21.1	18	6	6	7	23	6	.231
+0	Branton Little	Wofford	SR	1	1	2.55	7	1	0	0	1	17.2	19	9	5	1	18	2	.271
+0	Collin Clarke	Oregon	JR	2	1	2.55	4	4	1	0	0	24.2	16	7	7	4	27	5	.190
+0	Beau Bryans	Jacksonville State	SR	2	0	2.55	4	4	0	0	0	17.2	16	7	5	12	24	2	.250
+0	Sam Cozart	Texas	FR	3	0	2.55	4	3	0	0	0	17.2	8	5	5	4	22	1	.136
+0	Felix Morin	Canisius	SR	1	1	2.57	4	4	0	0	0	21.0	18	9	6	7	19	2	.237
+0	Landon Yorek	South Florida	SR	1	0	2.57	4	3	0	0	0	21.0	12	7	6	6	16	3	.171
+0	Colby Allen	Southern Miss	SR	1	1	2.61	4	4	0	0	0	20.2	25	10	6	6	18	1	.305
+0	Gabe Gaeckle	Arkansas	JR	2	1	2.61	4	4	0	0	0	20.2	21	7	6	6	27	1	.263
+0	Ethan Eberle	Louisville	SO	2	0	2.61	4	4	0	0	0	20.2	20	6	6	10	26	4	.253
+0	Tyler Conklin	Eastern Illinois	GR	3	0	2.66	4	4	0	0	0	23.2	15	8	7	14	14	0	.172
+0	Collin Valentine	Pepperdine	JR	0	2	2.66	4	4	0	0	0	20.1	22	10	6	5	8	2	.278
+0	Regan Hall	Illinois	JR	2	1	2.66	4	4	0	0	0	23.2	18	11	7	2	18	4	.207
+0	Cayden Suchy	Connecticut	SO	0	0	2.66	4	4	0	0	0	23.2	16	7	7	7	29	2	.188
+0	Colter McAnelly	Utah	JR	2	2	2.70	4	4	0	0	0	20.0	16	10	6	9	22	1	.208
+0	Joey Giordano	Richmond	SO	4	0	2.70	4	4	0	0	0	23.1	16	7	7	5	30	1	.190
+0	Alex Sotiropoulos	Columbia	SO	1	0	2.70	3	3	0	0	0	13.1	6	6	4	12	10	1	.133
+0	Evan Dempsey	Florida Gulf Coast	JR	2	0	2.74	4	4	1	1	0	23.0	14	8	7	9	34	4	.177
+0	Matthew Cuccias	Wichita State	JR	2	0	2.74	5	4	0	0	1	23.0	10	9	7	9	26	3	.130
+0	Evan Blanco	Tennessee	SR	1	2	2.75	4	4	0	0	0	19.2	12	7	6	10	31	4	.174
+0	Lucas Boesen	UNC Asheville	SR	1	0	2.75	4	4	1	0	0	19.2	17	6	6	15	19	0	.230
+0	Joseph Taylor	Charlotte	JR	2	0	2.76	6	0	0	0	1	16.1	12	5	5	11	24	0	.200
+0	Ryan Castillo	New Mexico	JR	3	1	2.78	4	4	0	0	0	22.2	13	7	7	9	28	1	.171
+0	Kenyon Collins	Marshall	SO	2	1	2.78	4	3	0	0	0	22.2	17	11	7	9	32	3	.202
+0	Isaac Morton	Minnesota	JR	2	0	2.79	4	4	0	0	0	19.1	18	9	6	8	19	4	.247
+0	Luke Jones	Coastal Carolina	SO	0	1	2.79	4	4	0	0	0	19.1	18	6	6	8	17	5	.240
+0	Liam O'Leary	St. John’s	JR	0	2	2.81	4	4	0	0	0	22.2	22	9	7	6	17	2	.244
+0	Tate McKee	Georgia Tech	JR	2	0	2.82	5	5	0	0	0	22.1	18	7	7	13	25	3	.225
+0	Ricky Ojeda	UC Irvine	JR	1	1	2.82	4	4	0	0	0	22.1	18	9	7	5	21	7	.234
+0	Brady Hamilton	Wichita State	JR	2	2	2.82	4	4	0	0	0	22.1	27	12	7	4	25	3	.297
+0	Andrew Herrmann	Louisiana	GR	2	0	2.84	4	4	1	1	0	25.1	12	8	8	14	35	5	.143
+0	Kaleb Applebey	Austin Peay	JR	1	0	2.84	4	4	0	0	0	19.0	10	8	6	10	19	7	.147
+0	Hunter Dietz	Arkansas	SO	2	1	2.84	4	4	0	0	0	19.0	14	9	6	5	34	2	.194
+0	Peyton Dhein	VMI	SO	2	0	2.84	4	4	0	0	0	19.0	19	9	6	7	19	4	.257
+0	Cody Templeton	Stephen F. Austin	SR	2	0	2.86	4	4	0	0	0	22.0	21	9	7	9	23	3	.253
+0	Maxwell Schumacher	Tennessee-Martin	SR	1	0	2.86	4	4	0	0	0	22.0	25	13	7	8	19	3	.278
+0	Patrick Steitz	VCU	SR	3	0	2.86	4	4	0	0	0	22.0	15	7	7	6	20	1	.192
+0	Kaden Segel	Portland	GR	0	0	2.89	5	2	0	0	1	18.2	18	8	6	2	15	1	.247
+0	Nick DiRito	Appalachian State	JR	1	1	2.89	5	1	0	0	2	18.2	19	7	6	5	31	1	.260
+0	Chandler Alderman	Middle Tennessee	JR	1	0	2.89	4	4	0	0	0	18.2	21	11	6	3	13	1	.276
+0	Ethan Lay	Sacramento State	SR	1	1	2.93	5	5	1	1	0	27.2	23	14	9	3	31	1	.213
+0	Tadan Bell	East Tennessee State	JR	2	1	2.95	4	4	0	0	0	18.1	16	6	6	7	14	1	.239
+0	Bryan Peck	California Baptist	GR	2	0	2.95	4	4	0	0	0	21.1	22	7	7	5	23	2	.272
+0	Connor Marshburn	UNC Wilmington	JR	1	2	2.95	4	4	0	0	0	21.1	16	9	7	7	24	6	.200
+0	Logan Reddemann	UCLA	JR	4	0	2.95	4	4	0	0	0	21.1	17	7	7	4	33	2	.213
+0	Mason Pennington	Southeast Missouri State	SR	3	0	2.95	4	4	0	0	0	21.1	18	10	7	9	24	2	.231
+0	Denver Hamilton	Central Arkansas	JR	3	0	2.95	4	3	0	0	0	18.1	20	6	6	7	12	3	.286
+0	Chase Richter	Arkansas State	GR	2	1	3.00	5	4	0	0	0	21.0	20	7	7	3	23	3	.247
+0	Cole Carlon	Arizona State	JR	2	1	3.00	4	4	0	0	0	21.0	14	8	7	6	29	0	.182
+0	Joey Volchko	Georgia	JR	4	0	3.00	4	4	0	0	0	21.0	17	7	7	8	24	0	.221
+0	Michael Malki	California Baptist	SO	3	0	3.00	5	4	0	0	0	18.0	12	6	6	13	31	3	.188
+0	Grayden Harris	Southern Miss	SO	2	0	3.00	4	4	0	0	0	21.0	17	8	7	6	30	4	.221
+0	Brayden Olson	St. Thomas	JR	0	2	3.05	4	4	0	0	0	20.2	19	14	7	13	21	4	.238
+0	Gavin Lyons	Texas A&M	SO	1	0	3.05	7	3	0	0	0	20.2	19	9	7	4	16	4	.238
+0	Luke Harrison	Texas	GR	1	0	3.06	4	4	0	0	0	17.2	17	8	6	8	17	2	.246
+0	Kevin Reavey	Army	SO	0	2	3.06	4	3	0	0	1	17.2	13	6	6	12	9	3	.213
+0	Duke Stone	Mississippi State	SO	3	0	3.06	5	3	0	0	0	17.2	10	6	6	2	24	6	.169
+0	Zac Laviage	Texas Southern	SO	0	1	3.07	3	3	0	0	0	14.2	11	8	5	14	7	0	.204
+0	Tegan Kuhns	Tennessee	SO	1	1	3.09	4	4	0	0	0	23.1	17	10	8	4	29	3	.198
+0	Ty Horn	Nebraska	JR	0	0	3.10	4	4	0	0	0	20.1	18	8	7	9	18	3	.240
+0	Ben Gregory	Minnesota	SR	0	0	3.12	5	4	0	0	1	17.1	15	6	6	8	16	5	.238
+0	Ty Brachbill	High Point	JR	4	0	3.12	4	4	0	0	0	26.0	22	9	9	8	22	0	.224
+0	Owen Byberg	Evansville	SR	0	0	3.12	6	0	0	0	1	17.1	14	9	6	6	10	5	.226
+0	Brayton Thomas	Indiana	SO	1	1	3.12	4	4	0	0	0	17.1	11	6	6	12	13	3	.177
+0	Brian Strange	Elon	GR	1	2	3.13	4	4	0	0	0	23.0	13	9	8	8	29	0	.163
+0	Brendon Miller	Fairfield	SO	1	1	3.14	4	2	0	0	0	14.1	13	11	5	9	17	2	.232
+0	Vincent Spizzoucco	Pittsburgh	GR	2	0	3.15	4	4	0	0	0	20.0	12	8	7	4	19	0	.176
+0	Zach Todd	Pacific	JR	1	0	3.15	4	3	0	0	0	20.0	16	8	7	10	25	3	.225
+0	Jonathan Adelmann	Bucknell	JR	0	3	3.15	4	4	0	0	0	20.0	16	13	7	13	16	2	.216
+0	Jake Hembree	Georgia State	SO	1	1	3.15	4	4	0	0	0	20.0	12	9	7	15	21	1	.171
+0	Zach Evenson	Mercyhurst	GR	1	0	3.18	3	0	0	0	0	11.1	7	4	4	3	12	3	.167
+0	Logan Rumberg	George Mason	SR	2	1	3.20	4	4	0	0	0	19.2	16	8	7	10	23	3	.232
+0	Kide Adetuyi	Florida Atlantic	SO	1	1	3.20	6	3	0	0	0	19.2	17	9	7	8	26	0	.230
+0	Edwin Sanchez	Bethune-Cookman	SR	3	1	3.20	4	4	0	0	0	19.2	15	7	7	9	29	1	.208
+0	Josh Newell	Lindenwood	SR	1	1	3.22	4	4	0	0	0	22.1	25	10	8	8	15	0	.272
+0	Caleb Granger	Florida A&M	GR	2	1	3.22	4	4	0	0	0	22.1	22	11	8	4	24	1	.265
+0	Darin Horn	Coastal Carolina	SR	2	0	3.24	6	0	0	0	1	16.2	10	8	6	4	23	3	.164
+0	Kellan Montgomery	UC Santa Barbara	SR	3	0	3.24	4	4	0	0	0	25.0	17	9	9	8	19	2	.205
+0	Liam Diehl	Towson	JR	0	2	3.24	4	4	0	0	0	16.2	17	8	6	6	19	6	.270
+0	Matthew Kouser	Northwestern	SO	1	3	3.24	5	2	0	0	0	16.2	14	15	6	7	13	1	.209
+0	Benjamin Stubbs	Troy	SR	0	0	3.26	4	4	0	0	0	19.1	20	7	7	8	18	1	.263
+0	Ashton Johnson	BYU	SR	1	1	3.26	7	0	0	0	0	19.1	24	7	7	3	17	0	.304
+0	Logan Runde	Iowa	GR	0	0	3.29	4	4	0	0	0	13.2	15	6	5	1	15	4	.273
+0	Joe Castrichini	Longwood	GR	1	1	3.32	4	4	0	0	0	21.2	17	8	8	5	18	5	.210
+0	Gabriel Barrett	San Francisco	SR	1	1	3.32	4	4	0	0	0	21.2	26	9	8	3	19	1	.302
+0	Hudson Rowan	Louisiana Tech	JR	3	1	3.32	5	4	0	0	0	21.2	14	8	8	8	17	3	.189
+0	Tysen Benford	Georgia State	JR	2	0	3.32	4	4	0	0	0	19.0	16	8	7	6	15	4	.222
+0	Caide White	Central Arkansas	FR	0	1	3.32	4	4	0	0	0	21.2	19	10	8	13	16	3	.238
+0	Garrett Holpuch	Tennessee Tech	SR	2	0	3.32	5	4	0	0	0	21.2	25	8	8	8	14	0	.278
+0	Adrian Valdez	San Francisco	JR	1	2	3.32	4	4	0	0	0	19.0	15	8	7	6	16	1	.234
+0	EJ Garcia	Incarnate Word	SR	1	1	3.33	4	4	0	0	0	27.0	28	12	10	3	17	4	.269
+0	Luke Howe	Long Beach State	FR	2	0	3.33	4	4	0	0	0	24.1	20	10	9	6	16	2	.227
+0	Tyler Grenn	Navy	SR	1	0	3.38	6	2	0	0	0	16.0	16	7	6	3	13	1	.262
+0	Payton Riske	Utah	JR	2	1	3.38	4	4	0	0	0	18.2	20	7	7	5	8	1	.274
+0	Brett Lanman	Abilene Christian	JR	0	2	3.38	4	4	0	0	0	18.2	15	8	7	8	17	3	.217
+0	Tate Marland	Belmont	JR	2	0	3.38	4	4	0	0	0	18.2	13	7	7	7	18	3	.194
+0	Austin Klug	Purdue	SR	3	1	3.38	6	2	0	0	0	16.0	15	6	6	5	12	1	.250
+0	Micah Worley	Stony Brook	SR	1	2	3.38	4	4	0	0	0	16.0	11	8	6	13	24	3	.193
+0	Noel Valdez	UC Davis	SR	1	1	3.43	4	4	0	0	0	21.0	21	11	8	10	18	0	.263
+0	Ethan Wendel	Tarleton	JR	2	0	3.44	4	2	0	0	0	18.1	18	8	7	4	20	2	.247
+0	Zach Bowman	Gonzaga	JR	0	3	3.45	3	1	1	0	0	15.2	10	7	6	6	16	2	.185
+0	Christian Aiello	Rider	SR	2	1	3.46	3	1	0	0	0	13.0	8	5	5	3	18	0	.170
+0	AJ Ciscar	Miami	SO	2	1	3.46	4	4	0	0	0	26.0	22	11	10	0	26	7	.220
+0	Max Kaplan	USC Upstate	SO	2	1	3.47	6	4	0	0	0	23.1	24	11	9	5	23	2	.276
+0	Owen Marsolek	St. Thomas	FR	1	0	3.47	4	4	0	0	0	23.1	23	9	9	10	21	2	.261
+0	Zane Adams	Alabama	JR	3	0	3.48	4	4	0	0	0	20.2	20	8	8	3	23	0	.247
+0	Zack Busick	Little Rock	JR	2	1	3.50	4	4	0	0	0	18.0	10	7	7	11	19	5	.156
+0	Garrett Miller	Utah Valley	JR	2	0	3.50	4	2	0	0	0	18.0	17	7	7	5	12	1	.246
+0	J.D. Rodriguez	Tulane	SR	3	0	3.50	8	1	0	0	0	18.0	13	10	7	14	26	4	.197
+0	Mahiro Tomita	Nevada	SR	0	0	3.50	4	1	0	0	0	18.0	18	8	7	4	19	2	.261
+0	Cord Rager	Oklahoma	FR	2	1	3.50	4	4	0	0	0	18.0	10	7	7	6	22	3	.169
+0	Richie Kerstetter	Central Connecticut	JR	1	0	3.52	3	0	0	0	0	7.2	6	3	3	5	11	0	.207
+0	Lex Kenny	West Georgia	SR	1	1	3.52	5	3	0	0	0	23.0	20	9	9	6	9	3	.244
+0	Charlie Hale	Connecticut	JR	1	0	3.54	6	1	0	0	0	20.1	16	8	8	5	18	0	.222
+0	Jack Frankel	Tulane	SO	1	0	3.54	4	4	1	0	0	20.1	20	9	8	6	10	2	.263
+0	Nathan Aceves	UC Santa Barbara	SO	2	0	3.54	4	4	0	0	0	20.1	14	8	8	8	26	5	.189
+0	Andrew Berg	Army	SR	1	0	3.55	4	4	0	0	0	25.1	23	11	10	7	15	1	.247
+0	Jonah Walker	North Dakota State	SR	0	0	3.57	4	4	0	0	0	17.2	13	8	7	10	19	0	.197
+0	Bryce Johnson	Washington	SO	0	0	3.57	6	2	0	0	1	17.2	16	11	7	6	14	2	.239
+0	Cole Selvig	Minnesota	JR	3	0	3.60	4	4	0	0	0	20.0	15	8	8	8	25	3	.214
+0	Jack Pineau	Creighton	JR	2	0	3.60	4	4	0	0	0	20.0	17	8	8	7	23	3	.221
+0	Will Holmes	The Citadel	GR	1	2	3.63	4	4	0	0	0	17.1	13	12	7	12	24	3	.210
+0	Noah Andrunas	Saint Louis	JR	2	1	3.63	4	4	0	0	0	22.1	20	9	9	5	12	2	.241
+0	Joe Trombley	UCF	JR	1	1	3.63	4	4	0	0	0	17.1	9	7	7	6	13	2	.153
+0	Kendall Dove	UTSA	JR	2	0	3.63	4	4	0	0	0	17.1	15	8	7	5	12	3	.224
+0	Colin Linder	Arizona State	JR	1	1	3.63	5	4	0	0	0	17.1	15	7	7	11	18	3	.234
+0	Jackson Sanders	Auburn	SO	2	0	3.63	4	4	0	0	0	22.1	16	9	9	4	33	1	.198
+0	Hunter Elliott	Ole Miss	SR	2	0	3.66	4	4	0	0	0	19.2	13	9	8	15	30	6	.194
+0	Kyle Froehlich	Texas State	GR	2	0	3.66	4	4	0	0	0	19.2	16	11	8	1	22	4	.216
+0	Brian Crooms	Georgia State	GR	3	1	3.66	4	4	0	0	0	19.2	16	8	8	12	12	6	.235
+0	Aidan Donovan	Michigan State	SO	0	0	3.66	4	4	0	0	0	19.2	23	8	8	7	15	2	.295
+0	Zach Erdman	Purdue	SR	1	0	3.68	4	4	0	0	0	22.0	22	9	9	4	25	3	.259
+0	Adam Behrens	Loyola Marymount	JR	2	1	3.68	5	2	1	0	1	22.0	19	10	9	0	17	3	.224
+0	Nic Schutte	Murray State	SR	3	1	3.68	4	4	0	0	0	22.0	19	10	9	6	21	5	.221
+0	Hunter Hoxie	Fairfield	SO	0	1	3.68	4	3	0	0	0	14.2	10	6	6	13	9	1	.200
+0	Isaiah Magdaleno	Hawaii	JR	1	1	3.70	4	4	0	0	0	24.1	16	12	10	8	29	3	.184
+0	Brendan Garza	Ball State	SO	2	1	3.70	4	4	1	1	0	24.1	21	10	10	6	21	1	.236
+0	Connor Wylde	New Mexico State	SR	3	0	3.71	5	1	0	0	1	17.0	14	9	7	10	9	3	.246
+0	Esaid Pena	Alabama State	SR	2	1	3.71	3	3	0	0	0	17.0	13	8	7	4	14	1	.206
+0	Josh Pena	Texas Southern	JR	1	1	3.71	3	3	0	0	0	17.0	12	7	7	7	7	8	.203
+0	Jaxson Pease	Tennessee Tech	SR	3	1	3.72	5	2	0	0	1	19.1	22	8	8	6	17	0	.293
+0	Liam Peterson	Florida	JR	0	0	3.72	4	4	0	0	0	19.1	11	9	8	12	34	0	.167
+0	Declan Wywoda	George Washington	SO	1	1	3.72	4	4	0	0	0	19.1	16	9	8	3	12	1	.232
+0	Max Winders	Butler	SO	2	1	3.75	5	2	1	0	1	24.0	21	11	10	0	29	0	.228
+0	Zach Sohosky	Miami (OH)	SR	1	0	3.78	4	4	0	0	0	16.2	19	15	7	9	15	0	.279
+0	Alfred Mucciarone	UMass Lowell	JR	0	1	3.78	3	3	0	0	0	16.2	20	8	7	5	15	2	.303
+0	Cam Bagwell	Wake Forest	SO	1	0	3.79	6	4	0	0	0	19.0	18	13	8	9	18	4	.237
+0	Connor Fennell	Vanderbilt	JR	2	0	3.80	4	4	0	0	0	21.1	16	10	9	3	30	2	.195
+0	Jacob Price	Eastern Kentucky	JR	1	1	3.80	5	4	0	0	0	23.2	28	15	10	4	20	1	.289
+0	Matt Archibald	Navy	JR	1	3	3.86	4	4	0	0	0	21.0	18	9	9	11	35	1	.234
+0	James Fordham	Western Carolina	JR	1	1	3.92	6	3	0	0	0	20.2	12	9	9	9	18	3	.174
+0	Edwin Alicea	South Florida	JR	3	0	3.92	4	4	0	0	0	20.2	20	12	9	9	25	4	.247
+0	Champ Davis	Wofford	SR	1	0	3.93	8	1	0	0	2	18.1	20	10	8	11	20	4	.267
+0	Sam Beck	Omaha	SR	0	0	3.93	4	4	0	0	0	18.1	16	8	8	7	14	4	.235
+0	Luke Earnhardt	Winthrop	JR	2	1	3.93	4	4	0	0	0	18.1	19	10	8	6	28	0	.257
+0	JT Guerrero	Grand Canyon	JR	0	1	3.93	4	3	0	0	0	18.1	19	8	8	4	16	2	.279
+0	Luke Davenport	North Alabama	SO	1	2	3.93	4	4	0	0	0	18.1	13	9	8	10	22	5	.203
+0	Mason Smith	Campbell	JR	0	0	3.94	4	2	0	0	1	16.0	14	7	7	2	17	2	.226
+0	Connor Lockwood	Valparaiso	SR	2	1	3.96	4	4	1	1	0	25.0	26	14	11	1	17	1	.271
+0	Brendan Callanan	Iona	JR	0	0	3.97	3	3	0	0	0	11.1	8	9	5	9	8	3	.205
+0	Beau Elson	Fordham	SO	2	1	3.97	4	4	0	0	0	22.2	26	13	10	5	19	1	.286
+0	Sam Schlecht	South Dakota State	SR	2	1	3.98	4	4	0	0	0	20.1	15	9	9	8	22	2	.205
+0	Noah Kenney	Washington	JR	1	2	3.98	4	3	0	0	0	20.1	20	11	9	11	24	2	.256
+0	Steven Svenson	Seton Hall	SO	0	1	4.02	4	4	0	0	0	15.2	17	13	7	5	12	5	.266
+0	Jacob Jette	UMass Lowell	SR	1	2	4.05	3	2	0	0	0	13.1	14	13	6	8	9	2	.275
+0	Brayden Gilley	Winthrop	JR	3	1	4.05	4	4	0	0	0	20.0	21	10	9	6	18	3	.263
+0	Chase Herrell	Southern California	FR	2	0	4.05	6	4	0	0	0	20.0	19	9	9	7	24	2	.241
+0	Michael Barnett	UCLA	SR	3	0	4.08	4	4	0	0	0	17.2	12	9	8	8	16	2	.197
+0	Steven Cash	Jacksonville State	SR	1	1	4.08	4	4	0	0	0	17.2	17	8	8	6	21	4	.258
+0	Marcus Kruzan	Minnesota	JR	2	1	4.08	4	3	0	0	0	17.2	11	8	8	7	18	1	.183
+0	Mitchell Heer	South Alabama	GR	3	0	4.09	4	4	0	0	0	22.0	14	11	10	12	24	4	.182
+0	Oliver Ellison	Gardner-Webb	JR	3	0	4.09	4	4	0	0	0	22.0	29	12	10	6	20	2	.322
+0	Max McCrary	Mount St. Mary’s	SR	1	1	4.11	6	0	0	0	1	15.1	14	7	7	5	20	3	.250
+0	Trey Ates	Army	SR	1	0	4.11	4	3	0	0	0	15.1	12	8	7	8	7	3	.214
+0	Josh Holst	Air Force	FR	0	2	4.11	4	4	0	0	0	15.1	20	13	7	3	12	5	.313
+0	David Leslie	Pittsburgh	GR	2	0	4.12	4	4	0	0	0	19.2	19	9	9	3	19	2	.250
+0	Nathan Taylor	Cincinnati	JR	1	1	4.12	5	5	0	0	0	24.0	22	16	11	6	34	2	.232
+0	Charlie West	Connecticut	JR	2	1	4.12	4	4	0	0	0	19.2	20	9	9	13	29	4	.260
+0	JC Dermody	UL Monroe	SR	2	0	4.12	4	4	0	0	0	19.2	27	9	9	6	20	2	.318
+0	Bryce Coulter	The Citadel	JR	0	0	4.12	4	4	0	0	0	19.2	16	10	9	9	12	4	.222
+0	Ethan Foley	California	JR	2	0	4.12	4	4	0	0	0	19.2	26	13	9	5	11	4	.325
+0	Nick Hunkele	Merrimack	SO	0	1	4.15	3	2	1	0	1	19.1	24	8	9	9	14	0	.312
+0	Ben Winslow	Yale	JR	1	2	4.15	4	0	0	0	0	13.0	12	7	6	0	17	3	.231
+0	Braden Smith	UCF	JR	2	1	4.15	4	4	0	0	0	21.2	24	10	10	1	16	0	.270
+0	Trey Cehajic	Tulane	GR	1	1	4.19	4	4	0	0	0	19.1	17	9	9	11	25	4	.236
+0	Easton Teel	Oral Roberts	SO	1	1	4.19	4	4	0	0	0	19.1	23	9	9	6	17	2	.299
+0	James Ellis	Saint Peter’s	SR	0	2	4.20	3	3	0	0	0	15.0	8	9	7	11	8	3	.151
+0	Tyler Mudd	Boston College	GR	1	2	4.24	5	4	0	0	0	17.0	15	10	8	6	12	1	.238
+0	Drew Lafferty	Pittsburgh	JR	3	1	4.24	4	4	0	0	0	17.0	19	10	8	3	17	5	.279
+0	Jorhan LaBoy	Alabama State	JR	3	1	4.24	4	4	0	0	0	23.1	21	11	11	11	19	0	.233
+0	Bryson Moore	Florida State	JR	2	0	4.24	4	4	0	0	0	17.0	14	9	8	6	18	1	.222
+0	Camden Matthews	Alabama State	FR	0	0	4.24	7	0	0	0	2	17.0	16	8	8	4	21	2	.250
+0	Lincoln Sheffield	Kansas State	SR	3	0	4.24	4	4	0	0	0	23.1	26	15	11	5	22	2	.274
+0	Keenan Anzai	UC Davis	SO	2	0	4.24	5	2	0	0	0	17.0	14	12	8	3	24	1	.215
+0	Brian Foley	UMass Lowell	SR	0	0	4.26	3	3	0	0	0	12.2	19	6	6	9	21	4	.345
+0	Clayton Burke	Miami (OH)	GR	2	0	4.26	4	4	0	0	0	19.0	14	9	9	5	19	4	.203
+0	Blake Lobell	Southeastern Louisiana	SR	0	0	4.26	4	4	0	0	0	19.0	21	12	9	7	18	3	.292
+0	Drew Talavs	San Diego State	JR	2	1	4.29	4	4	0	0	0	21.0	18	12	10	8	26	3	.225
+0	Easton Tumis	Kent State	SO	2	1	4.29	4	4	0	0	0	21.0	20	10	10	2	14	3	.244
+0	Brady Kehlenbrink	Missouri	SO	3	0	4.29	4	4	0	0	0	21.0	18	10	10	4	33	0	.225
+0	Trey Newmann	Portland	JR	2	1	4.30	6	2	0	0	2	14.2	20	8	7	3	17	1	.308
+0	Kenny Michaels	Wofford	JR	4	0	4.30	4	4	0	0	0	23.0	18	11	11	4	30	0	.209
+0	A.J. Colarusso	Boston College	SR	1	0	4.32	4	4	0	0	0	16.2	18	13	8	6	18	0	.269
+0	Corden Pettey	Cal Poly	FR	1	1	4.32	5	1	0	0	1	16.2	17	8	8	5	28	1	.262
+0	David James	St. Bonaventure	SR	0	2	4.34	4	4	0	0	0	18.2	16	13	9	9	20	0	.225
+0	Wyatt Danilowicz	Louisville	SR	1	1	4.34	4	4	0	0	0	18.2	19	9	9	10	29	1	.268
+0	Jeremiah Arnett	Rice	SO	2	1	4.34	5	4	0	0	0	18.2	26	13	9	4	10	4	.325
+0	Max Vaisvila	Northern Illinois	SR	2	0	4.35	4	4	0	0	0	20.2	20	10	10	6	27	3	.260
+0	Maddox Meyer	Omaha	SO	1	1	4.40	4	3	0	0	0	14.1	18	8	7	1	15	0	.290
+0	Quinn Holt	Utah Valley	SR	1	1	4.41	4	3	0	0	0	16.1	10	9	8	16	18	0	.172
+0	Aidan Stieglitz	Elon	FR	3	0	4.41	4	2	0	0	0	16.1	12	8	8	4	16	0	.197
+0	Isaac Miles	UNC Greensboro	SO	2	1	4.42	5	4	0	0	0	18.1	16	11	9	9	12	4	.225
+0	Dylan Smith	Cal State Fullerton	SO	0	2	4.43	4	4	0	0	0	22.1	21	13	11	4	9	5	.263
+0	Anthony Mateo	Alabama A&M	JR	1	2	4.44	4	4	1	0	0	24.1	30	13	12	10	5	2	.309
+0	Peter Dubie	Brown	SR	1	1	4.50	3	3	0	0	0	14.0	14	11	7	8	14	2	.264
+0	Kurt Barr	Michigan	SR	2	0	4.50	4	4	0	0	0	18.0	14	9	9	8	21	2	.219
+0	Clayton Poliey	Rider	SR	1	1	4.50	3	3	0	0	0	14.0	10	7	7	7	10	1	.213
+0	Dylan Banner	Albany	SR	0	2	4.50	3	3	0	0	0	14.0	18	12	7	6	13	2	.310
+0	Mario Pesca	Oklahoma State	SR	1	1	4.50	5	4	1	0	0	20.0	16	10	10	11	21	6	.229
+0	Matt Lynch	Towson	SR	0	2	4.50	5	4	0	0	1	14.0	17	9	7	11	13	1	.304
+0	Tomas Lopez	Columbia	JR	0	1	4.50	2	2	0	0	0	10.0	8	5	5	5	8	0	.211
+0	James Guyette	Kansas State	JR	2	1	4.50	4	4	0	0	0	22.0	24	11	11	6	28	5	.279
+0	Ben Rabatin	Kent State	SO	2	0	4.50	4	4	0	0	0	18.0	17	11	9	6	20	1	.243
+0	Marty Coyne	Pennsylvania	JR	0	2	4.50	3	3	0	0	0	16.0	16	8	8	2	18	3	.258
+0	Evan Chaffee	St. John’s	JR	0	3	4.50	4	4	0	0	0	22.0	21	13	11	5	17	3	.250
+0	Jack Nobe	Xavier	SO	1	1	4.50	4	4	0	0	0	20.0	26	11	10	6	17	4	.302
+0	Jake Yeager	Maryland	SO	0	0	4.50	4	4	0	0	0	16.0	18	13	8	8	11	3	.290
+0	Ryan Lynch	North Carolina	SO	1	1	4.50	4	4	1	0	0	20.0	20	10	10	5	23	7	.267
+0	Serigne Sarre	Mount St. Mary’s	SO	1	1	4.50	4	4	0	0	0	20.0	16	12	10	10	28	4	.216
+0	Aidan Weaver	Duke	SR	3	1	4.57	4	4	0	0	0	21.2	17	11	11	7	24	0	.207
+0	Tyler Fay	Alabama	JR	3	1	4.57	4	4	0	0	0	21.2	17	11	11	5	26	4	.213
+0	Kenney Fabian	Arkansas-Pine Bluff	SR	0	2	4.57	5	4	0	0	0	21.2	22	14	11	7	13	9	.259
+0	Chris Diaz	Florida Gulf Coast	JR	2	0	4.58	4	4	0	0	0	19.2	13	13	10	9	23	4	.181
+0	Wil Libbert	Ole Miss	SO	2	1	4.58	4	4	0	0	0	19.2	16	10	10	7	24	2	.232
+0	Izzy Parsky	Dartmouth	FR	0	0	4.63	3	3	0	0	0	11.2	12	6	6	10	10	7	.267
+0	Dakoda West	Utah Tech	SR	2	1	4.64	4	4	0	0	0	21.1	23	13	11	8	20	3	.280
+0	Kade Walker	Jackson State	GR	3	1	4.64	6	6	0	0	0	21.1	15	12	11	12	23	2	.214
+0	Cooper Clark	Campbell	SO	1	2	4.66	4	3	0	0	0	19.1	19	10	10	4	20	1	.247
+0	Ethan Norby	East Carolina	JR	0	1	4.66	4	4	0	0	0	19.1	24	12	10	4	28	8	.293
+0	Casan Evans	LSU	SO	1	0	4.66	4	4	0	0	0	19.1	14	11	10	7	30	1	.189
+0	Ethan Sutton	South Florida	SO	1	1	4.67	6	1	0	0	2	17.1	15	11	9	6	25	0	.234
+0	Zachary Robinson	UMBC	JR	1	0	4.70	3	3	0	0	0	15.1	18	12	8	4	12	6	.281
+0	Tyler Ray	Utah Tech	SR	2	1	4.70	4	4	0	0	0	23.0	22	15	12	8	15	0	.256
+0	Dawson Montesa	West Virginia	JR	2	2	4.71	4	4	0	0	0	21.0	17	11	11	7	30	2	.221
+0	Owen Slater	Missouri State	SO	2	1	4.71	4	4	0	0	0	21.0	20	13	11	10	15	6	.256
+0	Huxley Holcombe	Cornell	JR	0	2	4.72	3	3	0	0	0	13.1	15	8	7	4	14	0	.283
+0	Alec Couture	Monmouth	GR	1	1	4.74	4	3	0	0	0	19.0	20	12	10	7	18	1	.270
+0	Jack Messmore	Youngstown State	SR	0	3	4.74	4	4	0	0	0	19.0	21	12	10	5	11	2	.292
+0	Rob Evans	Miami	SR	3	1	4.74	4	3	0	0	0	18.2	12	8	10	6	31	2	.179
+0	David Lopez	Houston Christian	SR	3	1	4.74	4	4	0	0	0	19.0	19	10	10	7	30	1	.268
+0	Mathis Nayral	Kansas	JR	2	1	4.74	4	4	0	0	0	19.0	15	13	10	7	20	0	.214
+0	Andrew Rubayo	Quinnipiac	SR	0	0	4.76	3	3	0	0	0	17.0	20	9	9	1	16	2	.323
+0	Miguel Hugas	Mercer	JR	4	0	4.79	5	4	0	0	0	20.2	20	11	11	9	13	6	.263
+0	David Rossow	Campbell	SR	2	1	4.80	4	2	0	0	0	15.0	12	11	8	5	17	6	.214
+0	Matthew O'Brien	UC Riverside	SR	0	1	4.81	4	4	0	0	0	24.1	23	16	13	10	12	4	.250
+0	Richard De Jesus	UMES	FR	0	2	4.82	4	4	0	0	0	18.2	18	10	10	8	14	5	.250
+0	Nate Kress	Bowling Green	SO	2	0	4.86	4	1	0	0	0	16.2	16	9	9	2	13	2	.254
+0	Jacob Turner	Bowling Green	SR	1	1	4.87	4	4	0	0	0	20.1	27	11	11	5	18	2	.325
+0	Luka Pintar	San Jose State	SO	1	0	4.87	4	0	0	0	0	20.1	22	11	11	5	16	1	.275
+0	Colton Kennedy	Utah Valley	SR	0	0	4.91	4	4	0	0	0	18.1	16	15	10	9	20	1	.225
+0	Jared Schaeffer	Dallas Baptist	SR	1	0	4.91	4	4	0	0	0	18.1	21	11	10	9	16	3	.292
+0	Nolan Sliver	Kennesaw State	SR	0	0	4.91	5	2	0	0	0	14.2	20	8	8	9	17	4	.323
+0	Bryce McKnight	San Diego State	JR	1	0	4.91	5	2	0	0	0	18.1	20	16	10	6	21	2	.282
+0	Garrett Ahern	Grand Canyon	JR	1	2	4.91	4	4	0	0	0	18.1	20	12	10	9	20	1	.274
+0	Gage Wheaton	Niagara	JR	0	1	4.91	4	4	0	0	0	18.1	17	10	10	11	17	3	.246
+0	Abdriel Figueroa	Southern Indiana	JR	2	1	4.91	4	4	0	0	0	18.1	14	12	10	8	15	8	.215
+0	Derek Arrocha	Jackson State	JR	2	1	4.91	5	3	0	0	1	22.0	21	13	12	5	25	2	.253
+0	Nate Taylor	Vanderbilt	SO	0	3	4.91	4	4	0	0	0	18.1	16	12	10	12	24	2	.242
+0	Matthew Eagen	Queens (NC)	SO	1	1	4.91	4	4	0	0	0	22.0	23	13	12	5	14	3	.267
+0	Lakin Polk	Southeastern Louisiana	SR	2	1	4.95	4	4	0	0	0	20.0	25	12	11	4	12	1	.309
+0	Blake Morningstar	Wake Forest	JR	2	1	4.95	4	4	0	0	0	20.0	15	12	11	9	28	4	.205
+0	Josh Willitts	New Jersey Tech	GR	1	1	4.96	4	4	0	0	0	16.1	16	9	9	8	13	2	.254
+0	Tristan Helmick	Lafayette	JR	1	1	5.00	3	3	0	0	0	18.0	17	10	10	4	9	1	.246
+0	Jackson Thomas	Washington	GR	1	1	5.00	4	2	0	0	0	18.0	15	11	10	5	19	4	.221
+0	Nolan Feidt	St. Bonaventure	JR	2	1	5.00	4	4	0	0	0	18.0	18	14	10	12	10	2	.265
+0	Nate Isler	Dartmouth	JR	0	1	5.02	3	3	0	0	0	14.1	13	10	8	7	21	1	.232
+0	Jake Fields	Long Beach State	SO	1	2	5.03	4	3	0	0	0	19.2	10	12	11	18	17	5	.159
+0	Cam Staton	Saint Mary’s	JR	1	1	5.03	4	4	0	0	0	19.2	20	15	11	10	22	0	.260
+0	Michael Harpster	East Tennessee State	JR	1	1	5.03	4	4	0	0	0	19.2	15	11	11	11	23	2	.217
+0	Tate Evans	Yale	SR	1	0	5.06	6	0	0	0	1	10.2	17	7	6	3	17	4	.347
+0	Reid Bertram	Gardner-Webb	SR	2	1	5.06	4	4	1	0	0	21.1	21	12	12	6	11	3	.263
+0	Keevyn Goss	Grambling	JR	1	3	5.06	4	4	0	0	0	16.0	13	10	9	15	16	7	.217
+0	Luke Alexander	James Madison	FR	3	0	5.06	4	1	0	0	0	16.0	13	9	9	2	13	2	.228
+0	Tanner Nolan	Appalachian State	JR	2	0	5.09	5	5	0	0	0	17.2	16	12	10	10	18	4	.254
+0	Troy Shepard	Southern Illinois	SR	0	1	5.09	4	3	0	0	0	17.2	15	12	10	7	17	4	.224
+0	Everett Garber	Bucknell	SO	2	0	5.09	4	4	0	0	0	17.2	23	14	10	8	14	2	.315
+0	Mason Gass	Ohio	FR	2	0	5.11	7	0	0	0	0	24.2	26	15	14	5	15	2	.280
+0	Ben Cherico	Saint Louis	SR	1	1	5.12	4	4	0	0	0	19.1	18	12	11	10	24	4	.250
+0	Logan Knight	Cincinnati	SR	2	2	5.12	4	4	0	0	0	19.1	20	15	11	5	19	1	.250
+0	Max Hansmann	Evansville	SR	1	1	5.14	4	4	0	0	0	21.0	25	13	12	6	23	2	.294
+0	Caden Crowell	Notre Dame	FR	1	1	5.17	4	4	0	0	0	15.2	18	9	9	10	16	2	.300
+0	Camden Wimbish	Campbell	JR	0	1	5.19	4	2	0	0	0	17.1	15	10	10	5	18	3	.234
+0	Scott Doran	Coastal Carolina	SO	3	1	5.19	5	2	0	0	0	17.1	14	10	10	4	21	0	.215
+0	Parker Dillhoff	UNLV	SR	2	0	5.21	4	4	0	0	0	19.0	18	11	11	12	27	0	.254
+0	Weston Moss	Texas A&M	JR	2	1	5.21	4	4	0	0	0	19.0	21	12	11	4	19	1	.288
+0	Jaden Wywoda	Holy Cross	SR	1	1	5.23	4	4	0	0	0	20.2	17	13	12	6	12	3	.221
+0	Aidan von Zuben	Pennsylvania	SO	0	0	5.23	4	0	0	0	1	10.1	11	6	6	8	12	1	.275
+0	Thomas Shurtleff	Pennsylvania	SR	1	2	5.25	3	1	0	0	0	12.0	15	7	7	7	10	0	.319
+0	Christian Mello	Albany	SO	0	2	5.25	3	3	0	0	0	12.0	11	7	7	12	12	0	.262
+0	PJ Craig	Rider	SR	1	1	5.28	3	2	0	0	0	15.1	16	9	9	9	19	1	.281
+0	Gunnar Nichols	Washington	SR	1	2	5.29	4	4	0	0	0	17.0	14	10	10	11	20	2	.233
+0	Jaxon Lucas	Liberty	JR	1	1	5.29	4	4	0	0	0	17.0	16	11	10	5	12	1	.239
+0	Aden Knowles	Towson	FR	1	1	5.29	4	0	0	0	0	17.0	17	11	10	5	19	2	.270
+0	Lukas Pirko	Texas Tech	JR	1	0	5.31	4	4	1	0	0	20.1	22	16	12	10	16	0	.268
+0	Dylan Marionneaux	Northwestern State	JR	0	2	5.31	4	4	0	0	0	20.1	21	14	12	5	19	0	.269
+0	Aidan Coleman	Abilene Christian	JR	1	0	5.31	4	4	0	0	0	20.1	20	15	12	5	16	2	.247
+0	Brady LeJeune-DeAcutis	UMBC	GR	0	3	5.40	3	2	0	0	0	13.1	13	9	8	7	12	1	.250
+0	Ethan Hamill	Cornell	SR	0	1	5.40	3	3	0	0	0	10.0	9	6	6	6	8	2	.237
+0	Gaines Estridge	Air Force	JR	1	3	5.40	4	4	0	0	0	23.1	24	15	14	4	20	0	.267
+0	Joseph Lee	Samford	SR	0	0	5.40	5	4	0	0	0	16.2	16	10	10	6	16	2	.254
+0	Pierce Herrenbruck	Ohio State	JR	1	1	5.40	4	4	0	0	0	16.2	16	12	10	6	12	5	.239
+0	Mason Steele	UAB	JR	1	1	5.40	4	4	0	0	0	20.0	19	13	12	8	19	4	.257
+0	Carter Burnette	Western Carolina	SO	1	2	5.40	4	4	0	0	0	20.0	20	12	12	9	23	1	.256
+0	Conner Johnson	Oral Roberts	SO	1	1	5.40	4	4	0	0	0	18.1	17	12	11	10	8	3	.254
+0	Traig Oughton	Cal State Northridge	JR	2	0	5.49	4	4	0	0	0	19.2	22	16	12	7	14	5	.301
+0	Lance Williams	Maryland	SO	1	1	5.49	4	4	0	0	0	19.2	22	14	12	6	26	3	.289
+0	Gavin Kuzniewski	Ohio State	FR	0	1	5.50	4	4	0	0	0	18.0	19	15	11	11	22	2	.253
+0	Jordan Giacomini	Nevada	JR	2	1	5.50	4	3	0	0	0	18.0	17	12	11	10	18	1	.246
+0	Logan Anderson	Portland	FR	1	1	5.51	5	3	0	0	0	16.1	14	10	10	8	11	2	.241
+0	Eddie Sargent	UMBC	SR	0	2	5.52	3	3	0	0	0	14.2	18	9	9	8	9	2	.321
+0	Jon Whiteside	Dayton	SO	0	2	5.59	5	3	0	0	1	19.1	22	15	12	6	15	3	.286
+0	Owen Kramkowski	Arizona	JR	1	2	5.60	4	4	0	0	0	17.2	22	13	11	7	24	1	.293
+0	Jackson Hinchliffe	Richmond	JR	1	2	5.60	5	5	0	0	0	17.2	23	13	11	2	10	4	.315
+0	Kyle Bade	San Diego	SR	0	1	5.60	4	4	0	0	0	17.2	18	15	11	7	19	4	.250
+0	Nathan Love	Oral Roberts	SR	1	1	5.60	4	4	0	0	0	17.2	18	11	11	7	14	1	.269
+0	Jason Gerfers	Long Beach State	FR	1	1	5.60	5	4	0	0	0	17.2	15	11	11	10	15	7	.246
+0	Luca Alagheband	Harvard	SO	0	0	5.65	3	3	0	0	0	14.1	14	10	9	4	10	5	.255
+0	Alex Hwang	Yale	SO	0	1	5.65	3	3	0	0	0	14.1	13	9	9	7	8	2	.245
+0	Ryan Weaver	Northwestern	GR	0	1	5.66	4	4	0	0	0	20.2	23	14	13	9	17	1	.291
+0	Cade Montgomery	Michigan	JR	2	0	5.66	4	4	0	0	0	20.2	20	14	13	5	14	2	.247
+0	Luke Neiswonger	Central Michigan	FR	2	0	5.66	4	4	0	0	0	20.2	22	13	13	7	27	4	.275
+0	Max Haug	George Washington	SR	1	2	5.68	4	4	0	0	0	19.0	19	14	12	7	18	5	.264
+0	Jace Maynard	Texas Southern	SR	0	4	5.68	4	1	0	0	0	12.2	19	9	8	3	11	0	.352
+0	Titus Von Kapff	Charleston Southern	JR	2	0	5.68	4	4	0	0	0	19.0	22	13	12	10	12	2	.289
+0	David Case	Memphis	GR	1	3	5.71	4	4	0	0	0	17.1	19	17	11	10	19	1	.279
+0	Trey Power	Alabama State	SO	1	2	5.71	4	4	0	0	0	17.1	18	12	11	6	8	5	.257
+0	Ben Plumley	Illinois	SR	1	1	5.75	4	4	0	0	0	20.1	19	14	13	9	10	3	.253
+0	Sam Novotny	South Dakota State	JR	1	1	5.75	4	4	0	0	0	20.1	27	17	13	6	14	1	.314
+0	Andrew Abler	Harvard	JR	0	1	5.79	3	2	0	0	0	14.0	13	9	9	4	10	1	.250
+0	Andrew Cutler	George Washington	JR	1	1	5.79	4	4	0	0	0	18.2	16	12	12	5	20	3	.225
+0	Drew Townson	Fresno State	SR	0	1	5.82	4	3	0	0	0	17.0	21	16	11	12	9	3	.284
+0	Brock Buckley	Butler	SR	0	3	5.85	5	4	0	0	1	20.0	30	15	13	8	18	3	.370
+0	Nathan Ries	UC San Diego	SO	0	2	5.87	4	1	0	0	0	15.1	18	12	10	6	13	1	.290
+0	Jarvis Evans	Purdue	SR	2	1	5.89	4	4	0	0	0	18.1	17	12	12	7	15	2	.250
+0	Gabriel Hernandez	Cal State Northridge	SO	1	1	5.89	4	4	0	0	0	18.1	20	12	12	3	10	2	.270
+0	Karsten Sweum	Gonzaga	SO	1	1	5.89	4	4	0	0	0	18.1	16	13	12	8	22	3	.229
+0	Ethan Kleinschmit	Oregon State	JR	1	2	5.89	4	4	0	0	0	18.1	17	12	12	8	26	3	.243
+0	Jonah Johnson	Loyola Marymount	SR	1	2	5.91	5	4	0	0	0	21.1	27	14	14	7	15	3	.314
+0	Mason Christopher	Seton Hall	SO	1	1	5.91	4	2	0	0	0	12.1	18	8	8	4	21	1	.327
+0	Mark Scamardella	New Jersey Tech	GR	1	1	5.93	4	2	0	0	0	13.2	11	9	9	6	15	1	.220
+0	J.J. Gatti	Old Dominion	JR	0	2	5.94	5	4	0	0	0	16.2	15	13	11	12	13	2	.234
+0	Alexander Llinas	Lipscomb	SR	0	2	5.94	4	4	0	0	0	16.2	20	12	11	6	16	2	.299
+0	Carson Jasa	Nebraska	SO	2	1	5.94	4	4	0	0	0	16.2	14	12	11	13	27	2	.226
+0	Mitchell Earle	Le Moyne	FR	1	3	5.94	4	3	0	0	0	16.2	17	16	11	12	8	5	.279
+0	Trent Hillen	Northwestern State	SR	1	1	5.95	4	4	0	0	0	19.2	21	14	13	7	24	2	.280
+0	Nick Lewis	Washington State	SO	0	1	5.95	4	4	0	0	0	19.2	20	15	13	10	15	0	.263
+0	Ben Smith	Houston Christian	SR	2	1	5.95	4	4	0	0	0	19.2	25	15	13	6	20	2	.325
+0	Darin Kuskie	Old Dominion	JR	2	2	6.00	4	4	0	0	0	18.0	21	13	12	5	22	0	.269
+0	Cristian Mogen	New Mexico	SO	2	0	6.00	4	4	0	0	0	18.0	25	16	12	7	20	3	.321
+0	Jace Gillmore	Santa Clara	JR	0	2	6.00	4	4	0	0	0	15.0	17	11	10	6	16	1	.283
+0	Griffin Smith	Washington State	SR	1	2	6.00	5	4	0	0	0	21.0	22	16	14	8	14	3	.282
+0	Brady Hoover	Longwood	FR	1	1	6.00	4	4	0	0	0	18.0	22	17	12	4	19	6	.306
+0	EJ Miramontes	Northern Kentucky	GR	0	2	6.06	4	4	0	0	0	16.1	19	11	11	5	14	1	.297
+0	Jack Pye	William & Mary	FR	0	1	6.06	5	1	0	0	0	16.1	17	13	11	7	15	0	.258
+0	Max Skilbeck	St. Thomas	SR	0	3	6.11	4	4	0	0	0	17.2	17	12	12	9	20	6	.250
+0	Travis Farrell	Seattle	SR	0	3	6.11	4	3	0	0	0	17.2	23	13	12	5	25	2	.303
+0	Kale Hammer	Seattle	SO	0	1	6.11	4	4	0	0	0	17.2	18	12	12	4	15	3	.257
+0	Luke Parise	Saint Joseph’s	JR	1	1	6.11	4	4	0	0	0	17.2	17	12	12	7	15	2	.250
+0	Connor Kelley	UTSA	JR	1	0	6.11	4	4	0	0	0	17.2	18	12	12	9	25	2	.269
+0	Eli Nissen	Creighton	SO	0	0	6.14	4	4	0	0	0	14.2	17	10	10	6	10	1	.293
+0	David Thomas	San Jose State	SR	1	2	6.16	4	4	1	1	0	19.0	23	14	13	7	14	0	.295
+0	Will Turner	Tennessee-Martin	JR	1	0	6.19	4	2	0	0	0	16.0	15	11	11	4	14	2	.242
+0	Jaxon Baptist	Alabama State	FR	1	3	6.19	5	4	0	0	0	16.0	18	13	11	14	13	2	.295
+0	Jacob Gutierrez	CSU Bakersfield	SR	2	1	6.23	8	0	0	0	1	17.1	22	14	12	5	20	5	.319
+0	Aidan Keenan	Stanford	JR	0	3	6.23	4	4	0	0	0	17.1	16	14	12	17	18	0	.239
+0	Jake Francis	Villanova	JR	0	2	6.23	4	4	0	0	0	17.1	31	14	12	1	11	5	.408
+0	Will Howell	Memphis	SO	0	3	6.23	4	4	0	0	0	17.1	21	12	12	7	13	3	.318
+0	Luke Meyers	Washington State	SR	2	2	6.23	5	4	0	0	0	17.1	22	15	12	9	10	0	.324
+0	Brendan Conner	UAB	SO	1	1	6.23	7	2	0	0	0	17.1	20	14	12	11	9	2	.286
+0	Joey Ruller	Queens (NC)	JR	0	3	6.26	4	4	0	0	0	23.0	22	17	16	9	18	4	.265
+0	Owen MacDonnell	La Salle	GR	2	1	6.27	4	4	0	0	0	18.2	18	15	13	11	21	2	.257
+0	Erik Hoffberg	Gonzaga	JR	1	2	6.27	4	4	0	0	0	18.2	19	15	13	9	17	4	.268
+0	Micah Hagler	Seattle	JR	1	2	6.27	4	4	0	0	0	18.2	22	17	13	7	9	2	.306
+0	Trajan Lee	Georgetown	GR	2	2	6.30	4	4	0	0	0	20.0	18	14	14	7	19	7	.250
+0	Brandon Bak	Illinois-Chicago	SR	1	2	6.33	4	4	0	0	0	21.1	27	15	15	7	18	0	.303
+0	Andrew Wertz	Northeastern	GR	1	1	6.35	4	4	0	0	0	17.0	22	12	12	7	16	3	.328
+0	Cole Van Assen	Purdue	JR	1	1	6.38	4	4	0	0	0	18.1	29	14	13	6	21	3	.354
+0	Keyon Guillory	Grambling	JR	1	1	6.38	4	4	0	0	0	18.1	21	17	13	10	19	1	.284
+0	Michael Yusypchuk	Missouri State	SO	2	1	6.38	4	4	0	0	0	18.1	21	13	13	5	17	5	.284
+0	Henry Zatkowski	Virginia	SO	1	0	6.38	4	4	0	0	0	18.1	16	14	13	10	20	5	.229
+0	Patrick Fernandez	Central Arkansas	JR	1	0	6.38	5	4	0	0	0	18.1	18	13	13	9	16	3	.269
+0	Ethan Blakeney	Norfolk State	JR	1	2	6.48	4	3	0	0	0	16.2	17	13	12	6	20	1	.254
+0	Cole Hansen	Elon	GR	2	1	6.52	4	4	0	0	0	19.1	21	14	14	5	14	1	.273
+0	Aric Ehmke	Milwaukee	SR	0	4	6.53	4	4	0	0	0	20.2	25	18	15	6	14	3	.309
+0	JR Tollett	Louisiana	JR	3	0	6.55	4	4	0	0	0	22.0	21	16	16	5	24	2	.250
+0	Owen Stewart	George Mason	SR	1	2	6.60	4	4	0	0	0	15.0	18	11	11	13	15	4	.305
+0	Joseph Steventon	Wagner	SO	1	2	6.60	4	1	0	0	0	15.0	17	13	11	7	12	5	.274
+0	Nick Baffa	Valparaiso	SO	1	1	6.60	4	4	0	0	0	15.0	23	16	11	8	14	1	.383
+0	Hunter Colagrande	Stony Brook	SO	0	1	6.61	4	4	0	0	0	16.1	19	12	12	4	11	3	.288
+0	Lance Davis	TCU	FR	0	2	6.61	4	4	0	0	0	16.1	17	13	12	4	11	5	.266
+0	Carter Cox	Northern Illinois	SO	1	1	6.62	4	4	0	0	0	17.2	18	14	13	8	20	4	.254
+0	Will Holder	Georgia Southern	FR	1	2	6.62	5	4	0	0	0	17.2	18	13	13	7	15	3	.265
+0	Declan Dahl	Louisiana Tech	JR	2	2	6.63	4	4	0	0	0	19.0	25	14	14	4	23	1	.321
+0	Colin Fitzgerald	Penn State	SR	1	3	6.75	4	4	0	0	0	16.0	22	13	12	9	21	2	.338
+0	Carter DeGondea	Georgia Southern	JR	0	1	6.75	5	5	0	0	0	18.2	19	15	14	9	17	3	.264
+0	Tyler Sausville	Siena	SR	0	2	6.75	4	4	0	0	0	17.1	15	16	13	13	16	1	.217
+0	Justin Kim	Princeton	SR	0	2	6.75	3	3	0	0	0	13.1	16	11	10	5	11	0	.281
+0	Alec Belardes	San Diego State	SO	1	2	6.75	4	3	0	0	0	20.0	22	15	15	7	22	5	.286
+0	Jake Cumming	Coppin State	JR	1	2	6.75	4	3	0	0	0	16.0	15	16	12	19	18	3	.259
+0	Mason Blasche	Samford	SO	0	3	6.75	4	4	0	0	0	20.0	25	15	15	3	17	1	.305
+0	Nick Dugan	Stanford	SR	0	2	6.86	4	4	0	0	0	19.2	28	17	15	6	20	0	.329
+0	Andrew Carroll	Southeast Missouri State	JR	1	1	6.87	5	3	1	0	0	18.1	24	15	14	4	14	1	.320
+0	Kenneth Haynes	Prairie View	JR	0	1	6.88	4	4	0	0	0	17.0	22	16	13	12	17	3	.324
+0	Tommy Kent	Monmouth	SR	1	2	6.91	4	4	0	0	0	14.1	17	12	11	5	18	2	.288
+0	Conner Griffin	Binghamton	JR	0	1	6.91	4	4	0	0	0	14.1	11	11	11	16	17	3	.212
+0	Ty Roman	Louisiana	JR	1	2	6.97	5	4	0	0	0	20.2	23	16	16	8	22	7	.280
+0	Ricky Kidd	Western Michigan	GR	1	1	6.98	4	4	0	0	0	19.1	19	16	15	8	10	1	.260
+0	Jackson Gowan	Queens (NC)	JR	0	3	7.00	4	4	0	0	0	18.0	23	14	14	12	14	4	.333
+0	Sawyer Jensen	Dayton	SO	2	0	7.00	4	4	0	0	0	18.0	20	17	14	6	15	2	.278
+0	Diego Cardenas	George Mason	GR	2	2	7.02	4	3	0	0	0	16.2	14	13	13	5	11	2	.226
+0	Brady Hoar	Bucknell	FR	1	2	7.02	4	4	0	0	0	16.2	14	14	13	10	13	3	.233
+0	Garrison Sumner	BYU	SR	1	1	7.06	5	5	0	0	0	21.2	24	17	17	9	23	5	.293
+0	Drew Harlow	Marshall	GR	1	1	7.08	4	4	0	0	0	20.1	25	16	16	7	27	1	.305
+0	Jacob Bean	Louisville	JR	1	1	7.11	4	4	0	0	0	19.0	21	15	15	7	18	1	.273
+0	Marcus Monroe	Saint Peter’s	SO	0	2	7.11	4	2	0	0	0	12.2	11	11	10	10	3	3	.256
+0	Ryan Mealy	Monmouth	SO	1	1	7.11	4	4	0	0	0	19.0	27	15	15	6	16	1	.338
+0	Cooper McMullen	Kennesaw State	SO	0	1	7.20	4	4	0	0	0	15.0	16	15	12	8	11	2	.267
+0	Diego Gutierrez	San Diego	GR	1	1	7.23	4	4	0	0	0	18.2	17	15	15	7	26	1	.254
+0	Tyler Patrick	Fresno State	SO	1	2	7.23	4	4	0	0	0	18.2	32	16	15	6	11	3	.381
+0	Eli DeRossi	Mount St. Mary’s	JR	1	1	7.31	4	4	0	0	0	16.0	15	15	13	12	17	3	.231
+0	Spencer Stearns	SIU Edwardsville	JR	0	2	7.36	4	4	0	0	0	18.1	20	17	15	10	13	6	.267
+0	Benjamin Hudson	Penn State	SO	1	3	7.36	4	4	0	0	0	18.1	18	17	15	7	17	5	.254
+0	Tanner Foertsch	Omaha	SO	0	3	7.41	4	4	0	0	0	17.0	25	16	14	7	14	0	.347
+0	Daniel Cohen	Yale	SR	1	1	7.42	3	2	0	0	0	13.1	19	13	11	6	5	1	.352
+0	Griffen Paige	Wright State	JR	0	3	7.47	4	4	0	0	0	15.2	17	14	13	9	12	1	.270
+0	Brady Bouchard	Binghamton	SO	0	2	7.47	4	4	0	0	0	15.2	25	15	13	6	6	2	.362
+0	Wilson Perkins	Davidson	SR	1	1	7.56	4	4	0	0	0	16.2	24	14	14	4	18	2	.329
+0	Kayden Sutton	Alcorn State	FR	0	3	7.56	4	4	0	0	0	16.2	21	26	14	16	8	3	.280
+0	Christian Keel	Brown	SR	1	1	7.59	4	0	0	0	1	10.2	8	10	9	6	9	7	.211
+0	Matthew Delvaux	Mercyhurst	JR	0	2	7.62	3	3	0	0	0	13.0	15	12	11	8	7	4	.283
+0	Hayden Lewis	Washington	SR	2	2	7.64	6	2	0	0	0	17.2	21	17	15	9	20	3	.296
+0	Jalen Porter	Arkansas-Pine Bluff	GR	0	1	7.65	5	4	0	0	0	20.0	26	21	17	12	17	3	.306
+0	Adrian Quezada	Queens (NC)	SR	1	2	7.65	4	4	0	0	0	20.0	22	18	17	9	18	3	.275
+0	Corey Costello	Radford	JR	0	2	7.71	4	4	0	0	0	16.1	14	15	14	12	18	6	.226
+0	Nicholas Finarelli	Long Island	JR	1	2	7.71	3	3	0	0	0	14.0	17	13	12	10	21	2	.298
+0	Corbin Snyder	Butler	SO	1	2	7.79	4	4	0	0	0	17.1	23	17	15	15	6	4	.329
+0	Griffin Stieg	Virginia Tech	JR	0	1	7.80	4	4	0	0	0	15.0	21	14	13	9	16	2	.323
+0	Cade Williams	UMES	GR	1	2	7.80	4	2	0	0	0	15.0	19	13	13	16	8	2	.317
+0	Jack Turner	New Mexico State	SR	1	2	7.80	4	0	0	0	0	15.0	23	14	13	7	23	4	.359
+0	Tommy Scavone	Pepperdine	GR	0	2	7.85	4	4	0	0	0	18.1	18	16	16	9	18	4	.265
+0	Kevin Reed	Evansville	JR	2	2	7.88	4	4	0	0	0	16.0	19	14	14	12	10	3	.322
+0	Duke McCarron	Saint Joseph’s	JR	1	2	7.88	4	4	0	0	0	16.0	16	16	14	8	19	3	.254
+0	Andrew Steinhaus	Radford	JR	1	3	7.94	4	4	0	0	0	17.0	26	17	15	8	14	0	.347
+0	Ryan Parker	Sacred Heart	GR	0	3	8.00	4	4	0	0	0	18.0	26	23	16	10	10	1	.329
+0	Ryan King	CSU Bakersfield	SO	0	1	8.00	4	4	0	0	0	18.0	23	16	16	8	22	2	.311
+0	Colin Trizuto	Wagner	SR	0	1	8.00	4	4	0	0	0	18.0	24	19	16	14	10	1	.316
+0	Chase Carver	Bellarmine	JR	1	3	8.05	5	4	0	0	0	19.0	27	17	17	6	9	1	.325
+0	Beau Beaty	Prairie View	SR	1	3	8.05	4	4	0	0	0	19.0	23	18	17	8	10	9	.319
+0	Cole Wells	Morehead State	FR	2	1	8.05	7	1	0	0	0	19.0	23	19	17	7	11	7	.303
+0	Jayden Barroqueiro	Seton Hall	GR	0	3	8.10	4	2	0	0	0	13.1	16	20	12	9	10	2	.286
+0	Mark Rogers	Canisius	FR	0	1	8.10	4	0	0	0	0	13.1	18	13	12	6	9	2	.327
+0	Oliver Pudvar	Connecticut	JR	1	2	8.15	5	4	0	0	0	17.2	24	16	16	8	18	3	.324
+0	Brayden Marks	North Dakota State	SR	1	2	8.15	4	4	0	0	0	17.2	26	17	16	10	8	3	.351
+0	Bobby Spencer	Southern	SR	1	2	8.15	4	4	0	0	0	17.2	24	16	16	9	23	1	.316
+0	Dutch DeProspero	Towson	SR	1	1	8.16	4	4	0	0	0	14.1	20	16	13	7	8	2	.313
+0	Jeremy Cheeseman	Fairleigh Dickinson	SR	0	2	8.16	3	3	0	0	0	14.1	22	13	13	5	7	2	.355
+0	Chase Ingram	UAB	SR	1	2	8.50	5	4	0	0	0	18.0	23	17	17	9	7	1	.319
+0	Sam Fairhurst	Lehigh	JR	1	1	8.56	4	0	0	0	0	13.2	18	13	13	4	12	3	.316
+0	Elliot Eaton	Princeton	JR	1	2	8.59	5	1	0	0	0	14.2	15	16	14	7	11	5	.254
+0	Keegan Johnson	Ball State	JR	0	1	8.64	4	4	0	0	0	16.2	15	16	16	9	11	0	.250
+0	Carter Fink	Niagara	JR	0	4	8.68	4	4	0	0	0	18.2	27	18	18	7	18	2	.338
+0	Max Bianchini	USC Upstate	JR	1	2	8.68	4	4	0	0	0	18.2	22	20	18	8	17	3	.297
+0	James Lordi	Long Island	JR	1	1	8.76	3	3	0	0	0	12.1	13	12	12	9	8	2	.265
+0	Kyle Calzadiaz	San Jose State	SR	1	2	8.82	5	4	0	0	0	16.1	13	17	16	17	19	4	.232
+0	Ross Norman	Coastal Carolina	JR	2	2	8.82	4	4	0	0	0	16.1	22	16	16	1	12	5	.324
+0	Jason Krieger	Maine	JR	0	3	8.85	4	4	0	0	0	20.1	31	23	20	10	14	6	.365
+0	Sean Hamilton	Hofstra	SR	0	3	9.00	4	4	0	0	0	15.0	22	17	15	8	11	11	.361
+0	Justin DeCastro	Long Island	SR	1	2	9.00	3	3	0	0	0	14.0	20	16	14	7	10	4	.328
+0	Brian Cadieux	Albany	FR	0	1	9.00	3	3	0	0	0	11.0	10	11	11	10	6	0	.263
+0	Drew Nelson	Brown	FR	1	1	9.00	3	3	0	0	0	13.0	20	15	13	9	10	0	.357
+0	Gianni Gambardella	Maine	SR	1	3	9.16	4	4	0	0	0	18.2	25	21	19	9	10	0	.309
+0	Walker Fuller	Norfolk State	SR	0	3	9.17	4	4	0	0	0	17.2	26	22	18	6	11	0	.338
+0	Cole Fehrman	Saint Joseph’s	SR	0	3	9.20	4	4	0	0	0	14.2	16	16	15	8	16	9	.281
+0	Zane Wright	West Georgia	JR	0	3	9.35	7	2	0	0	1	17.1	23	18	18	9	15	3	.329
+0	Connor Throneberry	Manhattan	GR	1	1	9.37	4	4	0	0	0	16.1	17	17	17	19	22	2	.270
+0	Connor Johnston	Rhode Island	SR	1	2	9.37	4	3	0	0	0	16.1	22	18	17	1	16	6	.301
+0	Jack Kelley	Villanova	GR	0	2	9.37	4	4	0	0	0	16.1	21	18	17	7	14	3	.313
+0	Aidan Brainard	Nevada	SR	1	1	9.39	4	3	0	0	0	15.1	25	16	16	11	11	1	.379
+0	Tyler Guerin	Iowa	SO	1	2	9.45	5	3	0	0	0	13.1	17	14	14	11	11	4	.340
+0	Dominic Voegele	Kansas	JR	2	2	9.72	4	4	0	0	0	16.2	19	18	18	11	21	3	.288
+0	Carson Byers	Miami (OH)	SR	2	1	9.92	5	3	0	0	1	16.1	26	19	18	6	9	2	.356
+0	Bryan Matuschat	Sacred Heart	SO	1	2	9.97	4	4	0	0	0	21.2	35	26	24	6	11	0	.357
+0	Samuel Wright	Quinnipiac	SO	0	1	10.05	4	4	0	0	0	14.1	25	16	16	7	12	2	.385
+0	Joshua Caravalho	Houston Christian	SR	1	3	10.06	4	4	0	0	0	17.0	19	20	19	8	21	4	.279
+0	Tripp Patterson	North Alabama	SO	0	2	10.12	4	4	0	0	0	18.2	25	25	21	8	13	2	.309
+0	Landon Waugh	Morehead State	SO	0	3	10.18	5	5	0	0	0	20.1	26	27	23	10	21	8	.299
+0	Kenton Deverman	Evansville	JR	0	3	10.19	5	5	0	0	0	17.2	36	22	20	2	17	1	.409
+0	Dillon Kirksey	Coppin State	JR	1	3	10.20	4	4	0	0	0	15.0	17	21	17	14	11	2	.279
+0	Tyler Hartley	Marist	JR	1	1	10.43	4	4	0	0	0	14.2	20	17	17	10	8	5	.345
+0	Will Taylor	Marist	JR	0	2	10.43	4	4	0	0	0	14.2	16	17	17	14	12	2	.291
+0	Joe LoPinto	Canisius	JR	1	2	10.67	4	4	0	0	0	14.1	21	17	17	10	13	5	.344
+0	Niccolas Gregson	UC San Diego	GR	0	4	10.70	4	4	0	0	0	17.2	28	21	21	5	19	2	.359
+0	Thomas Santana	Columbia	SR	0	2	10.80	3	3	0	0	0	10.0	16	12	12	8	5	4	.364
+0	Ty Madison	South Dakota State	SR	0	4	11.12	5	4	0	0	0	17.0	32	21	21	4	11	2	.400
+0	Chase Hanawalt	Fordham	SO	0	3	11.12	4	4	0	0	0	17.0	16	21	21	9	18	3	.276
+0	Carson Mayfield	Cornell	SR	0	3	11.25	3	3	0	0	0	12.0	21	18	15	4	10	2	.382
+0	Joe Sabbath	Rhode Island	JR	0	3	11.34	4	4	0	0	0	16.2	27	25	21	6	21	5	.355
+0	Anthony Solis	Eastern Illinois	JR	0	2	11.37	4	4	0	0	0	19.0	27	26	24	10	14	2	.325
+0	Hayden Tarsia	Binghamton	JR	1	1	11.40	4	4	0	0	0	15.0	22	19	19	9	15	1	.349
+0	Carter White	Northwestern State	SO	0	3	11.42	4	4	0	0	0	17.1	23	22	22	14	19	3	.315
+0	Spencer Boynton	Valparaiso	SR	0	2	11.66	4	1	0	0	0	14.2	23	21	19	10	16	6	.354
+0	Shane McAlinden	CSU Bakersfield	JR	1	3	11.94	4	4	0	0	0	17.1	33	24	23	10	11	2	.418
+0	Jonah Stepner	UMES	SR	0	2	15.15	4	4	0	0	0	13.2	19	30	23	13	11	7	.306
+0	AJ Petraitis	Le Moyne	JR	0	3	26.25	4	4	0	0	0	12.0	23	37	35	18	6	4	.404

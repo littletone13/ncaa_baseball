@@ -11,13 +11,35 @@ dist/
 build/
 .env
 
-# Raw/pulled data can be large. Keep registries committed.
+# Raw/pulled data can be large. Keep registries + critical historicals committed.
 data/raw/**
 data/processed/**
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/processed/odds/.gitkeep
 !data/registries/**
+
+# Historical data we MUST keep
+!data/raw/espn/
+!data/raw/espn/games_2026.jsonl
+!data/raw/ncaa/
+!data/raw/ncaa/boxscores_2026.jsonl
+!data/raw/ncaa/linescores_2026.jsonl
+!data/raw/d1baseball/
+!data/raw/d1baseball/*.tsv
+!data/processed/games.csv
+!data/processed/run_events.csv
+!data/processed/pitcher_appearances.csv
+!data/processed/pitcher_table.csv
+!data/processed/team_table.csv
+!data/processed/player_registry.csv
+!data/processed/sidearm_rosters.csv
+!data/processed/ncaa_rosters.csv
+!data/processed/run_event_posterior_2k.csv
+!data/processed/run_event_fit_meta.json
+!data/processed/run_event_team_index.csv
+!data/processed/run_event_pitcher_index.csv
+!data/processed/run_event_conf_index.csv
 
 # Optional: vendor sample repos locally without committing
 external/
