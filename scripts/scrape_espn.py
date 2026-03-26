@@ -310,7 +310,8 @@ def main():
                     pass
         print(f"Resuming: {len(existing_ids)} games already scraped")
 
-    mode = "a" if args.resume else "w"
+    # Always append — never truncate the historical game file
+    mode = "a"
     total_games = 0
     total_pbp = 0
     total_boxscore = 0

@@ -193,7 +193,8 @@ def main() -> int:
     total_pitchers = 0
     dt = start
 
-    with open(args.out, "a" if args.resume else "w") as outf:
+    # Always append — never truncate the historical boxscore file
+    with open(args.out, "a") as outf:
         while dt <= end:
             games = get_game_ids_for_date(dt)
             if games:
