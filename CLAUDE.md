@@ -11,6 +11,9 @@ NCAA Division 1 baseball prediction model that simulates games using starting pi
 games_2026.jsonl → extract_espn.py → games.csv, run_events.csv,
                                        pitcher_appearances.csv, venue_stats.csv
 
+linescores + run_events → merge_run_events.py → unified run_events.csv
+                          (backfills pitcher IDs from pitcher_appearances starters)
+
 run_events.csv → build_run_event_indices.py → team_index.csv, pitcher_index.csv
               → fit_run_event_model.py → run_event_posterior.csv (Stan, 4 chains)
 
@@ -199,6 +202,13 @@ make all        # Full rebuild + predict
 - NCAA linescores (2,214 games) provide per-inning run counts for ALL games
 - A 3-run inning = one `run_3` event, independent of play-by-play details
 - Massively expands Stan training data beyond ESPN PBP-only coverage
+
+### Pitcher ID Backfill (merge_run_events.py)
+- `scripts/merge_run_events.py` merges ESPN + linescore run_events, then backfills missing pitcher IDs
+- Reads starter rows from `pitcher_appearances.csv`, builds `(date, team)` → pitcher_id lookup
+- Uses stable NCAA ID format: `NCAA_{normalized_name}__{canonical_id}` matching `build_pitcher_table.py`
+- Fills ~3,800 pitcher slots that would otherwise be empty (linescore events + ESPN score-only games)
+- **Critical**: without this step, pitcher index drops from ~3,900 to ~1,700 and most pitchers lose posteriors
 
 ### Platoon Splits (LHP/RHP)
 - `scripts/platoon_adjustment.py` tracks pitcher handedness via D1B rotation data
