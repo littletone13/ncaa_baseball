@@ -41,11 +41,9 @@ def main() -> int:
         return 1
 
     df = pd.read_csv(args.run_events, dtype=str)
-    # Support both column name conventions:
-    #   run_events.csv uses home_pitcher_espn_id / away_pitcher_espn_id
-    #   run_events_expanded.csv uses home_pitcher_id / away_pitcher_id
-    hp_col = "home_pitcher_id" if "home_pitcher_id" in df.columns else "home_pitcher_espn_id"
-    ap_col = "away_pitcher_id" if "away_pitcher_id" in df.columns else "away_pitcher_espn_id"
+    # Always prefer home_pitcher_espn_id (ESPN data) over home_pitcher_id (may be empty from linescores)
+    hp_col = "home_pitcher_espn_id" if "home_pitcher_espn_id" in df.columns else "home_pitcher_id"
+    ap_col = "away_pitcher_espn_id" if "away_pitcher_espn_id" in df.columns else "away_pitcher_id"
     for c in ("home_canonical_id", "away_canonical_id", hp_col, ap_col):
         if c in df.columns:
             df[c] = df[c].fillna("").astype(str).str.strip()

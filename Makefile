@@ -31,6 +31,29 @@ $(MANIFEST): scripts/extract_espn.py $(ESPN_JSONL) data/registries/canonical_tea
 
 extract: $(MANIFEST)
 
+# ── Layer 1b: Integrate NCAA boxscores into pitcher_appearances ───
+NCAA_BOXSCORES = $(wildcard data/raw/ncaa/boxscores_*.jsonl)
+
+integrate-ncaa: $(MANIFEST)
+	@if ls data/raw/ncaa/boxscores_*.jsonl 1>/dev/null 2>&1; then \
+		$(PYTHON) scripts/integrate_ncaa_boxscores.py; \
+		echo "✓ NCAA boxscores merged into pitcher_appearances"; \
+	else \
+		echo "⚠ No NCAA boxscores found, skipping"; \
+	fi
+
+# ── Layer 1c: Build linescore run_events + merge into run_events ─
+NCAA_LINESCORES = $(wildcard data/raw/ncaa/linescores_*.jsonl)
+
+merge-linescores: $(MANIFEST)
+	@if ls data/raw/ncaa/linescores_*.jsonl 1>/dev/null 2>&1; then \
+		$(PYTHON) scripts/build_linescore_run_events.py; \
+		$(PYTHON) scripts/merge_run_events.py; \
+		echo "✓ Linescores merged into run_events"; \
+	else \
+		echo "⚠ No NCAA linescores found, skipping"; \
+	fi
+
 # ── Layer 2: Model indices ────────────────────────────────────────
 TEAM_INDEX = data/processed/run_event_team_index.csv
 PITCHER_INDEX = data/processed/run_event_pitcher_index.csv
@@ -114,7 +137,7 @@ odds-db-load:
 	$(PYTHON) scripts/load_odds_to_postgres.py --dsn "$(DATABASE_URL)"
 
 # ── Convenience targets ──────────────────────────────────────────
-rebuild: extract indices park-factors bullpen rotations tables
+rebuild: extract integrate-ncaa merge-linescores indices park-factors bullpen rotations tables
 	@echo "✓ Full rebuild complete"
 
 daily: predict odds web-export web-push
@@ -158,4 +181,4 @@ db-load-day:
 db-load-predictions:
 	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --table predictions --date $(DATE)
 
-.PHONY: extract indices park-factors bullpen rotations tables model predict odds odds-db-bootstrap odds-db-load rebuild daily all clean-daily web-export web-push web-deploy web-dev db-load-all db-load-day db-load-predictions
+.PHONY: extract integrate-ncaa merge-linescores indices park-factors bullpen rotations tables model predict odds odds-db-bootstrap odds-db-load rebuild daily all clean-daily web-export web-push web-deploy web-dev db-load-all db-load-day db-load-predictions

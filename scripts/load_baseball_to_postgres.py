@@ -21,7 +21,7 @@ import pandas as pd
 import psycopg
 
 DEFAULT_DSN = (
-    "postgresql://postgres:{}@db.{}.supabase.co:5432/postgres"
+    "postgresql://postgres.{}:{}@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
 )
 PROJECT_REF = "lxzkhtftxafmbsfosrcq"
 
@@ -41,7 +41,7 @@ def get_dsn(args) -> str:
                 if line.startswith("SUPABASE_DB_PASSWORD="):
                     pw = line.split("=", 1)[1].strip().strip("'\"")
     if pw:
-        return DEFAULT_DSN.format(pw, PROJECT_REF)
+        return DEFAULT_DSN.format(PROJECT_REF, pw)
     print("No database connection. Set DATABASE_URL, SUPABASE_DB_PASSWORD, or --dsn.", file=sys.stderr)
     sys.exit(1)
 
