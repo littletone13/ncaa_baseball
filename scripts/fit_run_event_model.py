@@ -74,6 +74,9 @@ def main() -> int:
         pid = str(r["pitcher_espn_id"]).strip()
         if pid and pid.lower() != "unknown":
             pitcher_map[pid] = int(r["pitcher_idx"])
+            # Also index without .0 suffix for float-formatted IDs
+            if pid.endswith(".0"):
+                pitcher_map[pid[:-2]] = int(r["pitcher_idx"])
 
     def team_idx(cid) -> int | None:
         if cid is None or (isinstance(cid, float) and pd.isna(cid)):
@@ -89,9 +92,9 @@ def main() -> int:
 
     re_df["home_team_idx"] = re_df["home_canonical_id"].map(team_idx)
     re_df["away_team_idx"] = re_df["away_canonical_id"].map(team_idx)
-    # Support both old column name (home_pitcher_espn_id) and new (home_pitcher_id)
-    hp_col = "home_pitcher_id" if "home_pitcher_id" in re_df.columns else "home_pitcher_espn_id"
-    ap_col = "away_pitcher_id" if "away_pitcher_id" in re_df.columns else "away_pitcher_espn_id"
+    # Always prefer home_pitcher_espn_id (ESPN data has actual IDs; linescore home_pitcher_id is empty)
+    hp_col = "home_pitcher_espn_id" if "home_pitcher_espn_id" in re_df.columns else "home_pitcher_id"
+    ap_col = "away_pitcher_espn_id" if "away_pitcher_espn_id" in re_df.columns else "away_pitcher_id"
     re_df["home_pitcher_idx"] = re_df[hp_col].map(pitcher_idx)
     re_df["away_pitcher_idx"] = re_df[ap_col].map(pitcher_idx)
 

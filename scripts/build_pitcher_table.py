@@ -139,6 +139,9 @@ def load_pitcher_index(path: Path) -> dict[str, int]:
             pidx = 0
         if eid and eid != "unknown":
             idx[eid] = pidx
+            # Strip .0 suffix from float-formatted IDs (e.g. "8135.0" → "8135")
+            if eid.endswith(".0"):
+                idx[eid[:-2]] = pidx
             # Also index without ESPN_ prefix for numeric lookups
             if eid.startswith("ESPN_"):
                 numeric = eid[5:]

@@ -45,8 +45,8 @@ data {
 
 parameters {
   // Dispersion (NegBin only for run_1 and run_2)
-  real<lower=0> theta_run_1;
-  real<lower=0> theta_run_2;
+  real<lower=0.001> theta_run_1;
+  real<lower=0.001> theta_run_2;
 
   // Home advantage — unconstrained (allow data to determine sign)
   real home_advantage;
