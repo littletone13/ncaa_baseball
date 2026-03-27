@@ -144,4 +144,18 @@ web-deploy: web-export web-push
 web-dev:
 	cd $(WEB_DIR) && npm run dev
 
-.PHONY: extract indices park-factors bullpen rotations tables model predict odds odds-db-bootstrap odds-db-load rebuild daily all clean-daily web-export web-push web-deploy web-dev
+# ── Supabase database targets ──────────────────────────────────────────
+db-load-all:
+	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --all
+	@echo "✓ All tables loaded to Supabase"
+
+db-load-day:
+	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --table games
+	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --table appearances
+	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --table predictions --date $(DATE)
+	@echo "✓ Daily data loaded to Supabase for $(DATE)"
+
+db-load-predictions:
+	SUPABASE_DB_PASSWORD="$$SUPABASE_DB_PASSWORD" $(PYTHON) scripts/load_baseball_to_postgres.py --table predictions --date $(DATE)
+
+.PHONY: extract indices park-factors bullpen rotations tables model predict odds odds-db-bootstrap odds-db-load rebuild daily all clean-daily web-export web-push web-deploy web-dev db-load-all db-load-day db-load-predictions
