@@ -35,7 +35,7 @@ data/processed/**
 !data/processed/player_registry.csv
 !data/processed/sidearm_rosters.csv
 !data/processed/ncaa_rosters.csv
-!data/processed/run_event_posterior_2k.csv
+# run_event_posterior_2k.csv is 189MB — too large for GitHub, keep local only
 !data/processed/run_event_fit_meta.json
 !data/processed/run_event_team_index.csv
 !data/processed/run_event_pitcher_index.csv

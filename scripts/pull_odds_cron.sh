@@ -16,7 +16,7 @@ echo "[$TIMESTAMP] Starting odds pull..." >> "$LOGFILE"
 ODDS_API_KEY="$THE_ODDS_API_KEY" .venv/bin/python3 scripts/pull_odds.py \
     --mode current \
     --regions us,us2,eu \
-    --markets h2h,totals \
+    --markets h2h,spreads,totals \
     >> "$LOGFILE" 2>&1
 
 echo "[$TIMESTAMP] Done" >> "$LOGFILE"
