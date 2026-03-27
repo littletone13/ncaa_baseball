@@ -217,6 +217,13 @@ def merge_appearances(
     combined = pd.concat([espn_appearances, ncaa_novel], ignore_index=True)
     combined = combined.drop(columns=["_source"], errors="ignore")
 
+    # Final safety dedup: drop exact (event_id, pitcher_id) dupes (prefer ESPN = first)
+    before_final = len(combined)
+    combined = combined.drop_duplicates(subset=["event_id", "pitcher_id"], keep="first")
+    if len(combined) < before_final:
+        print(f"  Final dedup: removed {before_final - len(combined)} exact (event_id, pitcher_id) dupes",
+              file=sys.stderr)
+
     # Sort by date desc
     combined = combined.sort_values("game_date", ascending=False).reset_index(drop=True)
 
