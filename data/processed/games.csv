@@ -6209,3 +6209,148 @@ event_id,game_date,season,home_name,away_name,home_canonical_id,away_canonical_i
 401853447,2026-03-25,2026,Houston Christian Huskies,Rice Owls,NCAA_614621,NCAA_614718,7,10,False,Husky Field,Houston,Texas,False,,,,,False,True
 401853221,2026-03-25,2026,Tulane Green Wave,Grambling Tigers,NCAA_614762,NCAA_614771,15,5,True,Green Field at Turchin Stadium,New Orleans,Louisiana,False,,,,,False,True
 401856183,2026-03-26,2026,Loyola Marymount Lions,Cal Poly Mustangs,NCAA_614648,NCAA_614565,8,7,True,Page Stadium,Los Angeles,California,False,,,,,False,True
+401850264,2026-03-27,2026,Iowa Hawkeyes,UCLA Bruins,BSB_IOWA,BSB_UCLA,2,5,False,Duane Banks Field,Iowa City,Iowa,False,91807,95456,Jaron Bleeker,Logan Reddemann,False,True
+401847494,2026-03-28,2026,Texas Longhorns,Oklahoma Sooners,BSB_TEXAS,BSB_OKLAHOMA,4,3,True,UFCU Disch-Falk Field,Austin,Texas,False,,,,,False,True
+401847968,2026-03-27,2026,Georgia Tech Yellow Jackets,NC State Wolfpack,BSB_GEORGIA_TECH,BSB_NC_STATE,3,1,True,Mac Nease Baseball Park,Atlanta,Georgia,False,,,,,False,True
+401847123,2026-03-27,2026,Arkansas Razorbacks,Florida Gators,BSB_ARKANSAS,BSB_FLORIDA,4,9,False,Baum-Walker Stadium,Fayetteville,Arkansas,False,77001,77371,Gabe Gaeckle,Liam Peterson,True,True
+401847068,2026-03-27,2026,Alabama Crimson Tide,Auburn Tigers,BSB_ALABAMA,BSB_AUBURN,11,1,True,Sewell-Thomas Stadium,Tuscaloosa,Alabama,False,,,,,False,True
+401847405,2026-03-27,2026,Ole Miss Rebels,Mississippi State Bulldogs,BSB_OLE_MISS,NCAA_614666,4,5,False,Oxford-University Stadium at Swayze Field,Oxford,Mississippi,False,54848,85879,Hunter Elliott,Charlie Foster,True,True
+401847275,2026-03-27,2026,Georgia Bulldogs,South Carolina Gamecocks,BSB_GEORGIA,BSB_SOUTH_CAROLINA,5,2,True,Foley Field,Athens,Georgia,False,97322,95013,Joey Volchko,Josh Gunther,True,True
+401847718,2026-03-27,2026,Boston College Eagles,Virginia Cavaliers,BSB_BOSTON_COLLEGE,BSB_VIRGINIA,5,3,True,Eddie Pellagrini Baseball Diamond,Brighton,Massachusetts,False,,,,,False,True
+401847878,2026-03-27,2026,Florida State Seminoles,Duke Blue Devils,NCAA_614606,BSB_DUKE,3,1,True,Mike Martin Field at Dick Howser Stadium,Tallahassee,Florida,False,,,,,False,True
+401852842,2026-03-27,2026,Southern Miss Golden Eagles,App State Mountaineers,NCAA_614780,NCAA_614852,6,5,True,Pete Taylor Park/Hill Denson Field,Hattiesburg,Mississippi,False,,,,,False,True
+401851011,2026-03-27,2026,Maryland Terrapins,USC Trojans,BSB_MARYLAND,NCAA_614742,10,11,False,"Shipley Field at Bob ""Turtle"" Smith Stadium",College Park,Maryland,False,,,,,False,True
+401853027,2026-03-27,2026,Marshall Thundering Herd,Coastal Carolina Chanticleers,NCAA_614652,BSB_COASTAL_CAROLINA,9,11,False,Jack Cook Field,Huntington,West Virginia,False,,,,,False,True
+401849899,2026-03-28,2026,Oregon State Beavers,Mercer Bears,NCAA_614704,NCAA_614659,7,5,True,Goss Stadium at Coleman Field,Corvallis,Oregon,False,,,,,False,True
+401848427,2026-03-28,2026,Arizona State Sun Devils,West Virginia Mountaineers,NCAA_614853,BSB_WEST_VIRGINIA,14,4,True,Phoenix Municipal Stadium,Phoenix,Arizona,False,,,,,False,True
+401847317,2026-03-27,2026,LSU Tigers,Kentucky Wildcats,BSB_LSU,BSB_KENTUCKY,4,7,False,"Alex Box Stadium, Skip Bertman Field",Baton Rouge,Louisiana,False,,,,,False,True
+401852125,2026-03-27,2026,UC Santa Barbara Gauchos,Oregon Ducks,BSB_UC_SANTA_BARBARA,BSB_OREGON,0,4,False,Caesar Uyesaka Stadium,Santa Barbara,California,False,,,,,False,True
+401847595,2026-03-28,2026,Vanderbilt Commodores,Tennessee Volunteers,BSB_VANDERBILT,BSB_TENNESSEE,3,2,True,Hawkins Field,Nashville,Tennessee,False,,,,,False,True
+401850221,2026-03-27,2026,Nebraska Cornhuskers,Indiana Hoosiers,BSB_NEBRASKA,BSB_INDIANA,6,5,True,Hawks Field At Haymarket Park,Lincoln,Nebraska,False,,,,,False,True
+401847470,2026-03-27,2026,Missouri Tigers,Texas A&M Aggies,BSB_MISSOURI,NCAA_614788,9,11,False,Taylor Stadium,Columbia,Missouri,False,,,,,False,True
+401858054,2026-03-27,2026,Stony Brook Seawolves,Towson Tigers,NCAA_614751,NCAA_614796,3,1,True,Joe Nathan Field,Stony Brook,New York,False,,,,,False,True
+401853811,2026-03-27,2026,Liberty Flames,Florida International Panthers,BSB_LIBERTY,NCAA_614605,4,3,True,Worthington Field at Liberty Baseball Stadium,Lynchburg,Virginia,False,,,,,False,True
+401848349,2026-03-27,2026,Virginia Tech Hokies,Stanford Cardinal,BSB_VIRGINIA_TECH,BSB_STANFORD,7,9,False,English Field at Atlantic Union Bank Park,Blacksburg,Virginia,False,,,,,False,True
+401857987,2026-03-27,2026,Hofstra Pride,Northeastern Huskies,NCAA_614619,NCAA_614692,5,4,True,University Field (Hofstra),West Hempstead,New York,False,,,,,False,True
+401854188,2026-03-27,2026,Bellarmine Knights,North Alabama Lions,NCAA_614754,NCAA_614843,16,6,True,Knights Field,Louisville,Kentucky,False,,,,,False,True
+401852969,2026-03-27,2026,UConn Huskies,Xavier Musketeers,NCAA_614587,NCAA_614822,3,1,True,Elliot Ballpark,Storrs,Connecticut,False,,,,,False,True
+401852884,2026-03-27,2026,St. John's Red Storm,California Baptist Lancers,NCAA_614778,NCAA_614844,3,12,False,Jack Kaiser Stadium,Queens,New York,False,,,,,False,True
+401851093,2026-03-27,2026,Michigan State Spartans,Purdue Boilermakers,NCAA_614662,BSB_PURDUE,4,3,True,Jeff Ishbia Field at McLane Stadium,East Lansing,Michigan,False,,,,,False,True
+401857958,2026-03-27,2026,Elon Phoenix,Monmouth Hawks,NCAA_614828,NCAA_614670,3,6,False,Walter C. Latham Park,Elon,North Carolina,False,,,,,False,True
+401851132,2026-03-27,2026,Minnesota Golden Gophers,Ohio State Buckeyes,BSB_MINNESOTA,NCAA_614700,3,4,False,Siebert Field,Minneapolis,Minnesota,False,,,,,False,True
+401858135,2026-03-27,2026,Delaware Blue Hens,Kennesaw State Owls,NCAA_614595,NCAA_614831,1,8,False,Bob Hannah Stadium,Newark,Delaware,False,,,,,False,True
+401856184,2026-03-27,2026,UC Riverside Highlanders,Cal Poly Mustangs,NCAA_614576,NCAA_614565,4,22,False,Riverside Sports Complex,Riverside,California,False,,,,,False,True
+401848631,2026-03-27,2026,Cincinnati Bearcats,Kansas Jayhawks,BSB_CINCINNATI,BSB_KANSAS,5,0,True,UC Baseball Stadium,Cincinnati,Ohio,False,,,,,False,True
+401848009,2026-03-27,2026,Louisville Cardinals,Pittsburgh Panthers,BSB_LOUISVILLE,NCAA_614710,3,4,False,Jim Patterson Stadium,Louisville,Kentucky,False,64871,99141,Wyatt Danilowicz,David Leslie,False,True
+401850161,2026-03-27,2026,Penn State Nittany Lions,Illinois Fighting Illini,NCAA_614708,BSB_ILLINOIS,9,8,True,Medlar Field at Lubrano Park,University Park,Pennsylvania,False,,,,,False,True
+401858108,2026-03-27,2026,UNC Wilmington Seahawks,William & Mary Tribe,NCAA_614678,NCAA_614818,5,3,True,Brooks Field,Wilmington,North Carolina,False,,,,,False,True
+401854402,2026-03-27,2026,Queens University Royals,West Georgia Wolves,NCAA_614757,NCAA_614784,9,10,False,The Stick Williams Dream Fields,Charlotte,North Carolina,False,,,,,False,True
+401853510,2026-03-27,2026,Campbell Fighting Camels,Charleston Cougars,NCAA_614577,NCAA_614827,12,10,True,Jim Perry Stadium,Buies Creek,North Carolina,False,,,,,False,True
+401853222,2026-03-27,2026,UAB Blazers,Tulane Green Wave,NCAA_614849,NCAA_614762,9,6,True,Jerry D. Young Memorial Field,Birmingham,Alabama,False,,,,,False,True
+401853116,2026-03-27,2026,Georgia State Panthers,Texas State Bobcats,NCAA_614613,NCAA_614747,6,18,False,GSU Baseball Complex,Decatur,Georgia,False,,,,,False,True
+401852712,2026-03-27,2026,North Carolina A&T Aggies,Georgetown Hoyas,NCAA_614688,NCAA_614611,6,17,False,World War Memorial Stadium,Greensboro,North Carolina,False,,,,,False,True
+401851656,2026-03-27,2026,Charlotte 49ers,South Florida Bulls,NCAA_614676,NCAA_614740,11,2,True,Robert and Mariam Hayes Stadium,Charlotte,North Carolina,False,95744,99819,Eddie Copper,Edwin Alicea,False,True
+401851053,2026-03-27,2026,Rutgers Scarlet Knights,Michigan Wolverines,BSB_RUTGERS,BSB_MICHIGAN,4,3,True,Bainton Field,Piscataway,New Jersey,False,,,,,False,True
+401848380,2026-03-27,2026,UCF Knights,Arizona Wildcats,BSB_UCF,BSB_ARIZONA,11,6,True,John Euliano Park,Orlando,Florida,False,,,,,False,True
+401847770,2026-03-27,2026,Wake Forest Demon Deacons,California Golden Bears,BSB_WAKE_FOREST,NCAA_614572,9,5,True,David F. Couch Ballpark,Winston-Salem,North Carolina,False,,,,,False,True
+401854403,2026-03-27,2026,Florida Gulf Coast Eagles,Stetson Hatters,NCAA_614841,NCAA_614781,5,4,True,Swanson Stadium,Fort Myers,Florida,False,,,,,False,True
+401853070,2026-03-27,2026,Georgia Southern Eagles,Troy Trojans,NCAA_614612,NCAA_614797,4,3,True,J. I. Clements Stadium,Statesboro,Georgia,False,,,,,False,True
+401854404,2026-03-27,2026,Jacksonville Dolphins,North Florida Ospreys,NCAA_614633,NCAA_614835,2,4,False,John Sessions Stadium,Jacksonville,Florida,False,,,,,False,True
+401854252,2026-03-27,2026,Lipscomb Bisons,Eastern Kentucky Colonels,NCAA_614840,NCAA_614599,3,2,True,Ken Dugan Field at Stephen Lee Marsh Stadium,Nashville,Tennessee,False,,,,,False,True
+401854148,2026-03-27,2026,Central Arkansas Bears,Austin Peay Governors,NCAA_614825,NCAA_614858,1,4,False,Bear Stadium,Conway,Arkansas,False,,,,,False,True
+401853774,2026-03-27,2026,Louisiana Tech Bulldogs,Jacksonville State Gamecocks,NCAA_614645,NCAA_614632,0,4,False,J.C. Love Field at Pat Patterson Park,Ruston,Louisiana,False,,,,,False,True
+401853635,2026-03-27,2026,Middle Tennessee Blue Raiders,New Mexico State Aggies,NCAA_614664,NCAA_614683,7,5,True,Reese Smith Jr. Field,Murfreesboro,Tennessee,False,,,,,False,True
+401853187,2026-03-27,2026,Louisiana Ragin' Cajuns,UL Monroe Warhawks,BSB_LOUISIANA,NCAA_614691,3,5,False,"M.L. ""Tigue"" Moore Field at Russo Park",Lafayette,Louisiana,False,96882,99780,Sawyer Pruitt,Adam Brodnax,True,True
+401853006,2026-03-27,2026,UT Arlington Mavericks,Villanova Wildcats,NCAA_614792,NCAA_614803,9,3,True,Clay Gould Ballpark,Arlington,Texas,False,,,,,False,True
+401852923,2026-03-27,2026,Arkansas State Red Wolves,James Madison Dukes,NCAA_614854,NCAA_614634,11,9,True,Tomlinson Stadium–Kell Field,Jonesboro,Arkansas,False,,,,,False,True
+401852274,2026-03-27,2026,Creighton Bluejays,Sacramento State Hornets,NCAA_614590,NCAA_614570,6,2,True,Charles Schwab Field,Omaha,Nebraska,False,,,,,False,True
+401851910,2026-03-27,2026,Memphis Tigers,Wichita State Shockers,NCAA_614658,NCAA_614817,3,7,False,FedExPark Avron Fogelman Field,Memphis,Tennessee,False,,,,,False,True
+401851786,2026-03-27,2026,UTSA Roadrunners,East Carolina Pirates,NCAA_614794,BSB_EAST_CAROLINA,0,3,False,Roadrunner Field,San Antonio,Texas,False,,,,,False,True
+401850105,2026-03-27,2026,TCU Horned Frogs,Texas Tech Red Raiders,BSB_TCU,BSB_TEXAS_TECH,18,8,True,Charlie and Marie Lupton Baseball Stadium at Williams-Reilly Field,Fort Worth,Texas,False,,,,,False,True
+401853708,2026-03-27,2026,Dallas Baptist Patriots,Missouri State Bears,NCAA_614764,NCAA_614746,5,4,True,Horner Ballpark,Dallas,Texas,False,,,,,False,True
+401853466,2026-03-27,2026,Sam Houston Bearkats,Western Kentucky Hilltoppers,NCAA_614728,NCAA_614815,1,0,True,Don Sanders Stadium,Huntsville,Texas,False,,,,,False,True
+401853307,2026-03-27,2026,South Alabama Jaguars,Old Dominion Monarchs,NCAA_614737,NCAA_614703,10,3,True,Stanky Field,Mobile,Alabama,False,,,,,False,True
+401851866,2026-03-27,2026,Rice Owls,Florida Atlantic Owls,NCAA_614718,NCAA_614604,2,6,False,Reckling Park,Houston,Texas,False,,,,,False,True
+401848511,2026-03-27,2026,Houston Cougars,Baylor Bears,BSB_HOUSTON,BSB_BAYLOR,2,6,False,Darryl & Lori Schroeder Park,Houston,Texas,False,,,,,False,True
+401847825,2026-03-28,2026,Clemson Tigers,Miami Hurricanes,BSB_CLEMSON,NCAA_614661,7,6,True,Doug Kingsmore Stadium,Clemson,South Carolina,False,95131,86374,Michael Sharman,Rob Evans,True,True
+401856227,2026-03-28,2026,Cal State Northridge Matadors,Cal State Bakersfield Roadrunners,NCAA_614569,,3,11,False,Matador Field,Northridge,California,False,,,,,False,True
+401849948,2026-03-28,2026,Utah Utes,Kansas State Wildcats,BSB_UTAH,NCAA_614635,5,8,False,America First Ballpark,Salt Lake City,Utah,False,,,,,False,True
+401848566,2026-03-28,2026,BYU Cougars,Oklahoma State Cowboys,BSB_BYU,NCAA_614775,5,12,False,Miller Park - Larry H. Miller Field,Provo,Utah,False,,,,,False,True
+401857334,2026-03-28,2026,UC Davis Aggies,UC San Diego Tritons,NCAA_614573,NCAA_614755,4,9,False,Phil Swimley Field at Dobbins Stadium,Davis,California,False,,,,,False,True
+401857242,2026-03-28,2026,Long Beach State Beach,UC Irvine Anteaters,NCAA_614568,NCAA_614574,10,2,True,Bohl Diamond at Blair Field,Long Beach,California,False,,,,,False,True
+401852008,2026-03-28,2026,Washington Huskies,Northwestern Wildcats,BSB_WASHINGTON,BSB_NORTHWESTERN,7,2,True,Husky Ballpark,Seattle,Washington,False,,,,,False,True
+401847770,2026-03-27,2026,Wake Forest Demon Deacons,California Golden Bears,BSB_WAKE_FOREST,NCAA_614572,9,5,True,David F. Couch Ballpark,Winston-Salem,North Carolina,False,,,,,False,True
+401856272,2026-03-28,2026,Hawai'i Rainbow Warriors,Cal State Fullerton Titans,NCAA_614618,NCAA_614567,0,2,False,Les Murakami Stadium,Honolulu,Hawaii,False,,,,,False,True
+401850265,2026-03-28,2026,Iowa Hawkeyes,UCLA Bruins,BSB_IOWA,BSB_UCLA,0,19,False,Duane Banks Field,Iowa City,Iowa,False,,,,,False,True
+401847495,2026-03-28,2026,Texas Longhorns,Oklahoma Sooners,BSB_TEXAS,BSB_OKLAHOMA,5,4,True,UFCU Disch-Falk Field,Austin,Texas,False,,,,,False,True
+401847969,2026-03-28,2026,Georgia Tech Yellow Jackets,NC State Wolfpack,BSB_GEORGIA_TECH,BSB_NC_STATE,6,4,True,Mac Nease Baseball Park,Atlanta,Georgia,False,,,,,False,True
+401847124,2026-03-28,2026,Arkansas Razorbacks,Florida Gators,BSB_ARKANSAS,BSB_FLORIDA,4,7,False,Baum-Walker Stadium,Fayetteville,Arkansas,False,76998,86317,Hunter Dietz,Aidan - P King,True,True
+401847069,2026-03-29,2026,Alabama Crimson Tide,Auburn Tigers,BSB_ALABAMA,BSB_AUBURN,3,2,True,Sewell-Thomas Stadium,Tuscaloosa,Alabama,False,,,,,False,True
+401847406,2026-03-28,2026,Ole Miss Rebels,Mississippi State Bulldogs,BSB_OLE_MISS,NCAA_614666,1,6,False,Oxford-University Stadium at Swayze Field,Oxford,Mississippi,False,78735,95626,Hudson - P Calhoun,Tomas Valincius,True,True
+401847276,2026-03-28,2026,Georgia Bulldogs,South Carolina Gamecocks,BSB_GEORGIA,BSB_SOUTH_CAROLINA,3,1,True,Foley Field,Athens,Georgia,False,97321,95023,Dylan Vigue,Amp Phillips,True,True
+401847719,2026-03-28,2026,Boston College Eagles,Virginia Cavaliers,BSB_BOSTON_COLLEGE,BSB_VIRGINIA,17,0,True,Eddie Pellagrini Baseball Diamond,Brighton,Massachusetts,False,,,,,False,True
+401847879,2026-03-28,2026,Florida State Seminoles,Duke Blue Devils,NCAA_614606,BSB_DUKE,12,11,True,Mike Martin Field at Dick Howser Stadium,Tallahassee,Florida,False,,,,,False,True
+401852843,2026-03-28,2026,Southern Miss Golden Eagles,App State Mountaineers,NCAA_614780,NCAA_614852,2,6,False,Pete Taylor Park/Hill Denson Field,Hattiesburg,Mississippi,False,,,,,False,True
+401851012,2026-03-28,2026,Maryland Terrapins,USC Trojans,BSB_MARYLAND,NCAA_614742,6,4,True,"Shipley Field at Bob ""Turtle"" Smith Stadium",College Park,Maryland,False,,,,,False,True
+401848114,2026-03-28,2026,Notre Dame Fighting Irish,North Carolina Tar Heels,BSB_NOTRE_DAME,BSB_NORTH_CAROLINA,5,6,False,Frank Eck Baseball Stadium,Notre Dame,Indiana,False,,,,,False,True
+401848113,2026-03-28,2026,Notre Dame Fighting Irish,North Carolina Tar Heels,BSB_NOTRE_DAME,BSB_NORTH_CAROLINA,7,13,False,Frank Eck Baseball Stadium,Notre Dame,Indiana,False,,,,,False,True
+401853028,2026-03-28,2026,Marshall Thundering Herd,Coastal Carolina Chanticleers,NCAA_614652,BSB_COASTAL_CAROLINA,4,12,False,Jack Cook Field,Huntington,West Virginia,False,,,,,False,True
+401849900,2026-03-28,2026,Oregon State Beavers,Mercer Bears,NCAA_614704,NCAA_614659,19,2,True,Goss Stadium at Coleman Field,Corvallis,Oregon,False,,,,,False,True
+401848428,2026-03-29,2026,Arizona State Sun Devils,West Virginia Mountaineers,NCAA_614853,BSB_WEST_VIRGINIA,7,13,False,Phoenix Municipal Stadium,Phoenix,Arizona,False,,,,,False,True
+401847318,2026-03-28,2026,LSU Tigers,Kentucky Wildcats,BSB_LSU,BSB_KENTUCKY,7,0,True,"Alex Box Stadium, Skip Bertman Field",Baton Rouge,Louisiana,False,,,,,False,True
+401852126,2026-03-28,2026,UC Santa Barbara Gauchos,Oregon Ducks,BSB_UC_SANTA_BARBARA,BSB_OREGON,8,2,True,Caesar Uyesaka Stadium,Santa Barbara,California,False,,,,,False,True
+401847596,2026-03-28,2026,Vanderbilt Commodores,Tennessee Volunteers,BSB_VANDERBILT,BSB_TENNESSEE,6,5,True,Hawkins Field,Nashville,Tennessee,False,,,,,False,True
+401850222,2026-03-28,2026,Nebraska Cornhuskers,Indiana Hoosiers,BSB_NEBRASKA,BSB_INDIANA,12,7,True,Hawks Field At Haymarket Park,Lincoln,Nebraska,False,,,,,False,True
+401847450,2026-03-28,2026,Missouri Tigers,Texas A&M Aggies,BSB_MISSOURI,NCAA_614788,6,14,False,Taylor Stadium,Columbia,Missouri,False,,,,,False,True
+401858055,2026-03-28,2026,Stony Brook Seawolves,Towson Tigers,NCAA_614751,NCAA_614796,5,10,False,Joe Nathan Field,Stony Brook,New York,False,,,,,False,True
+401857988,2026-03-28,2026,Hofstra Pride,Northeastern Huskies,NCAA_614619,NCAA_614692,11,12,False,University Field (Hofstra),West Hempstead,New York,False,,,,,False,True
+401852970,2026-03-28,2026,UConn Huskies,Xavier Musketeers,NCAA_614587,NCAA_614822,8,0,True,Elliot Ballpark,Storrs,Connecticut,False,,,,,False,True
+401858136,2026-03-28,2026,Delaware Blue Hens,Kennesaw State Owls,NCAA_614595,NCAA_614831,1,5,False,Bob Hannah Stadium,Newark,Delaware,False,,,,,False,True
+401857959,2026-03-28,2026,Elon Phoenix,Monmouth Hawks,NCAA_614828,NCAA_614670,7,9,False,Walter C. Latham Park,Elon,North Carolina,False,,,,,False,True
+401854405,2026-03-28,2026,Queens University Royals,West Georgia Wolves,NCAA_614757,NCAA_614784,1,7,False,The Stick Williams Dream Fields,Charlotte,North Carolina,False,,,,,False,True
+401853812,2026-03-28,2026,Liberty Flames,Florida International Panthers,BSB_LIBERTY,NCAA_614605,7,1,True,Worthington Field at Liberty Baseball Stadium,Lynchburg,Virginia,False,,,,,False,True
+401853071,2026-03-28,2026,Georgia Southern Eagles,Troy Trojans,NCAA_614612,NCAA_614797,10,0,True,J. I. Clements Stadium,Statesboro,Georgia,False,,,,,False,True
+401852885,2026-03-28,2026,St. John's Red Storm,California Baptist Lancers,NCAA_614778,NCAA_614844,3,5,False,Jack Kaiser Stadium,Queens,New York,False,,,,,False,True
+401852713,2026-03-28,2026,North Carolina A&T Aggies,Georgetown Hoyas,NCAA_614688,NCAA_614611,13,8,True,World War Memorial Stadium,Greensboro,North Carolina,False,,,,,False,True
+401852049,2026-03-28,2026,Milwaukee Panthers,Butler Bulldogs,NCAA_614820,NCAA_614564,2,6,False,Franklin Field,Milwaukee,Wisconsin,False,,,,,False,True
+401850162,2026-03-28,2026,Penn State Nittany Lions,Illinois Fighting Illini,NCAA_614708,BSB_ILLINOIS,5,16,False,Medlar Field at Lubrano Park,University Park,Pennsylvania,False,,,,,False,True
+401848512,2026-03-28,2026,Houston Cougars,Baylor Bears,BSB_HOUSTON,BSB_BAYLOR,3,10,False,Darryl & Lori Schroeder Park,Houston,Texas,False,,,,,False,True
+401848010,2026-03-28,2026,Louisville Cardinals,Pittsburgh Panthers,BSB_LOUISVILLE,NCAA_614710,8,5,True,Jim Patterson Stadium,Louisville,Kentucky,False,78121,99150,Colton Hartman,Vincent Spizzoucco,True,True
+401854253,2026-03-28,2026,Lipscomb Bisons,Eastern Kentucky Colonels,NCAA_614840,NCAA_614599,3,15,False,Ken Dugan Field at Stephen Lee Marsh Stadium,Nashville,Tennessee,False,,,,,False,True
+401854189,2026-03-28,2026,Bellarmine Knights,North Alabama Lions,NCAA_614754,NCAA_614843,4,7,False,Knights Field,Louisville,Kentucky,False,,,,,False,True
+401853775,2026-03-28,2026,Louisiana Tech Bulldogs,Jacksonville State Gamecocks,NCAA_614645,NCAA_614632,3,5,False,J.C. Love Field at Pat Patterson Park,Ruston,Louisiana,False,,,,,False,True
+401853511,2026-03-28,2026,Campbell Fighting Camels,Charleston Cougars,NCAA_614577,NCAA_614827,6,3,True,Jim Perry Stadium,Buies Creek,North Carolina,False,,,,,False,True
+401853467,2026-03-28,2026,Sam Houston Bearkats,Western Kentucky Hilltoppers,NCAA_614728,NCAA_614815,11,5,True,Don Sanders Stadium,Huntsville,Texas,False,,,,,False,True
+401853308,2026-03-28,2026,South Alabama Jaguars,Old Dominion Monarchs,NCAA_614737,NCAA_614703,0,2,False,Stanky Field,Mobile,Alabama,False,,,,,False,True
+401853223,2026-03-28,2026,UAB Blazers,Tulane Green Wave,NCAA_614849,NCAA_614762,7,4,True,Jerry D. Young Memorial Field,Birmingham,Alabama,False,,,,,False,True
+401853188,2026-03-28,2026,Louisiana Ragin' Cajuns,UL Monroe Warhawks,BSB_LOUISIANA,NCAA_614691,3,7,False,"M.L. ""Tigue"" Moore Field at Russo Park",Lafayette,Louisiana,False,55303,66567,Andrew Herrmann,Brandt Corley,True,True
+401853007,2026-03-28,2026,UT Arlington Mavericks,Villanova Wildcats,NCAA_614792,NCAA_614803,11,3,True,Clay Gould Ballpark,Arlington,Texas,False,,,,,False,True
+401852276,2026-03-28,2026,Creighton Bluejays,Sacramento State Hornets,NCAA_614590,NCAA_614570,4,7,False,Charles Schwab Field,Omaha,Nebraska,False,,,,,False,True
+401851911,2026-03-28,2026,Memphis Tigers,Wichita State Shockers,NCAA_614658,NCAA_614817,11,1,True,FedExPark Avron Fogelman Field,Memphis,Tennessee,False,,,,,False,True
+401851867,2026-03-28,2026,Rice Owls,Florida Atlantic Owls,NCAA_614718,NCAA_614604,5,2,True,Reckling Park,Houston,Texas,False,,,,,False,True
+401851787,2026-03-28,2026,UTSA Roadrunners,East Carolina Pirates,NCAA_614794,BSB_EAST_CAROLINA,6,1,True,Roadrunner Field,San Antonio,Texas,False,,,,,False,True
+401851054,2026-03-28,2026,Rutgers Scarlet Knights,Michigan Wolverines,BSB_RUTGERS,BSB_MICHIGAN,5,11,False,Bainton Field,Piscataway,New Jersey,False,,,,,False,True
+401848632,2026-03-28,2026,Cincinnati Bearcats,Kansas Jayhawks,BSB_CINCINNATI,BSB_KANSAS,2,8,False,UC Baseball Stadium,Cincinnati,Ohio,False,,,,,False,True
+401848567,2026-03-28,2026,BYU Cougars,Oklahoma State Cowboys,BSB_BYU,NCAA_614775,5,4,True,Miller Park - Larry H. Miller Field,Provo,Utah,False,,,,,False,True
+401848350,2026-03-28,2026,Virginia Tech Hokies,Stanford Cardinal,BSB_VIRGINIA_TECH,BSB_STANFORD,10,2,True,English Field at Atlantic Union Bank Park,Blacksburg,Virginia,False,,,,,False,True
+401847826,2026-03-28,2026,Clemson Tigers,Miami Hurricanes,BSB_CLEMSON,NCAA_614661,6,8,False,Doug Kingsmore Stadium,Clemson,South Carolina,False,80352,86369,Drew Titsworth,Lazaro Collera,True,True
+401851133,2026-03-28,2026,Minnesota Golden Gophers,Ohio State Buckeyes,BSB_MINNESOTA,NCAA_614700,3,9,False,Siebert Field,Minneapolis,Minnesota,False,,,,,False,True
+401851094,2026-03-28,2026,Michigan State Spartans,Purdue Boilermakers,NCAA_614662,BSB_PURDUE,13,16,False,Jeff Ishbia Field at McLane Stadium,East Lansing,Michigan,False,,,,,False,True
+401847771,2026-03-28,2026,Wake Forest Demon Deacons,California Golden Bears,BSB_WAKE_FOREST,NCAA_614572,4,1,True,David F. Couch Ballpark,Winston-Salem,North Carolina,False,,,,,False,True
+401858109,2026-03-28,2026,UNC Wilmington Seahawks,William & Mary Tribe,NCAA_614678,NCAA_614818,22,1,True,Brooks Field,Wilmington,North Carolina,False,,,,,False,True
+401856185,2026-03-28,2026,UC Riverside Highlanders,Cal Poly Mustangs,NCAA_614576,NCAA_614565,10,4,True,Riverside Sports Complex,Riverside,California,False,,,,,False,True
+401853709,2026-03-28,2026,Dallas Baptist Patriots,Missouri State Bears,NCAA_614764,NCAA_614746,2,8,False,Horner Ballpark,Dallas,Texas,False,,,,,False,True
+401853636,2026-03-28,2026,Middle Tennessee Blue Raiders,New Mexico State Aggies,NCAA_614664,NCAA_614683,8,7,True,Reese Smith Jr. Field,Murfreesboro,Tennessee,False,,,,,False,True
+401853117,2026-03-28,2026,Georgia State Panthers,Texas State Bobcats,NCAA_614613,NCAA_614747,0,1,False,GSU Baseball Complex,Decatur,Georgia,False,,,,,False,True
+401851657,2026-03-28,2026,Charlotte 49ers,South Florida Bulls,NCAA_614676,NCAA_614740,5,9,False,Robert and Mariam Hayes Stadium,Charlotte,North Carolina,False,95753,99838,Drew Munn,Michael Senay,True,True
+401849949,2026-03-28,2026,Utah Utes,Kansas State Wildcats,BSB_UTAH,NCAA_614635,13,11,True,America First Ballpark,Salt Lake City,Utah,False,,,,,False,True
+401850106,2026-03-28,2026,TCU Horned Frogs,Texas Tech Red Raiders,BSB_TCU,BSB_TEXAS_TECH,10,9,True,Charlie and Marie Lupton Baseball Stadium at Williams-Reilly Field,Fort Worth,Texas,False,,,,,False,True
+401856228,2026-03-28,2026,Cal State Northridge Matadors,Cal State Bakersfield Roadrunners,NCAA_614569,,6,8,False,Matador Field,Northridge,California,False,,,,,False,True
+401854149,2026-03-28,2026,Central Arkansas Bears,Austin Peay Governors,NCAA_614825,NCAA_614858,8,0,True,Bear Stadium,Conway,Arkansas,False,,,,,False,True
+401852050,2026-03-28,2026,Milwaukee Panthers,Butler Bulldogs,NCAA_614820,NCAA_614564,10,3,True,Franklin Field,Milwaukee,Wisconsin,False,,,,,False,True
+401848381,2026-03-28,2026,UCF Knights,Arizona Wildcats,BSB_UCF,BSB_ARIZONA,13,3,True,John Euliano Park,Orlando,Florida,False,,,,,False,True
+401854407,2026-03-28,2026,Jacksonville Dolphins,North Florida Ospreys,NCAA_614633,NCAA_614835,4,11,False,John Sessions Stadium,Jacksonville,Florida,False,,,,,False,True
+401852924,2026-03-28,2026,Arkansas State Red Wolves,James Madison Dukes,NCAA_614854,NCAA_614634,10,11,False,Tomlinson Stadium–Kell Field,Jonesboro,Arkansas,False,,,,,False,True
+401857335,2026-03-29,2026,UC Davis Aggies,UC San Diego Tritons,NCAA_614573,NCAA_614755,2,3,False,Phil Swimley Field at Dobbins Stadium,Davis,California,False,,,,,False,True
+401857243,2026-03-29,2026,Long Beach State Beach,UC Irvine Anteaters,NCAA_614568,NCAA_614574,9,12,False,Bohl Diamond at Blair Field,Long Beach,California,False,,,,,False,True
+401852009,2026-03-29,2026,Washington Huskies,Northwestern Wildcats,BSB_WASHINGTON,BSB_NORTHWESTERN,9,10,False,Husky Ballpark,Seattle,Washington,False,,,,,False,True

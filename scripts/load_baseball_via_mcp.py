@@ -323,7 +323,7 @@ def main() -> int:
     parser.add_argument("--season", type=int, default=2026)
     parser.add_argument("--dry-run", action="store_true", help="Print SQL to stdout")
     parser.add_argument("--execute", action="store_true", help="Execute via Supabase MCP")
-    parser.add_argument("--project-id", default="lxzkhtftxafmbsfosrcq", help="Supabase project ID")
+    parser.add_argument("--project-id", default="otfybzwvockuwdldfoed", help="Supabase project ID")
     parser.add_argument("--out-dir", type=Path, help="Write SQL files to this directory")
     args = parser.parse_args()
 

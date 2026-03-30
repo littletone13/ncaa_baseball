@@ -21,9 +21,9 @@ import pandas as pd
 import psycopg
 
 DEFAULT_DSN = (
-    "postgresql://postgres.{}:{}@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+    "postgresql://postgres.{}:{}@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
 )
-PROJECT_REF = "lxzkhtftxafmbsfosrcq"
+PROJECT_REF = "otfybzwvockuwdldfoed"
 
 
 def get_dsn(args) -> str:
