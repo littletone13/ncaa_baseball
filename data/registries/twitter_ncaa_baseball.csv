@@ -1,0 +1,209 @@
+canonical_id,handle,account_type,description,posts_lineup_photos
+# === NATIONAL COLLEGE BASEBALL MEDIA ===
+,@d1baseball,national_media,D1Baseball - top college baseball coverage,no
+,@KendallRogers,national_media,D1Baseball managing editor,no
+,@NCAABaseball,national_media,Official NCAA Baseball,no
+,@BaseballAmerica,national_media,Baseball America,no
+,@PGCollegeBall,national_media,Perfect Game college baseball,no
+,@CollegeBaseCNT,national_media,College Baseball Central,no
+,@CBNewspaper,national_media,Collegiate Baseball newspaper,no
+,@11point7,national_media,11Point7 podcast,no
+# === CONFERENCE ===
+,@SECbaseball,conference,SEC baseball,no
+,@ACCBaseball,conference,ACC baseball,no
+,@B1Gbaseball,conference,Big Ten baseball,no
+,@Big12Conference,conference,Big 12,no
+# === SEC ===
+BSB_ALABAMA,@AlabamaBSB,team_official,Alabama Baseball,yes
+BSB_ALABAMA,@SimonBesnoy,beat_reporter,Tuscaloosa Thread / Tide 100.9,no
+BSB_ARKANSAS,@RazorbackBSB,team_official,Arkansas Baseball,yes
+BSB_ARKANSAS,@ScottieBordelon,beat_reporter,Ark Democrat-Gazette,no
+BSB_ARKANSAS,@wholehogsports,fan_media,WholeHogSports,no
+BSB_AUBURN,@AuburnBaseball,team_official,Auburn Baseball,yes
+BSB_AUBURN,@Tomas_Verde,beat_reporter,AL.com Auburn beat,no
+BSB_FLORIDA,@GatorsBB,team_official,Florida Baseball,yes
+BSB_FLORIDA,@osgators,beat_reporter,Orlando Sentinel,no
+BSB_FLORIDA,@ZachAbolverdi,beat_reporter,On3 Gators,no
+BSB_GEORGIA,@BaseballUGA,team_official,Georgia Baseball,yes
+BSB_GEORGIA,@ChipTowersAJC,beat_reporter,AJC Georgia,no
+BSB_KENTUCKY,@UKBaseball,team_official,Kentucky Baseball,yes
+BSB_LSU,@LSUbaseball,team_official,LSU Baseball,yes
+BSB_LSU,@LSUnow,beat_reporter,The Advocate LSU,no
+BSB_LSU,@SportBeatTweet,beat_reporter,Glenn Guilbeau TigerRag,no
+BSB_MISSISSIPPI_ST,@HailStateBB,team_official,Mississippi State Baseball,yes
+BSB_MISSISSIPPI_ST,@sklarsam_,beat_reporter,Clarion Ledger,no
+BSB_MISSOURI,@MizzouBaseball,team_official,Missouri Baseball,yes
+BSB_MISSOURI,@PowerMizzoucom,fan_media,PowerMizzou,no
+BSB_OKLAHOMA,@OU_Baseball,team_official,Oklahoma Baseball,yes
+BSB_OKLAHOMA,@ryaber,beat_reporter,The Oklahoman,no
+BSB_OLE_MISS,@OleMissBSB,team_official,Ole Miss Baseball,yes
+BSB_OLE_MISS,@HottyToddy,fan_media,HottyToddy.com,no
+BSB_SOUTH_CAROLINA,@GamecockBasebll,team_official,South Carolina Baseball,yes
+BSB_SOUTH_CAROLINA,@DCPandC,beat_reporter,Post and Courier,no
+BSB_SOUTH_CAROLINA,@gogamecocks,fan_media,GoGamecocks.com,no
+BSB_TENNESSEE,@Vol_Baseball,team_official,Tennessee Baseball,yes
+BSB_TENNESSEE,@ByMikeWilson,beat_reporter,Volquest,no
+BSB_TEXAS,@TexasBaseball,team_official,Texas Baseball,yes
+BSB_TEXAS,@_dannydavis,beat_reporter,Austin American-Statesman,no
+BSB_TEXAS_AM,@AggieBaseball,team_official,Texas A&M Baseball,yes
+BSB_TEXAS_AM,@TexAgs,fan_media,TexAgs.com,no
+BSB_VANDERBILT,@VandyBoys,team_official,Vanderbilt Baseball,yes
+BSB_VANDERBILT,@aria_gerson,beat_reporter,The Tennessean,no
+# === ACC ===
+BSB_BOSTON_COLLEGE,@BCBirdBall,team_official,Boston College Baseball,yes
+BSB_CLEMSON,@ClemsonBaseball,team_official,Clemson Baseball,yes
+BSB_CLEMSON,@brettpn,beat_reporter,247Sports Clemson/FSU,no
+BSB_DUKE,@DukeBASE,team_official,Duke Baseball,yes
+BSB_FLORIDA_ST,@FSUBaseball,team_official,Florida State Baseball,yes
+BSB_FLORIDA_ST,@TomahawkNation,fan_media,SB Nation FSU,no
+BSB_GEORGIA_TECH,@GTBaseball,team_official,Georgia Tech Baseball,yes
+BSB_LOUISVILLE,@LouisvilleBSB,team_official,Louisville Baseball,yes
+BSB_LOUISVILLE,@Matt_McGavic,beat_reporter,Louisville On SI,no
+BSB_MIAMI,@CanesBaseball,team_official,Miami Baseball,yes
+BSB_MIAMI,@Manny_Navarro,beat_reporter,The Athletic Miami,no
+BSB_NC_STATE,@NCStateBaseball,team_official,NC State Baseball,yes
+BSB_NC_STATE,@SennettTucker,beat_reporter,SI NC State,no
+BSB_NORTH_CAROLINA,@DiamondHeels,team_official,UNC Baseball,yes
+BSB_NORTH_CAROLINA,@InsideCarolina,fan_media,Inside Carolina,no
+BSB_NOTRE_DAME,@NDBaseball,team_official,Notre Dame Baseball,yes
+BSB_PITTSBURGH,@Pitt_BASE,team_official,Pitt Baseball,yes
+BSB_STANFORD,@StanfordBSB,team_official,Stanford Baseball,yes
+BSB_VIRGINIA,@UVABaseball,team_official,Virginia Baseball,yes
+BSB_VIRGINIA_TECH,@HokiesBaseball,team_official,Virginia Tech Baseball,yes
+BSB_VIRGINIA_TECH,@lucasboyd50,beat_reporter,Tech Lunch Pail,no
+BSB_WAKE_FOREST,@WakeBaseball,team_official,Wake Forest Baseball,yes
+BSB_CAL,@CalBaseball,team_official,Cal Baseball,yes
+# === BIG 12 ===
+BSB_ARIZONA,@ArizonaBaseball,team_official,Arizona Baseball,yes
+BSB_ARIZONA,@AGWildcatReport,beat_reporter,Arizona beat,no
+BSB_ARIZONA_ST,@ASU_Baseball,team_official,Arizona State Baseball,yes
+BSB_BAYLOR,@BaylorBaseball,team_official,Baylor Baseball,yes
+BSB_BAYLOR,@SicEm365,fan_media,SicEm365 Baylor,no
+BSB_BYU,@BYUBaseball,team_official,BYU Baseball,yes
+BSB_CINCINNATI,@GoBearcatsBASE,team_official,Cincinnati Baseball,yes
+BSB_HOUSTON,@UHCougarBB,team_official,Houston Baseball,yes
+BSB_KANSAS,@KUBaseball,team_official,Kansas Baseball,yes
+BSB_KANSAS_ST,@KStateBSB,team_official,Kansas State Baseball,yes
+BSB_OKLAHOMA_ST,@OSUBaseball,team_official,Oklahoma State Baseball,yes
+BSB_OKLAHOMA_ST,@EricBaileyTW,beat_reporter,Tulsa World OSU,no
+BSB_TCU,@TCU_Baseball,team_official,TCU Baseball,yes
+BSB_TCU,@drewdavison,beat_reporter,Frogs Today,no
+BSB_TEXAS_TECH,@TTU_Baseball,team_official,Texas Tech Baseball,yes
+BSB_TEXAS_TECH,@cmsilvajr,beat_reporter,Lubbock AJ,no
+BSB_UCF,@UCF_Baseball,team_official,UCF Baseball,yes
+BSB_UTAH,@utahbaseball,team_official,Utah Baseball,yes
+BSB_WEST_VIRGINIA,@WVUBaseball,team_official,West Virginia Baseball,yes
+,@Heartland_CS,fan_media,Heartland College Sports Big 12,no
+# === BIG TEN ===
+BSB_ILLINOIS,@IlliniBaseball,team_official,Illinois Baseball,yes
+BSB_INDIANA,@IndianaBase,team_official,Indiana Baseball,yes
+BSB_INDIANA,@ZachOsterman,beat_reporter,Indiana athletics,no
+BSB_IOWA,@UIBaseball,team_official,Iowa Baseball,yes
+BSB_MARYLAND,@TerpsBaseball,team_official,Maryland Baseball,yes
+BSB_MICHIGAN,@umichbaseball,team_official,Michigan Baseball,yes
+BSB_MICHIGAN_ST,@MSUBaseball,team_official,Michigan State Baseball,yes
+BSB_MINNESOTA,@GopherBaseball,team_official,Minnesota Baseball,yes
+BSB_NEBRASKA,@HuskerBaseball,team_official,Nebraska Baseball,yes
+BSB_NORTHWESTERN,@NUCatsBaseball,team_official,Northwestern Baseball,yes
+BSB_OHIO_ST,@OhioStateBASE,team_official,Ohio State Baseball,yes
+BSB_OREGON,@OregonBaseball,team_official,Oregon Baseball,yes
+BSB_OREGON,@JamesCrepea,beat_reporter,The Oregonian Oregon,no
+BSB_OREGON_ST,@BeaverBaseball,team_official,Oregon State Baseball,yes
+BSB_OREGON_ST,@nickdaschel,beat_reporter,The Oregonian OSU,no
+BSB_PENN_ST,@PennStateBASE,team_official,Penn State Baseball,yes
+BSB_PURDUE,@PurdueBaseball,team_official,Purdue Baseball,yes
+BSB_RUTGERS,@RutgersBaseball,team_official,Rutgers Baseball,yes
+BSB_UCLA,@UCLABaseball,team_official,UCLA Baseball,yes
+BSB_USC,@USC_Baseball,team_official,USC Baseball,yes
+BSB_WASHINGTON,@UW_Baseball,team_official,Washington Baseball,yes
+# === SUN BELT ===
+NCAA_614852,@AppBaseball,team_official,Appalachian State Baseball,yes
+NCAA_614854,@AStateBaseball,team_official,Arkansas State Baseball,yes
+BSB_COASTAL_CAROLINA,@CoastalBaseball,team_official,Coastal Carolina Baseball,yes
+NCAA_614612,@GSAthletics_BSB,team_official,Georgia Southern Baseball,yes
+NCAA_614613,@GSU_Base,team_official,Georgia State Baseball,yes
+NCAA_614634,@JMUBaseball,team_official,James Madison Baseball,yes
+BSB_LOUISIANA,@RaginCajunsBSB,team_official,Louisiana Baseball,yes
+NCAA_614691,@ULM_BSB,team_official,UL Monroe Baseball,yes
+NCAA_614652,@HerdBaseball,team_official,Marshall Baseball,yes
+NCAA_614703,@ODUBaseball,team_official,Old Dominion Baseball,yes
+NCAA_614737,@SouthAlabamaBSB,team_official,South Alabama Baseball,yes
+NCAA_614780,@SouthernMissBSB,team_official,Southern Miss Baseball,yes
+NCAA_614747,@TxStateBaseball,team_official,Texas State Baseball,yes
+NCAA_614797,@TroyTrojansBSB,team_official,Troy Baseball,yes
+# === AAC ===
+NCAA_614676,@CharlotteBSB,team_official,Charlotte Baseball,yes
+BSB_EAST_CAROLINA,@ECUBaseball,team_official,East Carolina Baseball,yes
+NCAA_614604,@FAUBaseball,team_official,Florida Atlantic Baseball,yes
+NCAA_614658,@MemphisBaseball,team_official,Memphis Baseball,yes
+NCAA_614718,@RiceBaseball,team_official,Rice Baseball,yes
+NCAA_614740,@USFBaseball,team_official,South Florida Baseball,yes
+NCAA_614762,@GreenWaveBSB,team_official,Tulane Baseball,yes
+NCAA_614794,@UTSABSB,team_official,UTSA Baseball,yes
+NCAA_614817,@GoShockersBSB,team_official,Wichita State Baseball,yes
+# === CONFERENCE USA ===
+NCAA_614605,@FIUBaseball,team_official,FIU Baseball,yes
+NCAA_614632,@JaxStateBB,team_official,Jacksonville State Baseball,yes
+NCAA_614831,@KSUOwlsBaseball,team_official,Kennesaw State Baseball,yes
+BSB_LIBERTY,@LibertyBaseball,team_official,Liberty Baseball,yes
+NCAA_614645,@LATechBSB,team_official,Louisiana Tech Baseball,yes
+NCAA_614664,@MT_Baseball,team_official,Middle Tennessee Baseball,yes
+NCAA_614683,@NMStateBaseball,team_official,New Mexico State Baseball,yes
+NCAA_614728,@BearkatsBSB,team_official,Sam Houston Baseball,yes
+NCAA_614815,@WKU_Baseball,team_official,Western Kentucky Baseball,yes
+# === MVC ===
+NCAA_614764,@DBU_Baseball,team_official,Dallas Baptist Baseball,yes
+NCAA_614770,@UEAthleticsBASE,team_official,Evansville Baseball,yes
+NCAA_614623,@RedbirdBaseball,team_official,Illinois State Baseball,yes
+NCAA_614626,@IndStBaseball,team_official,Indiana State Baseball,yes
+NCAA_614746,@MoStateBSB,team_official,Missouri State Baseball,yes
+NCAA_614743,@SIU_Baseball,team_official,Southern Illinois Baseball,yes
+NCAA_614625,@UIC_Baseball,team_official,UIC Baseball,yes
+NCAA_614801,@ValpoBaseball,team_official,Valparaiso Baseball,yes
+# === CAA ===
+NCAA_614577,@GoCamelsBSB,team_official,Campbell Baseball,yes
+NCAA_614827,@CofCBaseball,team_official,Charleston Baseball,yes
+NCAA_614595,@DelawareBASE,team_official,Delaware Baseball,yes
+NCAA_614828,@ElonBaseball,team_official,Elon Baseball,yes
+NCAA_614619,@HofstraBaseball,team_official,Hofstra Baseball,yes
+NCAA_614670,@MUHawksBaseball,team_official,Monmouth Baseball,yes
+NCAA_614688,@NCAT_Baseball,team_official,NC A&T Baseball,yes
+NCAA_614692,@GoNUbaseball,team_official,Northeastern Baseball,yes
+NCAA_614751,@StonyBrookBASE,team_official,Stony Brook Baseball,yes
+NCAA_614796,@Towson_BASE,team_official,Towson Baseball,yes
+NCAA_614678,@UNCWBaseball,team_official,UNC Wilmington Baseball,yes
+NCAA_614818,@WMTribeBaseball,team_official,William & Mary Baseball,yes
+# === A-10 ===
+NCAA_614592,@DavidsonBASE,team_official,Davidson Baseball,yes
+NCAA_614593,@DaytonBaseball,team_official,Dayton Baseball,yes
+NCAA_614608,@FordhamBaseball,team_official,Fordham Baseball,yes
+NCAA_614609,@MasonBaseball,team_official,George Mason Baseball,yes
+NCAA_614610,@GWBaseball1,team_official,George Washington Baseball,yes
+NCAA_614656,@UMassBaseball,team_official,UMass Baseball,yes
+NCAA_614717,@RhodyBaseball,team_official,Rhode Island Baseball,yes
+NCAA_614719,@SpiderBaseball,team_official,Richmond Baseball,yes
+NCAA_614804,@VCUBaseball,team_official,VCU Baseball,yes
+NCAA_614725,@SLUBaseball,team_official,Saint Louis Baseball,yes
+# === WCC ===
+BSB_GONZAGA,@ZagBaseball,team_official,Gonzaga Baseball,yes
+NCAA_614648,@lmulionsBSB,team_official,LMU Baseball,yes
+NCAA_614706,@PacificBaseball,team_official,Pacific Baseball,yes
+NCAA_614709,@PepperdineBASE,team_official,Pepperdine Baseball,yes
+NCAA_614711,@PortlandBSB,team_official,Portland Baseball,yes
+NCAA_614726,@SMC_Baseball,team_official,Saint Mary's Baseball,yes
+BSB_SAN_DIEGO,@USDbaseball,team_official,San Diego Baseball,yes
+NCAA_614732,@SFDonsBaseball,team_official,San Francisco Baseball,yes
+NCAA_614734,@SCU_Baseball,team_official,Santa Clara Baseball,yes
+# === MW / WAC / INDEPENDENT ===
+NCAA_614798,@AF_Baseball,team_official,Air Force Baseball,yes
+NCAA_614768,@FresnoStateBSB,team_official,Fresno State Baseball,yes
+NCAA_614681,@NevadaBaseball,team_official,Nevada Baseball,yes
+NCAA_614684,@UNMLoboBaseball,team_official,New Mexico Baseball,yes
+NCAA_614730,@AztecBaseball,team_official,San Diego State Baseball,yes
+NCAA_614733,@SanJoseStateBSB,team_official,San Jose State Baseball,yes
+NCAA_614680,@unlvbaseball,team_official,UNLV Baseball,yes
+NCAA_614830,@GCU_Baseball,team_official,Grand Canyon Baseball,yes
+NCAA_614570,@SacStBaseball,team_official,Sacramento State Baseball,yes
+NCAA_614761,@TarletonBase,team_official,Tarleton State Baseball,yes
+NCAA_614792,@UTAMavsBSB,team_official,UT Arlington Baseball,yes
+NCAA_614842,@UVUbsb,team_official,Utah Valley Baseball,yes
