@@ -169,6 +169,7 @@ def simulate_games(
     fatigue_csv: Path | None = None,
     fatigue_policy: str = "de-risk",
     fatigue_min_coverage: float = 0.8,
+    context_csv: Path | None = None,
 ) -> pd.DataFrame:
     """
     Pure Monte Carlo simulation. No API calls. Deterministic.
@@ -260,6 +261,17 @@ def simulate_games(
     print(f"  {fatigue_decision.message}", file=sys.stderr)
     if fatigue_decision.action == "de-risk":
         fatigue_map = {}
+
+    # ── Load game context (rest, day/night, surface, travel, form) ─────
+    context_by_game: dict[str, dict] = {}
+    if context_csv is not None and Path(context_csv).exists():
+        ctx_df = pd.read_csv(context_csv, dtype=str)
+        for _, r in ctx_df.iterrows():
+            gn = str(r.get("game_num", "")).strip()
+            if gn:
+                context_by_game[gn] = r.to_dict()
+        print(f"  Game context: {len(context_by_game)} games loaded "
+              f"(rest, day/night, surface, travel, form)", file=sys.stderr)
 
     # ── Constants ─────────────────────────────────────────────────────────
     DEFAULT_STARTER_IP = 5.5
@@ -406,6 +418,11 @@ def simulate_games(
         h_fatigue_adj = h_fatigue_adj + h_bp_avail_adj
         a_fatigue_adj = a_fatigue_adj + a_bp_avail_adj
 
+        # ── Game context adjustments (rest, day/night, surface, travel, form) ──
+        ctx = context_by_game.get(str(game_num), {})
+        home_context_adj = _safe_float(ctx, "home_context_adj", 0.0)
+        away_context_adj = _safe_float(ctx, "away_context_adj", 0.0)
+
         print(f"  Game {game_num}: {a_name} @ {h_name}  "
               f"[h_idx={h_idx}, a_idx={a_idx}, hp={hp_idx}, ap={ap_idx}]",
               file=sys.stderr)
@@ -432,10 +449,12 @@ def simulate_games(
                 for k in range(4):
                     log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
                                  + home_adv[d] + pitcher_ab[d, ap_idx] + ap_era_adj
-                                 + park_eff_h + bp_h_eff + platoon_h + h_att_adj)
+                                 + park_eff_h + bp_h_eff + platoon_h + h_att_adj
+                                 + home_context_adj)
                     log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
                                  + pitcher_ab[d, hp_idx] + hp_era_adj
-                                 + park_eff_a + bp_a_eff + platoon_a + a_att_adj)
+                                 + park_eff_a + bp_a_eff + platoon_a + a_att_adj
+                                 + away_context_adj)
                     mu_h = np.exp(log_lam_h)
                     mu_a = np.exp(log_lam_a)
                     eh += RUN_MULT[k] * mu_h
@@ -504,11 +523,11 @@ def simulate_games(
                 log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
                              + home_adv[d] + pitcher_ab[d, ap_idx] + ap_era_adj
                              + park_eff_h + bp_h_eff + platoon_h + h_att_adj
-                             + anchor_home_shift)
+                             + home_context_adj + anchor_home_shift)
                 log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
                              + pitcher_ab[d, hp_idx] + hp_era_adj
                              + park_eff_a + bp_a_eff + platoon_a + a_att_adj
-                             + anchor_away_shift)
+                             + away_context_adj + anchor_away_shift)
                 mu_h = np.exp(log_lam_h)
                 mu_a = np.exp(log_lam_a)
                 eh += RUN_MULT[k] * mu_h
@@ -534,14 +553,14 @@ def simulate_games(
             while home_runs_sim == away_runs_sim and extra < 20:
                 for k in range(4):
                     # Extra innings are bullpen-only: no starter ability/platoon,
-                    # but bullpen platoon (LHP frac) and wRC+ offense still apply.
+                    # but bullpen platoon (LHP frac), wRC+ offense, and context still apply.
                     log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
                                  + home_adv[d]
                                  + park_eff_h_bp + bp_h_eff + platoon_h_bp + h_att_adj
-                                 + anchor_home_shift)
+                                 + home_context_adj + anchor_home_shift)
                     log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
                                  + park_eff_a_bp + bp_a_eff + platoon_a_bp + a_att_adj
-                                 + anchor_away_shift)
+                                 + away_context_adj + anchor_away_shift)
                     mu_h = np.exp(log_lam_h) / 9.0
                     mu_a = np.exp(log_lam_a) / 9.0
                     if k <= 1:
@@ -705,6 +724,16 @@ def simulate_games(
             "fatigue_policy": fatigue_decision.policy,
             "fatigue_coverage": round(fatigue_decision.coverage, 4),
             "fatigue_action": fatigue_decision.action,
+            # Game context layers
+            "home_context_adj": round(home_context_adj, 4),
+            "away_context_adj": round(away_context_adj, 4),
+            "home_rest_adj": _safe_float(ctx, "home_rest_adj", 0.0),
+            "away_rest_adj": _safe_float(ctx, "away_rest_adj", 0.0),
+            "day_night": str(ctx.get("day_night", "unknown")),
+            "surface": str(ctx.get("surface", "grass")),
+            "travel_miles": ctx.get("travel_miles"),
+            "home_form_adj": _safe_float(ctx, "home_form_adj", 0.0),
+            "away_form_adj": _safe_float(ctx, "away_form_adj", 0.0),
         }
         all_results.append(result)
 
@@ -894,6 +923,8 @@ def main() -> int:
         default=0.8,
         help="Minimum fatigue team coverage required for apply behavior [0-1].",
     )
+    parser.add_argument("--context", type=Path, default=None,
+                        help="Game context CSV (rest, day/night, surface, travel, form)")
     args = parser.parse_args()
 
     # Validate inputs
@@ -930,6 +961,7 @@ def main() -> int:
         fatigue_csv=args.fatigue,
         fatigue_policy=args.fatigue_policy,
         fatigue_min_coverage=args.fatigue_min_coverage,
+        context_csv=args.context,
     )
 
     # Save CSV

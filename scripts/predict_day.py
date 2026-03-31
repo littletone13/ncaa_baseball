@@ -234,6 +234,21 @@ def main() -> int:
         print(f"  Fatigue computation failed: {e}", file=sys.stderr)
         fatigue_csv = None
 
+    # ── Step 3c: Game context (rest, day/night, surface, travel, form) ──
+    context_csv = daily_dir / "context.csv"
+    print("Step 3c/5: Computing game context (rest, day/night, surface, travel, form)...",
+          file=sys.stderr)
+    try:
+        from compute_game_context import compute_game_context
+        compute_game_context(
+            date=args.date,
+            schedule_csv=schedule_csv,
+            out_csv=context_csv,
+        )
+    except Exception as e:
+        print(f"  Context computation failed (non-fatal): {e}", file=sys.stderr)
+        context_csv = None
+
     # ── Step 4: Simulate ──
     print(f"Step 4/5: Simulating ({args.N} draws per game)...", file=sys.stderr)
     ha_target = args.ha_target if args.ha_target > 0 else None
@@ -248,6 +263,7 @@ def main() -> int:
         seed=args.seed,
         ha_target=ha_target,
         fatigue_csv=fatigue_csv,
+        context_csv=context_csv,
     )
 
     # ── Output ──
