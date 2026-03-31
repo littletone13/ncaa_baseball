@@ -210,6 +210,7 @@ def compute_surface_adj(surface: str) -> float:
 
 def load_catcher_quality(path: Path) -> dict[str, float]:
     """Load catcher quality adjustments from D1B Top 50 rankings.
+    Uses composite score (D1B rank 40%, SB suppression 25%, BB/K 15%, OPS 20%).
     Returns canonical_id → log-rate adjustment (negative = suppresses runs)."""
     if not path.exists():
         return {}
@@ -219,16 +220,13 @@ def load_catcher_quality(path: Path) -> dict[str, float]:
             cid = row.get("canonical_id", "").strip()
             if not cid:
                 continue
+            # Use pre-computed catcher_adj from composite score
             try:
-                rank = int(row["rank"])
-            except (ValueError, KeyError):
-                continue
-            if rank <= 10:
-                result[cid] = CATCHER_TOP10_ADJ
-            elif rank <= 25:
-                result[cid] = CATCHER_TOP25_ADJ
-            else:
-                result[cid] = CATCHER_TOP50_ADJ
+                adj = float(row.get("catcher_adj", 0))
+            except (ValueError, TypeError):
+                adj = 0.0
+            if adj != 0.0:
+                result[cid] = adj
     return result
 
 
@@ -505,12 +503,26 @@ def compute_game_context(
         rec["home_days_rest"] = h_rest["days_since_last"]
         rec["away_days_rest"] = a_rest["days_since_last"]
 
-        # Layer 2: Day/night — match via canonical_id tuple
-        commence = game_times.get((h_cid, a_cid), "")
-        if not commence or commence == "nan":
-            commence = str(game.get("commence_time", ""))
-        tz = tz_by_cid.get(h_cid, None)
-        dn = compute_day_night_adj(commence, tz)
+        # Layer 2: Day/night — use start_local_hour from schedule first (most reliable),
+        # fall back to odds commence_time, then default unknown.
+        local_hour_str = str(game.get("start_local_hour", "")).strip()
+        if local_hour_str and local_hour_str not in ("", "nan", "18"):
+            # Real local hour from schedule (18 is the default/unknown marker)
+            try:
+                local_hour = int(float(local_hour_str))
+                if local_hour < DAY_CUTOFF_HOUR_LOCAL:
+                    dn = {"day_night": "day", "day_night_adj": DAY_GAME_ADJ}
+                else:
+                    dn = {"day_night": "night", "day_night_adj": NIGHT_GAME_ADJ}
+            except (ValueError, TypeError):
+                dn = {"day_night": "unknown", "day_night_adj": 0.0}
+        else:
+            # Try odds commence_time via canonical_id lookup
+            commence = game_times.get((h_cid, a_cid), "")
+            if not commence or commence == "nan":
+                commence = str(game.get("start_utc", ""))
+            tz = tz_by_cid.get(h_cid, None)
+            dn = compute_day_night_adj(commence, tz)
         rec["day_night"] = dn["day_night"]
         rec["day_night_adj"] = dn["day_night_adj"]
 
