@@ -362,12 +362,27 @@ def build_pitcher_table(
                 return pitcher_idx_map[s]
             if s.isdigit() and f"ESPN_{s}" in pitcher_idx_map:
                 return pitcher_idx_map[f"ESPN_{s}"]
-        # Try NCAA name__team format
+        # Try NCAA name__team format (full name)
         pname = str(row.get("pitcher_name", ""))
         tcid = str(row.get("team_canonical_id", ""))
         ncaa_key = _make_ncaa_index_key(pname, tcid)
         if ncaa_key and ncaa_key in pitcher_idx_map:
             return pitcher_idx_map[ncaa_key]
+        # Try abbreviated forms: first_initial + last_name
+        # The run_events backfill often uses "O. Kelly" while pitcher_table has "Owen Kelly"
+        parts = pname.strip().split()
+        if len(parts) >= 2:
+            # Try: first initial + last name (e.g., "Owen Kelly" → "o_kelly")
+            initial = parts[0][0].lower() if parts[0] else ""
+            lastname = parts[-1]
+            if initial:
+                abbrev_key = _make_ncaa_index_key(f"{initial}. {lastname}", tcid)
+                if abbrev_key and abbrev_key in pitcher_idx_map:
+                    return pitcher_idx_map[abbrev_key]
+            # Try: last name only (for single-name entries like "Ciampa")
+            ln_key = _make_ncaa_index_key(lastname, tcid)
+            if ln_key and ln_key in pitcher_idx_map:
+                return pitcher_idx_map[ln_key]
         return 0
 
     agg["pitcher_idx"] = agg.apply(_lookup_pitcher_idx, axis=1)
