@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 
 # Shared run-scoring calibration applied to posterior intercepts.
-SCORING_CALIBRATION = 0.12
+# Calibrated 2026-03-31: actual avg total 13.02, model was 14.19 at C=0.12.
+# Shift: log(13.02/14.19) = -0.086 → new C = 0.034
+SCORING_CALIBRATION = 0.034
 
 # Policies for fatigue coverage contract handling.
 FATIGUE_POLICY_ABORT = "abort"

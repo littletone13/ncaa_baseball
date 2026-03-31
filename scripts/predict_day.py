@@ -106,6 +106,33 @@ def main() -> int:
     daily_dir = Path(f"data/daily/{args.date}")
     daily_dir.mkdir(parents=True, exist_ok=True)
 
+    # ── Step 0: Pull fresh odds (so market anchor fires) ──
+    import os, subprocess
+    odds_key = os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY", "")
+    if not odds_key:
+        # Try .env file
+        env_file = Path(__file__).parent.parent / ".env"
+        if env_file.exists():
+            for line in env_file.read_text().splitlines():
+                if line.startswith("ODDS_API_KEY="):
+                    odds_key = line.split("=", 1)[1].strip()
+    if odds_key:
+        print("Step 0: Pulling fresh odds for market anchor...", file=sys.stderr)
+        try:
+            r = subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "pull_odds.py"),
+                 "--mode", "current", "--regions", "us,us2,eu",
+                 "--markets", "h2h,totals,spreads"],
+                capture_output=True, text=True, timeout=30,
+                env={**os.environ, "ODDS_API_KEY": odds_key},
+            )
+            for line in r.stderr.strip().split("\n")[-2:]:
+                print(f"  {line}", file=sys.stderr)
+        except Exception as e:
+            print(f"  Odds pull failed (non-fatal): {e}", file=sys.stderr)
+    else:
+        print("Step 0: No ODDS_API_KEY found, skipping odds pull", file=sys.stderr)
+
     # ── Step 1: Schedule ──
     print(f"Step 1/4: Resolving schedule for {args.date}...", file=sys.stderr)
     schedule_csv = daily_dir / "schedule.csv"

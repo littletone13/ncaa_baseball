@@ -531,6 +531,28 @@ def build_pitcher_table(
     else:
         print("  Sidearm rosters not found, skipping", file=sys.stderr)
 
+    # ── 6c. Load handedness from player_registry.csv (broadest fallback) ─
+    registry_csv = Path("data/processed/player_registry.csv")
+    registry_throws_map: dict[tuple[str, str], str] = {}  # (cid, norm_name) → throws
+    registry_lastname_idx: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    if registry_csv.exists():
+        reg = pd.read_csv(registry_csv, dtype=str)
+        reg_pitchers = reg[reg["is_pitcher"].astype(str).str.lower().isin(["true", "1"])]
+        for _, r in reg_pitchers.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            pname = _norm_name(str(r.get("player_name", "")))
+            throws = str(r.get("throws", "")).strip()
+            if cid and pname and throws in ("L", "R"):
+                if (cid, pname) not in registry_throws_map:
+                    registry_throws_map[(cid, pname)] = throws
+                parts = pname.split()
+                if parts:
+                    lastname = parts[-1]
+                    registry_lastname_idx.setdefault((cid, lastname), []).append((pname, throws))
+        print(f"  Registry handedness: {len(registry_throws_map)} pitcher entries", file=sys.stderr)
+    else:
+        print("  Player registry not found, skipping", file=sys.stderr)
+
     # ── 7. Build last-name index for D1B fuzzy matching ───────────────────
     # D1B pitchers have full names; appearances may use "J. Cheeseman" style.
     # Index by (cid, last_name) for fallback lookups.
@@ -655,6 +677,26 @@ def build_pitcher_table(
                 if parts:
                     lastname = parts[-1]
                     candidates = sidearm_lastname_idx.get((cid, lastname), [])
+                    if len(candidates) == 1:
+                        throws = candidates[0][1]
+                    elif len(candidates) > 1 and len(parts) >= 2:
+                        first_part = parts[0].rstrip(".")
+                        for fullname, t in candidates:
+                            fname_parts = fullname.split()
+                            if fname_parts and fname_parts[0].startswith(first_part):
+                                throws = t
+                                break
+
+        # Fallback to player registry (broadest source — 7K+ with throws)
+        if not throws:
+            norm_pname = _norm_name(pitcher_name)
+            if (cid, norm_pname) in registry_throws_map:
+                throws = registry_throws_map[(cid, norm_pname)]
+            else:
+                parts = norm_pname.split()
+                if parts:
+                    lastname = parts[-1]
+                    candidates = registry_lastname_idx.get((cid, lastname), [])
                     if len(candidates) == 1:
                         throws = candidates[0][1]
                     elif len(candidates) > 1 and len(parts) >= 2:
