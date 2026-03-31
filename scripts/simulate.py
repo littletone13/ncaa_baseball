@@ -43,6 +43,14 @@ RUN_MULT = [1, 2, 3, 5.4]
 SIMULATE_SCORING_CALIBRATION = SCORING_CALIBRATION
 assert_scoring_calibration_parity("simulate.py", SIMULATE_SCORING_CALIBRATION)
 
+# LHP platoon adjustment (log-rate): positive = teams score more runs facing LHP.
+# RHB-heavy lineups have platoon advantage vs LHP; baseline assumes ~75% RHB.
+# Must match DEFAULT_LHP_ADJ in platoon_adjustment.py.
+PLATOON_LHP_ADJ = 0.03
+
+# Default bullpen LHP fraction when team data unavailable (~NCAA average).
+PLATOON_NCAA_BP_LHP_FRAC = 0.30
+
 # ── Utility ──────────────────────────────────────────────────────────────────
 
 def prob_to_american(p: float) -> int:
@@ -319,9 +327,18 @@ def simulate_games(
         h_bat_fb = _safe_float(st, "home_batting_fb", 1.0)
         a_bat_fb = _safe_float(st, "away_batting_fb", 1.0)
 
-        # Platoon
-        platoon_h = _safe_float(st, "platoon_adj_home", 0.0)
-        platoon_a = _safe_float(st, "platoon_adj_away", 0.0)
+        # ── Platoon (IP-weighted: starter + bullpen) ──────────────────────
+        # Home batters face: away starter (ap_starter_ip_frac) + away bullpen (ap_bullpen_ip_frac)
+        # Away batters face: home starter (hp_starter_ip_frac) + home bullpen (hp_bullpen_ip_frac)
+        # hp_hand/ap_hand already read above from starters.csv hp_throws/ap_throws.
+        away_bp_lhp = _safe_float(st, "away_bp_lhp_frac", PLATOON_NCAA_BP_LHP_FRAC)
+        home_bp_lhp = _safe_float(st, "home_bp_lhp_frac", PLATOON_NCAA_BP_LHP_FRAC)
+        ap_starter_plat = PLATOON_LHP_ADJ if ap_hand == "L" else 0.0
+        hp_starter_plat = PLATOON_LHP_ADJ if hp_hand == "L" else 0.0
+        ap_bp_plat = PLATOON_LHP_ADJ * away_bp_lhp
+        hp_bp_plat = PLATOON_LHP_ADJ * home_bp_lhp
+        platoon_h = ap_starter_plat * ap_starter_ip_frac + ap_bp_plat * ap_bullpen_ip_frac
+        platoon_a = hp_starter_plat * hp_starter_ip_frac + hp_bp_plat * hp_bullpen_ip_frac
 
         # Clamp pitcher indices
         if hp_idx >= N_pitchers + 1:
@@ -373,6 +390,14 @@ def simulate_games(
         # a_fatigue_adj applied when away bullpen pitches (home team batting)
         h_fatigue_adj = fatigue_map.get(h_cid, 0.0)
         a_fatigue_adj = fatigue_map.get(a_cid, 0.0)
+
+        # Dynamic bullpen availability: penalty when top arms pitched in last 2 days.
+        # Blends with rolling fatigue to capture WHICH arms are unavailable, not just volume.
+        # Positive = opponent scores more (key relievers are tired/used up).
+        h_bp_avail_adj = _safe_float(st, "home_bp_avail_adj", 0.0)
+        a_bp_avail_adj = _safe_float(st, "away_bp_avail_adj", 0.0)
+        h_fatigue_adj = h_fatigue_adj + h_bp_avail_adj
+        a_fatigue_adj = a_fatigue_adj + a_bp_avail_adj
 
         print(f"  Game {game_num}: {a_name} @ {h_name}  "
               f"[h_idx={h_idx}, a_idx={a_idx}, hp={hp_idx}, ap={ap_idx}]",

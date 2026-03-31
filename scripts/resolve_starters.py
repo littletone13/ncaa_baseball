@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -275,6 +276,69 @@ def resolve_starters(
         vals = grp["fb_sensitivity"].dropna()
         bp_fb_by_team[str(cid)] = float(vals.mean()) if len(vals) > 0 else 1.0
 
+    # ── Pre-compute bullpen LHP fraction per team ─────────────────────────────
+    # Fraction of non-SP pitchers in pitcher_table who throw left-handed.
+    # Used to weight platoon effect over bullpen innings.
+    # Default 0.30 (approximate NCAA average) when data unavailable.
+    NCAA_AVG_BP_LHP_FRAC = 0.30
+    bp_lhp_frac_by_team: dict[str, float] = {}
+    if "role" in pt.columns and "throws" in pt.columns:
+        role_col = pt["role"].fillna("").str.upper()
+        bp_mask = role_col != "SP"
+        bp_pt = pt[bp_mask].copy()
+        for cid, grp in bp_pt.groupby("team_canonical_id"):
+            known = grp[grp["throws"].isin(["L", "R"])]
+            if len(known) >= 2:
+                bp_lhp_frac_by_team[str(cid)] = float((known["throws"] == "L").mean())
+            else:
+                bp_lhp_frac_by_team[str(cid)] = NCAA_AVG_BP_LHP_FRAC
+
+    # ── Pre-compute dynamic bullpen availability adjustment per team ──────────
+    # Identifies a team's top relievers (by usage frequency) and checks how many
+    # pitched in the last 2 days. If key arms are unavailable, apply a quality hit.
+    # This blends with the static bullpen_adj and rolling fatigue_adj in simulate.py.
+    BP_AVAIL_TOP_N = 4          # top N relievers to track (by appearance count)
+    BP_AVAIL_REST_DAYS = 2      # days since last appearance to consider available
+    BP_AVAIL_MAX_PENALTY = 0.04 # max log-rate penalty (all top arms used yesterday)
+    bp_avail_adj_by_team: dict[str, float] = {}
+    if "role" in app.columns and "pitcher_id" in app.columns:
+        target_ts = pd.Timestamp(date)
+        window_start = target_ts - timedelta(days=BP_AVAIL_REST_DAYS)
+        season_start = target_ts - timedelta(days=120)  # current season window
+
+        # Season-to-date reliever appearances — used to rank "top arms by usage"
+        season_rel = app[
+            (app["role"] == "reliever") &
+            (app["game_date"] >= season_start) &
+            (app["game_date"] < target_ts)
+        ].copy()
+
+        # Recent window (last 2 days) — who pitched and can't go again?
+        recent_rel = season_rel[season_rel["game_date"] >= window_start]
+
+        # Build recently-used set per team (both ID columns)
+        recently_used_by_team: dict[str, set] = {}
+        for cid, grp in recent_rel.groupby("team_canonical_id"):
+            ids: set = set()
+            for col in ("pitcher_espn_id", "pitcher_id"):
+                if col in grp.columns:
+                    ids |= set(grp[col].dropna().astype(str).unique())
+            recently_used_by_team[str(cid)] = ids
+
+        # Identify top arms by season appearance count
+        for cid, grp in season_rel.groupby("team_canonical_id"):
+            # Primary ID: pitcher_id (covers NCAA IDs); espn fallback
+            id_col = "pitcher_id" if grp["pitcher_id"].notna().any() else "pitcher_espn_id"
+            top_counts = grp[id_col].value_counts().head(BP_AVAIL_TOP_N)
+            top_ids = set(top_counts.index.astype(str))
+            used = recently_used_by_team.get(str(cid), set())
+            n_unavail = len(top_ids & used)
+            n_top = len(top_ids)
+            if n_top > 0:
+                frac_unavail = n_unavail / n_top
+                # Positive = opponent scores more (key relievers are unavailable)
+                bp_avail_adj_by_team[str(cid)] = round(frac_unavail * BP_AVAIL_MAX_PENALTY, 4)
+
     # ── Load team_table for wRC+ offense adjustment + batting FB factor ──────
     wrc_adj_by_team: dict[str, float] = {}  # canonical_id → wRC+ offense adj (all teams)
     batting_fb_by_team: dict[str, float] = {}  # canonical_id → FB factor (for wind model)
@@ -434,13 +498,20 @@ def resolve_starters(
             "away_wrc_adj": away_wrc_adj,
             "home_batting_fb": home_batting_fb,
             "away_batting_fb": away_batting_fb,
-            "platoon_adj_home": platoon.platoon_adj(
-                platoon.get_hand(a_cid, ap_name) if ap_name else None
-            ),
-            "platoon_adj_away": platoon.platoon_adj(
-                platoon.get_hand(h_cid, hp_name) if hp_name else None
-            ),
         })
+        # Platoon: use pitcher_table throws first, fall back to D1B rotation lookup.
+        # pitcher_table has 4,889 pitchers with throws; rotations only ~200.
+        ap_hand = ap_info["throws"] or (platoon.get_hand(a_cid, ap_name) if ap_name else None)
+        hp_hand = hp_info["throws"] or (platoon.get_hand(h_cid, hp_name) if hp_name else None)
+        rows[-1]["platoon_adj_home"] = platoon.platoon_adj(ap_hand)
+        rows[-1]["platoon_adj_away"] = platoon.platoon_adj(hp_hand)
+        # Bullpen LHP fraction for IP-weighted platoon blending in simulate.py
+        rows[-1]["home_bp_lhp_frac"] = bp_lhp_frac_by_team.get(h_cid, NCAA_AVG_BP_LHP_FRAC)
+        rows[-1]["away_bp_lhp_frac"] = bp_lhp_frac_by_team.get(a_cid, NCAA_AVG_BP_LHP_FRAC)
+        # Dynamic bullpen availability: penalty when top arms pitched in last 2 days
+        # Positive = opponent scores more (our top relievers are unavailable)
+        rows[-1]["home_bp_avail_adj"] = bp_avail_adj_by_team.get(h_cid, 0.0)
+        rows[-1]["away_bp_avail_adj"] = bp_avail_adj_by_team.get(a_cid, 0.0)
 
     result = pd.DataFrame(rows)
 
