@@ -74,6 +74,14 @@ TRAVEL_PENALTY_THRESHOLD_MILES = 500
 TRAVEL_PENALTY_PER_500MI = -0.008  # ~0.8% fewer runs per 500 miles beyond threshold
 TRAVEL_MAX_PENALTY = -0.025  # cap at ~2.5% penalty
 
+# ── Catcher quality ──────────────────────────────────────────────────────────
+# Elite catchers (framing, game-calling, controlling running game) suppress runs.
+# D1B Top 50 catchers get a negative adjustment (fewer opponent runs).
+# Top 10 catcher = ~2% run suppression, top 25 = ~1%, top 50 = ~0.5%.
+CATCHER_TOP10_ADJ = -0.020   # top 10 catcher → opponents score ~2% fewer runs
+CATCHER_TOP25_ADJ = -0.012   # 11-25 → ~1.2%
+CATCHER_TOP50_ADJ = -0.006   # 26-50 → ~0.6%
+
 # ── Recent form / momentum ───────────────────────────────────────────────────
 # 7-day scoring rate vs season average. Regressed toward mean (50% weight).
 FORM_WINDOW_DAYS = 7
@@ -194,6 +202,34 @@ def compute_surface_adj(surface: str) -> float:
     if surface in ("turf", "artificial", "fieldturf", "astroturf"):
         return TURF_ADJ
     return GRASS_ADJ
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LAYER 7: CATCHER QUALITY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def load_catcher_quality(path: Path) -> dict[str, float]:
+    """Load catcher quality adjustments from D1B Top 50 rankings.
+    Returns canonical_id → log-rate adjustment (negative = suppresses runs)."""
+    if not path.exists():
+        return {}
+    result = {}
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            cid = row.get("canonical_id", "").strip()
+            if not cid:
+                continue
+            try:
+                rank = int(row["rank"])
+            except (ValueError, KeyError):
+                continue
+            if rank <= 10:
+                result[cid] = CATCHER_TOP10_ADJ
+            elif rank <= 25:
+                result[cid] = CATCHER_TOP25_ADJ
+            else:
+                result[cid] = CATCHER_TOP50_ADJ
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -363,6 +399,7 @@ def compute_game_context(
     stadium_csv: Path = Path("data/registries/stadium_orientations.csv"),
     surface_csv: Path = Path("data/registries/surface_types.csv"),
     team_table_csv: Path = Path("data/processed/team_table.csv"),
+    catcher_csv: Path = Path("data/registries/catcher_quality.csv"),
     odds_log: Path = Path("data/raw/odds/odds_pull_log.jsonl"),
     out_csv: Path | None = None,
 ) -> pd.DataFrame:
@@ -398,6 +435,9 @@ def compute_game_context(
 
     # Surface types
     surface_map = load_surface_registry(surface_csv)
+
+    # Catcher quality (D1B Top 50 → run suppression adjustment)
+    catcher_adj_map = load_catcher_quality(catcher_csv)
 
     # Conference for each team
     conf_by_cid: dict[str, str] = {}
@@ -497,17 +537,26 @@ def compute_game_context(
         rec["home_recent_rpg"] = h_form.get("recent_rpg")
         rec["away_recent_rpg"] = a_form.get("recent_rpg")
 
+        # Layer 7: Catcher quality — elite catchers suppress opponent runs
+        # Applied to the OPPOSING team's run rate (home catcher suppresses away runs)
+        h_catcher_adj = catcher_adj_map.get(h_cid, 0.0)  # home catcher → away scores less
+        a_catcher_adj = catcher_adj_map.get(a_cid, 0.0)  # away catcher → home scores less
+        rec["home_catcher_adj"] = h_catcher_adj  # suppresses away team runs
+        rec["away_catcher_adj"] = a_catcher_adj  # suppresses home team runs
+
         # ── Combined context adjustment ──────────────────────────────────
-        # Home team: rest + day/night + surface + conf + form (no travel — they're home)
+        # Home team: rest + day/night + surface + conf + form + opponent catcher
+        # (away catcher suppresses home runs → negative adj on home scoring)
         rec["home_context_adj"] = round(
             h_rest["rest_adj"] + dn["day_night_adj"] + compute_surface_adj(surface)
-            + conf["home_conf_adj"] + h_form["form_adj"],
+            + conf["home_conf_adj"] + h_form["form_adj"] + a_catcher_adj,
             4,
         )
-        # Away team: rest + day/night + surface + conf + travel + form
+        # Away team: rest + day/night + surface + conf + travel + form + opponent catcher
+        # (home catcher suppresses away runs → negative adj on away scoring)
         rec["away_context_adj"] = round(
             a_rest["rest_adj"] + dn["day_night_adj"] + compute_surface_adj(surface)
-            + conf["away_conf_adj"] + travel["travel_adj"] + a_form["form_adj"],
+            + conf["away_conf_adj"] + travel["travel_adj"] + a_form["form_adj"] + h_catcher_adj,
             4,
         )
 
@@ -529,8 +578,9 @@ def compute_game_context(
     n_nonconf = sum(1 for r in rows if not r["is_conference_game"])
     n_travel = sum(1 for r in rows if r["away_travel_adj"] != 0)
     n_form = sum(1 for r in rows if r["home_form_adj"] != 0 or r["away_form_adj"] != 0)
+    n_catcher = sum(1 for r in rows if r["home_catcher_adj"] != 0 or r["away_catcher_adj"] != 0)
     print(f"  Context: rest={n_rest}, day={n_day}/night={n_night}, turf={n_turf}, "
-          f"nonconf={n_nonconf}, travel={n_travel}, form={n_form}",
+          f"nonconf={n_nonconf}, travel={n_travel}, form={n_form}, elite_catcher={n_catcher}",
           file=sys.stderr)
 
     return result

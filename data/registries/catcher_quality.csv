@@ -1,0 +1,51 @@
+rank,catcher_name,team_name,canonical_id,avg,obp,ops,pa,bb,k,sb_allowed,quality_score
+1,Vahn Lackey,Georgia Tech,BSB_GEORGIA_TECH,0.425,0.545,1.396,110,21,14,7,1.0
+2,Daniel Jackson,Georgia,BSB_GEORGIA,0.411,0.504,1.452,114,14,18,11,0.98
+3,Ryder Helfrick,Arkansas,BSB_ARKANSAS,0.321,0.5,1.093,112,29,17,5,0.96
+4,Chase Fralick,Auburn,BSB_AUBURN,0.352,0.467,1.092,108,15,19,1,0.94
+5,Jack Natili,Cincinnati,BSB_CINCINNATI,0.333,0.407,1.045,121,10,22,1,0.92
+6,Alex Sosa,Miami,BSB_MIAMI,0.333,0.468,1.146,109,18,21,0,0.9
+7,Cashel Dugger,UCLA,BSB_UCLA,0.287,0.406,0.881,96,11,15,0,0.88
+8,Weber Neels,Minnesota,BSB_MINNESOTA,0.337,0.439,1.065,102,10,14,4,0.86
+9,Gavin Kelly,West Virginia,BSB_WEST_VIRGINIA,0.424,0.515,1.221,102,15,16,2,0.84
+10,Jimmy Janicki,Troy,NCAA_614797,0.371,0.446,1.187,102,9,15,1,0.82
+11,Carson Tinney,Texas,BSB_TEXAS,0.286,0.439,0.987,107,20,25,2,0.8
+12,Jon Embury,FGCU,NCAA_614603,0.407,0.484,1.243,126,10,14,0,0.78
+13,Brendan Brock,Oklahoma,BSB_OKLAHOMA,0.311,0.41,1.021,106,14,29,12,0.76
+14,Mark Quatrani,Notre Dame,BSB_NOTRE_DAME,0.405,0.515,1.212,99,10,14,0,0.74
+15,Macon Winslow,North Carolina,BSB_NORTH_CAROLINA,0.329,0.5,1.049,113,22,14,0,0.72
+16,Max Kaufer,Wichita State,NCAA_614817,0.44,0.576,1.756,67,11,12,1,0.7
+17,Nate Savoie,Clemson,BSB_CLEMSON,0.402,0.486,1.236,108,10,15,3,0.68
+18,Jacob Jarrell,Clemson,BSB_CLEMSON,0.25,0.367,1.051,91,11,17,0,0.66
+19,Brady Neal,Alabama,BSB_ALABAMA,0.38,0.495,1.141,105,16,14,4,0.64
+20,Hideki Prather,California,BSB_CAL,0.362,0.464,1.134,112,14,12,2,0.62
+21,Zak Skinner,UCF,BSB_UCF,0.385,0.489,1.028,96,13,10,2,0.6
+22,Grayson Ashe,Jacksonville State,NCAA_614632,0.284,0.388,0.9,108,8,12,1,0.58
+23,Cole Raile,VMI,NCAA_614806,0.342,0.5,1.144,96,14,18,16,0.56
+24,Cole Hansen,California Baptist,NCAA_614840,0.384,0.432,1.103,82,6,10,2,0.54
+25,Jayden Lobliner,San Diego,BSB_SAN_DIEGO,0.352,0.436,1.095,101,10,3,2,0.52
+26,Matt Quintanar,Texas Tech,BSB_TEXAS_TECH,0.357,0.443,0.955,99,11,9,1,0.5
+27,Colt Brown,Louisiana,BSB_LOUISIANA,0.347,0.4,0.872,81,4,14,3,0.48
+28,Jacob Lee,VCU,NCAA_614804,0.306,0.438,0.944,108,14,26,5,0.46
+29,Jacob Galloway,Oregon State,BSB_OREGON_ST,0.32,0.423,0.836,98,9,40,3,0.44
+30,Rylen Stockton,Maryland,BSB_MARYLAND,0.316,0.418,0.983,92,10,19,0,0.42
+31,Carter Bergman,Missouri State,NCAA_614746,0.292,0.4,1.053,85,9,23,1,0.4
+32,Sebastian Pisacreta,Pittsburgh,BSB_PITTSBURGH,0.325,0.427,1.04,96,12,19,0,0.38
+33,Duncan Mathews,South Alabama,NCAA_614737,0.274,0.389,0.889,110,14,15,1,0.36
+34,Augusto Mungarrieta,Kansas,BSB_KANSAS,0.315,0.419,1.008,88,8,19,1,0.34
+35,Caden Sheridan,Morehead State,NCAA_614671,0.259,0.402,1.007,105,17,15,1,0.32
+36,Andrew Stucky,UTSA,NCAA_614794,0.288,0.397,0.988,81,8,13,1,0.3
+37,Stone Lawless,Tennessee,BSB_TENNESSEE,0.278,0.426,1.001,69,10,11,1,0.28
+38,Burke-Lee Mabeus,Oregon,BSB_OREGON,0.288,0.354,0.913,65,5,14,0,0.26
+39,Robbie Lavey,George Washington,NCAA_614610,0.341,0.462,0.979,104,19,17,1,0.24
+40,Jimmy Nugent,Louisville,BSB_LOUISVILLE,0.313,0.459,0.936,86,13,20,3,0.22
+41,Walker Barron,East Carolina,BSB_EAST_CAROLINA,0.381,0.446,0.922,75,8,7,0,0.2
+42,Tyler Minnick,Middle Tennessee,NCAA_614664,0.303,0.417,0.99,109,15,8,0,0.18
+43,Dylan Johnson,College of Charleston,NCAA_614827,0.325,0.432,0.982,96,10,11,0,0.16
+44,Cale Stricklin,Charlotte,NCAA_614676,0.346,0.394,0.875,96,5,11,0,0.14
+45,Macaddin Dye,Old Dominion,NCAA_614703,0.344,0.494,1.025,84,12,17,2,0.12
+46,Matthew Strand,Duke,BSB_DUKE,0.35,0.443,1.176,70,9,17,6,0.1
+47,John Lemm,Alabama,BSB_ALABAMA,0.303,0.438,0.951,97,15,17,1,0.08
+48,Karson Bowen,Florida,BSB_FLORIDA,0.264,0.376,0.793,88,11,12,0,0.06
+49,Cade Arrambide,LSU,BSB_LSU,0.256,0.389,0.864,95,13,26,0,0.04
+50,Campbell Smithwick,Oklahoma State,BSB_OKLAHOMA_ST,0.279,0.424,0.835,85,10,16,4,0.02
