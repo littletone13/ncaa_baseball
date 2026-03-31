@@ -449,20 +449,34 @@ def compute_game_context(
             if cid and conf and conf != "nan":
                 conf_by_cid[cid] = conf
 
-    # Game times from odds data
-    game_times: dict[str, str] = {}  # "home_away" → commence_time
+    # Build odds_name → canonical_id lookup from canonical teams registry
+    canon_csv = Path("data/registries/canonical_teams_2026.csv")
+    odds_name_to_cid: dict[str, str] = {}
+    if canon_csv.exists():
+        canon_df = pd.read_csv(canon_csv, dtype=str)
+        for _, r in canon_df.iterrows():
+            cid = str(r.get("canonical_id", "")).strip()
+            for col in ("odds_api_name", "espn_name", "team_name"):
+                n = str(r.get(col, "")).strip()
+                if n and n != "nan":
+                    odds_name_to_cid[n] = cid
+
+    # Game times from odds data — keyed by (home_cid, away_cid) for reliable matching
+    game_times: dict[tuple[str, str], str] = {}
     if odds_log.exists():
         with open(odds_log) as f:
             for line in f:
                 try:
                     row = json.loads(line)
                     ct = row.get("commence_time", "")
-                    if not ct.startswith(date[:4]):
+                    if not ct.startswith(date):
                         continue
                     home = row.get("home_team", "")
                     away = row.get("away_team", "")
-                    if home and ct:
-                        game_times[f"{home}_{away}"] = ct
+                    h_cid_odds = odds_name_to_cid.get(home, "")
+                    a_cid_odds = odds_name_to_cid.get(away, "")
+                    if h_cid_odds and a_cid_odds and ct:
+                        game_times[(h_cid_odds, a_cid_odds)] = ct
                 except:
                     pass
 
@@ -491,11 +505,9 @@ def compute_game_context(
         rec["home_days_rest"] = h_rest["days_since_last"]
         rec["away_days_rest"] = a_rest["days_since_last"]
 
-        # Layer 2: Day/night
-        # Try to find game time from odds data
-        commence = game_times.get(f"{home_name}_{away_name}", "")
-        if not commence:
-            # Try reverse lookup with odds_api_name
+        # Layer 2: Day/night — match via canonical_id tuple
+        commence = game_times.get((h_cid, a_cid), "")
+        if not commence or commence == "nan":
             commence = str(game.get("commence_time", ""))
         tz = tz_by_cid.get(h_cid, None)
         dn = compute_day_night_adj(commence, tz)
