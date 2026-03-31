@@ -132,7 +132,8 @@ class PlatoonLookup:
             hand: "L", "R", or None
 
         Returns:
-            Log-rate adjustment. Negative when facing LHP (fewer runs expected).
+            Log-rate adjustment. Positive when facing LHP (more runs expected,
+            since RHB-heavy lineups have platoon advantage vs LHP).
             0.0 for RHP or unknown.
         """
         if hand == "L":

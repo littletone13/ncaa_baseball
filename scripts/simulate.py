@@ -45,8 +45,12 @@ assert_scoring_calibration_parity("simulate.py", SIMULATE_SCORING_CALIBRATION)
 
 # LHP platoon adjustment (log-rate): positive = teams score more runs facing LHP.
 # RHB-heavy lineups have platoon advantage vs LHP; baseline assumes ~75% RHB.
-# Must match DEFAULT_LHP_ADJ in platoon_adjustment.py.
+from platoon_adjustment import DEFAULT_LHP_ADJ as _PLATOON_CHECK
 PLATOON_LHP_ADJ = 0.03
+assert abs(PLATOON_LHP_ADJ - _PLATOON_CHECK) < 1e-12, (
+    f"simulate.py PLATOON_LHP_ADJ={PLATOON_LHP_ADJ} != "
+    f"platoon_adjustment.DEFAULT_LHP_ADJ={_PLATOON_CHECK}"
+)
 
 # Default bullpen LHP fraction when team data unavailable (~NCAA average).
 PLATOON_NCAA_BP_LHP_FRAC = 0.30
@@ -339,6 +343,9 @@ def simulate_games(
         hp_bp_plat = PLATOON_LHP_ADJ * home_bp_lhp
         platoon_h = ap_starter_plat * ap_starter_ip_frac + ap_bp_plat * ap_bullpen_ip_frac
         platoon_a = hp_starter_plat * hp_starter_ip_frac + hp_bp_plat * hp_bullpen_ip_frac
+        # Bullpen-only platoon for extra innings (starter is out, only BP LHP frac matters)
+        platoon_h_bp = ap_bp_plat
+        platoon_a_bp = hp_bp_plat
 
         # Clamp pitcher indices
         if hp_idx >= N_pitchers + 1:
@@ -526,13 +533,14 @@ def simulate_games(
             extra = 0
             while home_runs_sim == away_runs_sim and extra < 20:
                 for k in range(4):
-                    # Extra innings are bullpen-only; starter ability should not apply.
+                    # Extra innings are bullpen-only: no starter ability/platoon,
+                    # but bullpen platoon (LHP frac) and wRC+ offense still apply.
                     log_lam_h = (int_run[d, k] + att[d, h_idx, k] + def_[d, a_idx, k]
                                  + home_adv[d]
-                                 + park_eff_h_bp + bp_h_eff
+                                 + park_eff_h_bp + bp_h_eff + platoon_h_bp + h_att_adj
                                  + anchor_home_shift)
                     log_lam_a = (int_run[d, k] + att[d, a_idx, k] + def_[d, h_idx, k]
-                                 + park_eff_a_bp + bp_a_eff
+                                 + park_eff_a_bp + bp_a_eff + platoon_a_bp + a_att_adj
                                  + anchor_away_shift)
                     mu_h = np.exp(log_lam_h) / 9.0
                     mu_a = np.exp(log_lam_a) / 9.0

@@ -279,8 +279,11 @@ def resolve_starters(
     # ── Pre-compute bullpen LHP fraction per team ─────────────────────────────
     # Fraction of non-SP pitchers in pitcher_table who throw left-handed.
     # Used to weight platoon effect over bullpen innings.
-    # Default 0.30 (approximate NCAA average) when data unavailable.
+    # Bayesian shrinkage: blend observed LHP fraction with NCAA prior (0.30)
+    # using an effective sample size weight. With few known relievers, lean
+    # toward the prior; with many, trust the observed data.
     NCAA_AVG_BP_LHP_FRAC = 0.30
+    BP_LHP_PRIOR_STRENGTH = 5  # equivalent to 5 pseudo-observations at the prior rate
     bp_lhp_frac_by_team: dict[str, float] = {}
     if "role" in pt.columns and "throws" in pt.columns:
         role_col = pt["role"].fillna("").str.upper()
@@ -288,10 +291,14 @@ def resolve_starters(
         bp_pt = pt[bp_mask].copy()
         for cid, grp in bp_pt.groupby("team_canonical_id"):
             known = grp[grp["throws"].isin(["L", "R"])]
-            if len(known) >= 2:
-                bp_lhp_frac_by_team[str(cid)] = float((known["throws"] == "L").mean())
-            else:
+            n = len(known)
+            if n == 0:
                 bp_lhp_frac_by_team[str(cid)] = NCAA_AVG_BP_LHP_FRAC
+            else:
+                observed_lhp = float((known["throws"] == "L").sum())
+                # Bayesian posterior mean: (observed + prior_strength * prior_rate) / (n + prior_strength)
+                shrunk = (observed_lhp + BP_LHP_PRIOR_STRENGTH * NCAA_AVG_BP_LHP_FRAC) / (n + BP_LHP_PRIOR_STRENGTH)
+                bp_lhp_frac_by_team[str(cid)] = round(shrunk, 4)
 
     # ── Pre-compute dynamic bullpen availability adjustment per team ──────────
     # Identifies a team's top relievers (by usage frequency) and checks how many
