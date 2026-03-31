@@ -21,7 +21,7 @@ import pandas as pd
 import psycopg
 
 DEFAULT_DSN = (
-    "postgresql://postgres.{}:{}@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
+    "postgresql://postgres:{}@db.{}.supabase.co:5432/postgres?sslmode=require"
 )
 PROJECT_REF = "otfybzwvockuwdldfoed"
 
@@ -41,7 +41,7 @@ def get_dsn(args) -> str:
                 if line.startswith("SUPABASE_DB_PASSWORD="):
                     pw = line.split("=", 1)[1].strip().strip("'\"")
     if pw:
-        return DEFAULT_DSN.format(PROJECT_REF, pw)
+        return DEFAULT_DSN.format(pw, PROJECT_REF)
     print("No database connection. Set DATABASE_URL, SUPABASE_DB_PASSWORD, or --dsn.", file=sys.stderr)
     sys.exit(1)
 
@@ -243,6 +243,159 @@ def load_pitcher_params(cur, fit_id: str):
     return upsert_from_df(cur, df[keep], "pitcher_model_params", ["pitcher_espn_id", "fit_id"])
 
 
+def upload_projections_to_syndicate(date_str: str, predictions_csv: Path | None = None) -> int:
+    """
+    Upload predictions directly to the syndicate-terminal Supabase projections table.
+    Replaces the ncaa_baseball_adapter.py middleman.
+
+    Uses the same SUPABASE_DB_PASSWORD / DATABASE_URL credentials as the rest of this script.
+    Upserts on (sport, game_id, model_version='current') so re-runs update in place.
+    """
+    import re
+
+    if predictions_csv is None:
+        predictions_csv = Path(f"data/processed/predictions_{date_str}_standard.csv")
+        if not predictions_csv.exists():
+            # fallback to non-phase filename
+            predictions_csv = Path(f"data/processed/predictions_{date_str}.csv")
+    if not predictions_csv.exists():
+        print(f"  Projections upload skipped — not found: {predictions_csv}", file=sys.stderr)
+        return 0
+
+    def _slugify(s: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "_", str(s).lower().strip()).strip("_")
+
+    def _f(val, default=None):
+        try:
+            v = float(val)
+            return None if (v != v) else v  # NaN → None
+        except (TypeError, ValueError):
+            return default
+
+    def _i(val, default=None):
+        try:
+            return int(float(val))
+        except (TypeError, ValueError):
+            return default
+
+    def _s(val):
+        v = str(val).strip() if val is not None else ""
+        return v if v not in ("", "nan", "None") else None
+
+    df = pd.read_csv(predictions_csv, dtype=str)
+    date_slug = date_str.replace("-", "")
+    rows = []
+
+    for _, r in df.iterrows():
+        home_display = _s(r.get("home")) or _s(r.get("home_cid", ""))
+        away_display = _s(r.get("away")) or _s(r.get("away_cid", ""))
+        game_id = f"bsb_{date_slug}_{_slugify(away_display)}_{_slugify(home_display)}"
+
+        over_p = _f(r.get("over_prob"))
+
+        data_blob = {
+            "home_cid": _s(r.get("home_cid")),
+            "away_cid": _s(r.get("away_cid")),
+            "starters": {
+                "home_starter": _s(r.get("home_starter")),
+                "away_starter": _s(r.get("away_starter")),
+                "hp_throws":    _s(r.get("hp_throws")),
+                "ap_throws":    _s(r.get("ap_throws")),
+            },
+            "weather": {
+                "temp_f":          _f(r.get("temp_f")),
+                "wind_mph":        _f(r.get("wind_mph")),
+                "wind_out_mph":    _f(r.get("wind_out_mph")),
+                "weather_adj":     _f(r.get("weather_adj")),
+                "wind_adj_raw":    _f(r.get("wind_adj_raw")),
+                "weather_mode":    _s(r.get("weather_mode")),
+                "weather_status":  _s(r.get("weather_status")),
+                "rain_chance_pct": _f(r.get("rain_chance_pct")),
+            },
+            "park_factor":     _f(r.get("park_factor")),
+            "bullpen": {
+                "home_bullpen_adj": _f(r.get("home_bullpen_adj")),
+                "away_bullpen_adj": _f(r.get("away_bullpen_adj")),
+            },
+            "home_rl_cover": _f(r.get("home_rl_cover")),
+            "away_rl_cover": _f(r.get("away_rl_cover")),
+        }
+
+        rows.append({
+            "sport":          "ncaa_baseball",
+            "game_id":        game_id,
+            "game_date":      date_str,
+            "game_time":      None,
+            "home_team":      home_display,
+            "away_team":      away_display,
+            "home_win_prob":  _f(r.get("home_win_prob")),
+            "away_win_prob":  _f(r.get("away_win_prob")),
+            "home_ml":        _i(r.get("ml_home")),
+            "away_ml":        _i(r.get("ml_away")),
+            "expected_total": _f(r.get("exp_total")),
+            "model_spread":   round(_f(r.get("exp_home"), 0) - _f(r.get("exp_away"), 0), 4),
+            "over_prob":      over_p,
+            "under_prob":     round(1.0 - over_p, 4) if over_p is not None else None,
+            "fragility":      _f(r.get("fragility_score")),
+            "model_version":  "current",
+            "data":           json.dumps(data_blob),
+        })
+
+    if not rows:
+        print("  Projections upload: 0 rows (empty dataframe)", file=sys.stderr)
+        return 0
+
+    # Build DSN without argparse namespace
+    dsn = os.environ.get("DATABASE_URL", "")
+    if not dsn:
+        pw = os.environ.get("SUPABASE_DB_PASSWORD", "")
+        if not pw:
+            env_file = Path(__file__).parent.parent / ".env"
+            if env_file.exists():
+                for line in env_file.read_text().splitlines():
+                    if line.startswith("SUPABASE_DB_PASSWORD="):
+                        pw = line.split("=", 1)[1].strip().strip("'\"")
+        if pw:
+            dsn = DEFAULT_DSN.format(pw, PROJECT_REF)
+    if not dsn:
+        print("  Projections upload skipped — no DB credentials", file=sys.stderr)
+        return 0
+
+    with psycopg.connect(dsn, connect_timeout=30) as conn:
+        with conn.cursor() as cur:
+            sql = """
+                INSERT INTO public.projections
+                  (sport, game_id, game_date, game_time, home_team, away_team,
+                   home_win_prob, away_win_prob, home_ml, away_ml,
+                   expected_total, model_spread, over_prob, under_prob,
+                   fragility, model_version, data, updated_at)
+                VALUES
+                  (%(sport)s, %(game_id)s, %(game_date)s, %(game_time)s,
+                   %(home_team)s, %(away_team)s,
+                   %(home_win_prob)s, %(away_win_prob)s, %(home_ml)s, %(away_ml)s,
+                   %(expected_total)s, %(model_spread)s, %(over_prob)s, %(under_prob)s,
+                   %(fragility)s, %(model_version)s, %(data)s::jsonb, now())
+                ON CONFLICT (sport, game_id, model_version) DO UPDATE SET
+                  home_win_prob  = EXCLUDED.home_win_prob,
+                  away_win_prob  = EXCLUDED.away_win_prob,
+                  home_ml        = EXCLUDED.home_ml,
+                  away_ml        = EXCLUDED.away_ml,
+                  expected_total = EXCLUDED.expected_total,
+                  model_spread   = EXCLUDED.model_spread,
+                  over_prob      = EXCLUDED.over_prob,
+                  under_prob     = EXCLUDED.under_prob,
+                  fragility      = EXCLUDED.fragility,
+                  data           = EXCLUDED.data,
+                  updated_at     = now()
+            """
+            cur.executemany(sql, rows)
+        conn.commit()
+
+    n = len(rows)
+    print(f"  public.projections: {n} rows upserted", file=sys.stderr)
+    return n
+
+
 def load_predictions(cur, date_str: str):
     csv = Path(f"data/processed/predictions_{date_str}.csv")
     if not csv.exists():
@@ -285,7 +438,7 @@ def main() -> int:
     dsn = get_dsn(args)
     print(f"Connecting to database...", file=sys.stderr)
 
-    with psycopg.connect(dsn) as conn:
+    with psycopg.connect(dsn, connect_timeout=30) as conn:
         with conn.cursor() as cur:
             if args.all:
                 print("Loading all tables...", file=sys.stderr)

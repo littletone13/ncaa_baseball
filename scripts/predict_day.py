@@ -29,6 +29,7 @@ from simulate import simulate_games, format_predictions
 from build_calibration_report import build_calibration_report
 from build_starter_qa_report import build_starter_qa_report
 from scrape_wrrundown import build_url, scrape_page, parse_wrrundown, write_csv as write_wrrundown_csv
+from load_baseball_to_postgres import upload_projections_to_syndicate
 
 
 def main() -> int:
@@ -264,6 +265,15 @@ def main() -> int:
         out_md=calib_md,
     )
     print(f"Calibration report -> {calib_csv}", file=sys.stderr)
+
+    # ── Step 6: Upload projections to Supabase (syndicate-terminal) ──
+    print("Step 6/6: Uploading projections to Supabase...", file=sys.stderr)
+    try:
+        n_uploaded = upload_projections_to_syndicate(args.date, predictions_csv=out_csv)
+        if n_uploaded:
+            print(f"  {n_uploaded} rows → public.projections", file=sys.stderr)
+    except Exception as e:
+        print(f"  Supabase upload failed (non-fatal): {e}", file=sys.stderr)
 
     if args.json:
         print(json.dumps(predictions.to_dict("records"), indent=2))
