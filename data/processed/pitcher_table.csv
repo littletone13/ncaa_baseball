@@ -2742,7 +2742,7 @@ pitcher_espn_id,pitcher_idx,pitcher_name,team_canonical_id,season,throws,role,se
 95939,2270,Brady Richardson,NCAA_614797,2026,,RP,1.0,,,,,1.0,0.0,,2,2026-03-10
 ,2269,C. MEELER,NCAA_614825,2026,R,SP,5.0,7.2,,,,1.0,0.116034,era_appearances,1,2026-02-14
 ,2268,McCarroll,NCAA_614692,2026,R,SP,1.0,,,,,1.0,0.0,,1,2026-03-25
-,2267,Z. Sohosky,NCAA_614660,2026,L,SP,2.0,,4.5,3.74,30.4,0.847,-0.055069,fip,1,2026-02-21
+,2267,Z. Sohosky,NCAA_614660,2026,L,SP,2.0,,4.01,3.56,31.3,0.8632,-0.091601,fip,1,2026-02-21
 ,2266,Harrison Dub,NCAA_614814,2026,,SP,2.0,,,,,1.0,0.0,,1,2026-02-14
 ,2265,Ryan Penney,NCAA_614713,2026,R,RP,2.0,,,,,1.0,0.0,,1,2026-02-28
 ,2265,R. Penney,NCAA_614713,2026,R,SP,2.0,,,,,1.0,0.0,,1,2026-03-25
