@@ -337,7 +337,7 @@ def upload_projections_to_syndicate(date_str: str, predictions_csv: Path | None 
             "over_prob":      over_p,
             "under_prob":     round(1.0 - over_p, 4) if over_p is not None else None,
             "fragility":      _f(r.get("fragility_score")),
-            "model_version":  "current",
+            "model_version":  "stan_v2_5000sim",
             "data":           json.dumps(data_blob),
         })
 
