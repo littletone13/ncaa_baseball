@@ -1,18 +1,39 @@
-canonical_id,surface,source
-BSB_BYU,turf,known
-BSB_OREGON,turf,known
-BSB_WASHINGTON,turf,known
-BSB_MICHIGAN,turf,known
-BSB_OREGON_ST,turf,known
-BSB_MICHIGAN_ST,turf,known
-BSB_MINNESOTA,turf,known
-BSB_NORTHWESTERN,turf,known
-BSB_IOWA,turf,known
-BSB_INDIANA,turf,known
-BSB_PURDUE,turf,known
-BSB_OHIO_ST,turf,known
-BSB_PENN_ST,turf,known
-BSB_RUTGERS,turf,known
-BSB_NEBRASKA,turf,known
-BSB_MARYLAND,turf,known
-BSB_CONNECTICUT,turf,known
+canonical_id,surface,turf_brand,source
+BSB_VANDERBILT,turf,AstroTurf Diamond Series,astroturf.com
+BSB_MICHIGAN,turf,AstroTurf Diamond Series,astroturf.com
+BSB_KENTUCKY,turf,AstroTurf Diamond Series,astroturf.com
+BSB_OHIO_ST,turf,AstroTurf Diamond Series,astroturf.com
+BSB_WASHINGTON,turf,AstroTurf Diamond Series RBI,astroturf.com
+BSB_DUKE,turf,AstroTurf Diamond Series,astroturf.com
+BSB_PITTSBURGH,turf,AstroTurf Diamond Series,astroturf.com
+BSB_WEST_VIRGINIA,turf,AstroTurf Diamond Series,astroturf.com
+BSB_INDIANA,turf,AstroTurf Diamond Series,astroturf.com
+BSB_IOWA,turf,AstroTurf,astroturf.com
+NCAA_614852,turf,AstroTurf Diamond Series RBI,appalachian_state
+BSB_CONNECTICUT,turf,AstroTurf OPS,astroturf.com
+BSB_LIBERTY,turf,AstroTurf Diamond Series,astroturf.com
+NCAA_614770,turf,AstroTurf Diamond Series,evansville
+BSB_OREGON,turf,FieldTurf DoublePlay,fieldturf.com
+BSB_OREGON_ST,turf,FieldTurf,fieldturf.com
+BSB_TENNESSEE,turf,FieldTurf,fieldturf.com
+BSB_TEXAS,turf,FieldTurf DoublePlay,fieldturf.com
+BSB_TEXAS_TECH,turf,FieldTurf,fieldturf.com
+BSB_HOUSTON,turf,FieldTurf DoublePlay,fieldturf.com
+BSB_LOUISVILLE,turf,FieldTurf DoublePlay,fieldturf.com
+BSB_MARYLAND,turf,FieldTurf DoublePlay,fieldturf.com
+NCAA_614780,turf,FieldTurf DoublePlay,southern_miss
+NCAA_614645,turf,FieldTurf DoublePlay,louisiana_tech
+BSB_ILLINOIS,turf,FieldTurf,fieldturf.com
+BSB_CINCINNATI,turf,FieldTurf TriplePlay,fieldturf.com
+NCAA_614747,turf,FieldTurf DoublePlay,texas_state
+NCAA_614768,turf,FieldTurf,fresno_state
+BSB_MISSOURI,turf,Shaw Sports Turf,shawsportsturf.com
+BSB_BYU,turf,Shaw Sports Turf,shawsportsturf.com
+BSB_MINNESOTA,turf,Mondo Sport Turf,mondo.com
+NCAA_614817,turf,Hellas Major Play,wichita_state
+BSB_NORTHWESTERN,turf,synthetic,big_ten_survey
+BSB_RUTGERS,turf,synthetic,big_ten_survey
+BSB_VIRGINIA_TECH,turf,synthetic,athletics_site
+NCAA_614762,turf,AstroTurf Diamond Series,tulane
+BSB_PURDUE,turf,synthetic,big_ten_survey
+BSB_NEBRASKA,turf,synthetic,big_ten_survey
