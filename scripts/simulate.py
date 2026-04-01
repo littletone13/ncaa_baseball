@@ -292,6 +292,7 @@ def simulate_games(
         mkt_home_win_prob = _safe_float_or_none(sched_row, "mkt_home_win_prob")
         mkt_total_line = _safe_float_or_none(sched_row, "mkt_total_line")
         time_to_start_min = _safe_float_or_none(sched_row, "time_to_start_min")
+        start_utc = _safe_str(sched_row, "start_utc", "")
 
         # Team indices (clamp to posterior size)
         h_idx = team_idx_map.get(h_cid, 0)
@@ -717,6 +718,7 @@ def simulate_games(
             "mkt_home_win_prob": mkt_home_win_prob,
             "mkt_total_line": mkt_total_line,
             "time_to_start_min": time_to_start_min,
+            "start_utc": start_utc if start_utc else None,
             "pilot_home_win_prob": pilot_home_prob,
             "pilot_exp_total": pilot_total,
             "anchor_home_shift": round(anchor_home_shift, 4),

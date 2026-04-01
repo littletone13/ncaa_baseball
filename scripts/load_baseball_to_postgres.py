@@ -291,6 +291,10 @@ def upload_projections_to_syndicate(date_str: str, predictions_csv: Path | None 
         away_display = _s(r.get("away")) or _s(r.get("away_cid", ""))
         game_id = f"bsb_{date_slug}_{_slugify(away_display)}_{_slugify(home_display)}"
 
+        # Game time from schedule (start_utc column)
+        start_utc = _s(r.get("start_utc"))
+        game_time = start_utc if start_utc and start_utc != "nan" else None
+
         over_p = _f(r.get("over_prob"))
 
         data_blob = {
@@ -325,7 +329,7 @@ def upload_projections_to_syndicate(date_str: str, predictions_csv: Path | None 
             "sport":          "ncaa_baseball",
             "game_id":        game_id,
             "game_date":      date_str,
-            "game_time":      None,
+            "game_time":      game_time,
             "home_team":      home_display,
             "away_team":      away_display,
             "home_win_prob":  _f(r.get("home_win_prob")),
