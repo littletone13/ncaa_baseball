@@ -118,8 +118,7 @@ PREDICTIONS = data/processed/predictions_$(DATE).csv
 
 predict: $(PITCHER_TABLE) $(TEAM_TABLE)
 	$(PYTHON) scripts/predict_day.py --date $(DATE) --N $(N_SIMS) --out $(PREDICTIONS)
-	@cp $(PREDICTIONS) ~/Desktop/ncaaBases_projections_$(DATE).csv 2>/dev/null || true
-	@echo "✓ Predictions for $(DATE) -> $(PREDICTIONS)"
+	@echo "✓ Predictions for $(DATE) -> $(PREDICTIONS) + Supabase"
 
 # ── Odds ──────────────────────────────────────────────────────────
 odds:
