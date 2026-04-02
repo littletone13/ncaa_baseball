@@ -305,6 +305,8 @@ def upload_projections_to_syndicate(date_str: str, predictions_csv: Path | None 
                 "away_starter": _s(r.get("away_starter")),
                 "hp_throws":    _s(r.get("hp_throws")),
                 "ap_throws":    _s(r.get("ap_throws")),
+                "hp_confirmed": bool(int(r.get("hp_confirmed", 0) or 0)),
+                "ap_confirmed": bool(int(r.get("ap_confirmed", 0) or 0)),
             },
             "weather": {
                 "temp_f":          _f(r.get("temp_f")),

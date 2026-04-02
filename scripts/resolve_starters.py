@@ -544,6 +544,8 @@ def resolve_starters(
             "away_resolution_method": ap_resolution,
             "home_d1b_fallback": int(str(hp_id).startswith("d1b_")),
             "away_d1b_fallback": int(str(ap_id).startswith("d1b_")),
+            "hp_confirmed": int(bool(hp_override)),
+            "ap_confirmed": int(bool(ap_override)),
             "home_wrc_adj": home_wrc_adj,
             "away_wrc_adj": away_wrc_adj,
             "home_batting_fb": home_batting_fb,

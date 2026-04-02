@@ -340,6 +340,8 @@ def simulate_games(
         away_res_method = _safe_str(st, "away_resolution_method", "")
         home_d1b_fallback = _safe_int(st, "home_d1b_fallback", 0)
         away_d1b_fallback = _safe_int(st, "away_d1b_fallback", 0)
+        hp_confirmed = _safe_int(st, "hp_confirmed", 0)
+        ap_confirmed = _safe_int(st, "ap_confirmed", 0)
 
         # Offense adjustments (wRC+ for non-model teams)
         h_att_adj = _safe_float(st, "home_wrc_adj", 0.0)
@@ -707,6 +709,8 @@ def simulate_games(
             "away_resolution_method": away_res_method if away_res_method else None,
             "home_d1b_fallback": int(home_d1b_fallback),
             "away_d1b_fallback": int(away_d1b_fallback),
+            "hp_confirmed": int(hp_confirmed),
+            "ap_confirmed": int(ap_confirmed),
             "home_bullpen_adj": round(h_bp, 4),
             "away_bullpen_adj": round(a_bp, 4),
             "home_fatigue_adj": round(h_fatigue_adj, 4),
