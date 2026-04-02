@@ -1,0 +1,254 @@
+team_abbr,pitcher_name,hand,day,opponent,confirmed,source
+BC,A. Colarusso,LHP,fri,North Carolina,yes,d1baseball
+BC,T. Mudd,LHP,sat,North Carolina,yes,d1baseball
+BC,B. Miller,LHP,sun,North Carolina,yes,d1baseball
+CAL,O. Espinoza,RHP,fri,Georgia Tech,yes,d1baseball
+CAL,O. Torre,RHP,sat,Georgia Tech,yes,d1baseball
+CAL,G. Eddy,RHP,sun,Georgia Tech,yes,d1baseball
+CLEM,A. Knaak,RHP,fri,Stanford,unconfirmed,d1baseball
+CLEM,M. Sharman,LHP,sat,Stanford,unconfirmed,d1baseball
+CLEM,D. Titsworth,RHP,sun,Stanford,unconfirmed,d1baseball
+DUKE,P. Lemke,RHP,fri,Louisville,yes,d1baseball
+DUKE,A. Weaver,RHP,sat,Louisville,yes,d1baseball
+DUKE,A. Leon,RHP,sun,Louisville,yes,d1baseball
+FSU,W. Mendes,LHP,fri,Virginia,yes,d1baseball
+FSU,T. Beard,LHP,sat,Virginia,yes,d1baseball
+FSU,B. Moore,RHP,sun,Virginia,yes,d1baseball
+GT,T. McKee,RHP,fri,California,yes,d1baseball
+GT,P. Buursema,RHP,sat,California,yes,d1baseball
+GT,J. Blakely,RHP,sun,California,yes,d1baseball
+LOU,W. Danilowicz,LHP,sat,Duke,yes,d1baseball
+LOU,C. Hartman,LHP,sun,Duke,yes,d1baseball
+MIA,S. Santos-Olson,LHP,fri,Virginia Tech,unconfirmed,d1baseball
+MIA,R. Evans,LHP,sat,Virginia Tech,unconfirmed,d1baseball
+MIA,L. Collera,RHP,sun,Virginia Tech,unconfirmed,d1baseball
+UNC,J. DeCaro,RHP,fri,Boston College,yes,d1baseball
+UNC,R. Lynch,RHP,sat,Boston College,yes,d1baseball
+UNC,F. Boaz,LHP,sun,Boston College,yes,d1baseball
+NCST,R. Marohn,LHP,fri,Notre Dame,yes,d1baseball
+NCST,J. Dudan,RHP,sun,Notre Dame,yes,d1baseball
+ND,C. Crowell,RHP,fri,NC State,yes,d1baseball
+ND,J. Radel,RHP,sat,NC State,yes,d1baseball
+ND,T. Uber,LHP,sun,NC State,yes,d1baseball
+PITT,D. Leslie,RHP,fri,Wake Forest,unconfirmed,d1baseball
+PITT,V. Spizzoucco,LHP,sat,Wake Forest,unconfirmed,d1baseball
+PITT,D. Lafferty,RHP,sun,Wake Forest,unconfirmed,d1baseball
+STAN,Q. Marsh,LHP,fri,Clemson,unconfirmed,d1baseball
+STAN,S. Garewal,LHP,sat,Clemson,unconfirmed,d1baseball
+STAN,A. Shaw,LHP,sun,Clemson,unconfirmed,d1baseball
+UVA,K. Johnson,LHP,fri,Florida State,yes,d1baseball
+UVA,M. Stammel,LHP,sat,Florida State,yes,d1baseball
+UVA,J. Paone,RHP,sun,Florida State,yes,d1baseball
+VT,B. Yagesh,LHP,fri,Miami,unconfirmed,d1baseball
+VT,B. Renfrow,RHP,sat,Miami,unconfirmed,d1baseball
+VT,G. Stieg,RHP,sun,Miami,unconfirmed,d1baseball
+WF,C. Bagwell,RHP,fri,Pittsburgh,unconfirmed,d1baseball
+WF,C. Levonas,RHP,sat,Pittsburgh,unconfirmed,d1baseball
+WF,T. Dressler,RHP,sun,Pittsburgh,unconfirmed,d1baseball
+NEB,T. Horn,RHP,fri,Penn State,unconfirmed,d1baseball
+NEB,C. Jasa,RHP,sat,Penn State,unconfirmed,d1baseball
+NEB,C. Katskee,RHP,sun,Penn State,unconfirmed,d1baseball
+ILL,B. Plumley,RHP,fri,Purdue,unconfirmed,d1baseball
+ILL,R. Hall,LHP,sat,Purdue,unconfirmed,d1baseball
+ILL,A. Flinn,LHP,sun,Purdue,unconfirmed,d1baseball
+IND,R. Rivera,RHP,fri,Rutgers,unconfirmed,d1baseball
+IND,T. Neubeck,LHP,sat,Rutgers,unconfirmed,d1baseball
+IND,B. Thomas,LHP,sun,Rutgers,unconfirmed,d1baseball
+IOWA,J. Bleeker,RHP,fri,Minnesota,unconfirmed,d1baseball
+IOWA,L. Runde,RHP,sat,Minnesota,unconfirmed,d1baseball
+UMD,L. Williams,RHP,fri,Ohio State,unconfirmed,d1baseball
+UMD,E. Smith,LHP,sat,Ohio State,unconfirmed,d1baseball
+UMD,J. Yeager,RHP,sun,Ohio State,unconfirmed,d1baseball
+MSU,A. Donovan,RHP,fri,Northwestern,unconfirmed,d1baseball
+MSU,C. Monke,RHP,sat,Northwestern,unconfirmed,d1baseball
+MINN,C. Selvig,RHP,fri,Iowa,unconfirmed,d1baseball
+MINN,I. Morton,RHP,sat,Iowa,unconfirmed,d1baseball
+MINN,M. Kruzan,RHP,sun,Iowa,unconfirmed,d1baseball
+NW,G. Shearer,RHP,fri,Michigan State,unconfirmed,d1baseball
+NW,M. Kouser,RHP,sat,Michigan State,unconfirmed,d1baseball
+OSU,G. Kuzniewski,RHP,fri,Maryland,unconfirmed,d1baseball
+OSU,C. Domke,RHP,sat,Maryland,unconfirmed,d1baseball
+OSU,P. Herrenbruck,RHP,sun,Maryland,unconfirmed,d1baseball
+ORE,W. Sanford,RHP,fri,Michigan,yes,d1baseball
+ORE,C. Clarke,RHP,sat,Michigan,yes,d1baseball
+ORE,C. Scolari,RHP,sun,Michigan,yes,d1baseball
+PSU,C. Fitzgerald,RHP,fri,Nebraska,unconfirmed,d1baseball
+PSU,B. Hudson,RHP,sat,Nebraska,unconfirmed,d1baseball
+PSU,I. Shayter,RHP,sun,Nebraska,unconfirmed,d1baseball
+PUR,C. Assen,RHP,fri,Illinois,unconfirmed,d1baseball
+PUR,Z. Erdman,LHP,sat,Illinois,unconfirmed,d1baseball
+UCLA,L. Reddemann,RHP,fri,USC,unconfirmed,d1baseball
+UCLA,M. Barnett,RHP,sat,USC,unconfirmed,d1baseball
+USC,M. Edwards,LHP,fri,UCLA,unconfirmed,d1baseball
+USC,G. Govel,RHP,sat,UCLA,unconfirmed,d1baseball
+USC,A. Johnson,RHP,sun,UCLA,unconfirmed,d1baseball
+WASH,N. Kenney,RHP,fri,Valparaiso,unconfirmed,d1baseball
+WASH,G. Nichols,RHP,sat,Valparaiso,unconfirmed,d1baseball
+WASH,H. Lewis,RHP,sun,Valparaiso,unconfirmed,d1baseball
+ARIZ,O. Kramkowski,RHP,fri,Arizona State,yes,d1baseball
+ARIZ,S. Bailey,RHP,sat,Arizona State,yes,d1baseball
+ARIZ,L. Fladda,LHP,sun,Arizona State,yes,d1baseball
+ASU,T. Penn,RHP,fri,Arizona,yes,d1baseball
+ASU,C. Carlon,LHP,sat,Arizona,yes,d1baseball
+ASU,K. Klecker,RHP,sun,Arizona,yes,d1baseball
+BAY,L. Davenport,RHP,fri,BYU,yes,d1baseball
+BAY,Z. Wallace,RHP,sat,BYU,yes,d1baseball
+BYU,J. Reiser,LHP,fri,Baylor,yes,d1baseball
+BYU,W. Crane,LHP,sat,Baylor,yes,d1baseball
+BYU,C. Bell,RHP,sun,Baylor,yes,d1baseball
+CIN,N. Taylor,RHP,fri,Oklahoma State,unconfirmed,d1baseball
+CIN,A. Brouwer,RHP,sat,Oklahoma State,unconfirmed,d1baseball
+HOU,C. Udland,RHP,fri,Texas Tech,yes,d1baseball
+HOU,K. Hoffman,RHP,sat,Texas Tech,yes,d1baseball
+HOU,P. Schmitz,RHP,sun,Texas Tech,yes,d1baseball
+KAN,B. Rahe,RHP,fri,Utah,yes,d1baseball
+KAN,M. Nayral,RHP,sat,Utah,yes,d1baseball
+KAN,D. Voegele,RHP,sun,Utah,yes,d1baseball
+KSU,J. Guyette,RHP,fri,TCU,unconfirmed,d1baseball
+KSU,L. Sheffield,LHP,sat,TCU,unconfirmed,d1baseball
+KSU,T. Duke,RHP,sun,TCU,unconfirmed,d1baseball
+OKST,E. Lund,LHP,fri,Cincinnati,unconfirmed,d1baseball
+OKST,M. Pesca,RHP,sat,Cincinnati,unconfirmed,d1baseball
+OKST,H. Barrett,LHP,sun,Cincinnati,unconfirmed,d1baseball
+TCU,M. Brassfield,LHP,fri,Kansas State,unconfirmed,d1baseball
+TCU,L. Davis,RHP,sat,Kansas State,unconfirmed,d1baseball
+TTU,L. Pirko,RHP,fri,Houston,yes,d1baseball
+TTU,C. Mohan,RHP,sat,Houston,yes,d1baseball
+TTU,J. Burns,RHP,sun,Houston,yes,d1baseball
+UCF,B. Smith,RHP,fri,West Virginia,unconfirmed,d1baseball
+UCF,M. Sauser,RHP,sat,West Virginia,unconfirmed,d1baseball
+UCF,C. Wicker,RHP,sun,West Virginia,unconfirmed,d1baseball
+UTAH,C. McAnelly,RHP,fri,Kansas,yes,d1baseball
+UTAH,P. Riske,RHP,sat,Kansas,yes,d1baseball
+WVU,D. Montesa,RHP,fri,UCF,unconfirmed,d1baseball
+WVU,M. Yehl,LHP,sat,UCF,unconfirmed,d1baseball
+WVU,C. Cole,RHP,sun,UCF,unconfirmed,d1baseball
+ALA,T. Fay,RHP,fri,Oklahoma,yes,d1baseball
+ALA,Z. Adams,LHP,sat,Oklahoma,yes,d1baseball
+ALA,M. Upchurch,RHP,sun,Oklahoma,yes,d1baseball
+ARK,G. Gaeckle,RHP,fri,Auburn,yes,d1baseball
+AUB,A. Alvarez,RHP,fri,Arkansas,yes,d1baseball
+AUB,J. Marciano,LHP,sat,Arkansas,yes,d1baseball
+UF,L. Peterson,RHP,fri,Ole Miss,yes,d1baseball
+UF,A. King,RHP,sat,Ole Miss,yes,d1baseball
+UF,R. Sandefer,RHP,sun,Ole Miss,yes,d1baseball
+UGA,J. Volchko,RHP,fri,Mississippi State,yes,d1baseball
+UGA,D. Vigue,RHP,sat,Mississippi State,yes,d1baseball
+UK,J. Jelkin,RHP,fri,Missouri,unconfirmed,d1baseball
+UK,N. Harris,RHP,sat,Missouri,unconfirmed,d1baseball
+UK,B. Cleaver,LHP,sun,Missouri,unconfirmed,d1baseball
+LSU,C. Evans,RHP,fri,Tennessee,unconfirmed,d1baseball
+LSU,W. Schmidt,RHP,sat,Tennessee,unconfirmed,d1baseball
+MSST,C. Foster,LHP,fri,Georgia,yes,d1baseball
+MSST,T. Valincius,LHP,sat,Georgia,yes,d1baseball
+MSST,D. Stone,RHP,sun,Georgia,yes,d1baseball
+MIZ,J. McDevitt,LHP,fri,Kentucky,unconfirmed,d1baseball
+MIZ,B. Kehlenbrink,RHP,sat,Kentucky,unconfirmed,d1baseball
+OK,L. Mercurius,RHP,fri,Alabama,yes,d1baseball
+OK,C. Johnson,LHP,sat,Alabama,yes,d1baseball
+OK,C. Rager,LHP,sun,Alabama,yes,d1baseball
+UM,T. Rabe,RHP,fri,Florida,yes,d1baseball
+UM,H. Elliott,LHP,sat,Florida,yes,d1baseball
+UM,C. Townsend,RHP,sun,Florida,yes,d1baseball
+USC2,A. Valentin,LHP,fri,Texas,yes,d1baseball
+USC2,J. Gunther,RHP,sat,Texas,yes,d1baseball
+USC2,A. Phillips,RHP,sun,Texas,yes,d1baseball
+TEN,B. Arvidson,LHP,fri,LSU,unconfirmed,d1baseball
+TEN,L. Mack,RHP,sat,LSU,unconfirmed,d1baseball
+TEN,E. Blanco,LHP,sun,LSU,unconfirmed,d1baseball
+UT,R. Riojas,RHP,fri,South Carolina,yes,d1baseball
+UT,L. Harrison,LHP,sat,South Carolina,yes,d1baseball
+UT,D. Volantis,LHP,sun,South Carolina,yes,d1baseball
+AM,S. Sdao,LHP,fri,Vanderbilt,yes,d1baseball
+AM,W. Moss,RHP,sat,Vanderbilt,yes,d1baseball
+AM,A. Sims,RHP,sun,Vanderbilt,yes,d1baseball
+VU,C. Fennell,RHP,fri,Texas A&M,yes,d1baseball
+VU,W. Nadeau,RHP,sat,Texas A&M,yes,d1baseball
+USM,G. Harris,LHP,fri,Old Dominion,yes,d1baseball
+USM,C. Sunstrom,RHP,sat,Old Dominion,yes,d1baseball
+CCAR,L. Jones,RHP,fri,South Alabama,yes,d1baseball
+CCAR,R. Norman,RHP,sat,South Alabama,yes,d1baseball
+TROY,B. Stubbs,LHP,fri,Arkansas State,yes,d1baseball
+TROY,T. Egan,RHP,sun,Arkansas State,yes,d1baseball
+GASO,W. Holder,RHP,fri,Texas State,unconfirmed,d1baseball
+JMU,M. Kuhle,LHP,fri,Louisiana,yes,d1baseball
+JMU,L. Alexander,RHP,sat,Louisiana,yes,d1baseball
+APP,T. Nolan,LHP,fri,Marshall,yes,d1baseball
+APP,N. DiRito,RHP,sat,Marshall,yes,d1baseball
+APP,G. Peterson,RHP,sun,Marshall,yes,d1baseball
+ARST,C. Richter,LHP,fri,Troy,yes,d1baseball
+ARST,J. Nelson,LHP,sat,Troy,yes,d1baseball
+ARST,D. Farley,LHP,sun,Troy,yes,d1baseball
+GSU,T. Benford,RHP,fri,ULM,unconfirmed,d1baseball
+GSU,J. Hembree,LHP,sat,ULM,unconfirmed,d1baseball
+GSU,C. Roberts,RHP,sun,ULM,unconfirmed,d1baseball
+LOU2,S. Pruitt,RHP,fri,James Madison,yes,d1baseball
+LOU2,A. Herrmann,LHP,sat,James Madison,yes,d1baseball
+LOU2,T. Roman,LHP,sun,James Madison,yes,d1baseball
+MAR,B. Blevins,LHP,fri,App State,yes,d1baseball
+MAR,D. Harlow,RHP,sat,App State,yes,d1baseball
+MAR,K. Collins,RHP,sun,App State,yes,d1baseball
+ODU,D. Kuskie,RHP,fri,Southern Miss,yes,d1baseball
+ODU,J. Gatti,RHP,sat,Southern Miss,yes,d1baseball
+ODU,N. Sulpizio,RHP,sun,Southern Miss,yes,d1baseball
+USA,M. Heer,RHP,fri,Coastal Carolina,yes,d1baseball
+USA,R. Bozenhard,RHP,sat,Coastal Carolina,yes,d1baseball
+USA,D. Gonzalez,RHP,sun,Coastal Carolina,yes,d1baseball
+TSU,K. Froehlich,RHP,fri,Georgia Southern,yes,d1baseball
+TSU,S. Hall,RHP,sat,Georgia Southern,yes,d1baseball
+TSU,J. Tovar,LHP,sun,Georgia Southern,yes,d1baseball
+ULM,A. Brodnax,RHP,fri,Georgia State,yes,d1baseball
+ULM,B. Corley,LHP,sat,Georgia State,yes,d1baseball
+ULM,J. Dermody,LHP,sun,Georgia State,yes,d1baseball
+CHAR,C. Oxborrow,LHP,fri,East Carolina,yes,d1baseball
+CHAR,E. Copper,RHP,sat,East Carolina,yes,d1baseball
+ECU,L. Payne,LHP,fri,Charlotte,yes,d1baseball
+ECU,E. Norby,LHP,sat,Charlotte,yes,d1baseball
+FAU,J. Litman,RHP,fri,UAB,yes,d1baseball
+FAU,K. Adetuyi,LHP,sat,UAB,yes,d1baseball
+FAU,G. Grant,RHP,sun,UAB,yes,d1baseball
+MEM,S. Garner,RHP,fri,USF,yes,d1baseball
+MEM,W. Howell,RHP,sat,USF,yes,d1baseball
+MEM,D. Case,LHP,sun,USF,yes,d1baseball
+RICE,T. Wiggins,RHP,fri,UTSA,yes,d1baseball
+TULA,J. Toporek,LHP,fri,Wichita State,yes,d1baseball
+TULA,T. Cehajic,RHP,sat,Wichita State,yes,d1baseball
+UAB,M. Steele,RHP,fri,Florida Atlantic,yes,d1baseball
+USF,E. Alicea,LHP,fri,Memphis,yes,d1baseball
+USF,M. Senay,RHP,sun,Memphis,yes,d1baseball
+UTSA,R. Self,RHP,fri,Rice,yes,d1baseball
+WSU,M. Cuccias,RHP,fri,Tulane,yes,d1baseball
+WSU,B. Hamilton,RHP,sat,Tulane,yes,d1baseball
+DBU,L. Watt,LHP,fri,Kennesaw State,yes,d1baseball
+DBU,J. Schaeffer,RHP,sat,Kennesaw State,yes,d1baseball
+UD,R. McLaughlin,RHP,fri,New Mexico State,unconfirmed,d1baseball
+UD,D. Marose,RHP,sat,New Mexico State,unconfirmed,d1baseball
+UD,C. Deibler,RHP,sun,New Mexico State,unconfirmed,d1baseball
+FIU,P. Prince,LHP,fri,Louisiana Tech,yes,d1baseball
+FIU,E. Sierra,RHP,sat,Louisiana Tech,yes,d1baseball
+FIU,J. Mlodzinski,RHP,sun,Louisiana Tech,yes,d1baseball
+JSU,E. Pillsbury,LHP,fri,Middle Tennessee,yes,d1baseball
+JSU,B. Bryans,LHP,sat,Middle Tennessee,yes,d1baseball
+JSU,S. Cash,LHP,sun,Middle Tennessee,yes,d1baseball
+KSU2,C. McMullen,RHP,fri,DBU,yes,d1baseball
+KSU2,J. Summerville,RHP,sat,DBU,yes,d1baseball
+LU,B. Blair,RHP,fri,Western Kentucky,yes,d1baseball
+LU,B. Zayac,RHP,sun,Western Kentucky,yes,d1baseball
+LT,D. Dahl,RHP,fri,FIU,yes,d1baseball
+LT,H. Rowan,LHP,sat,FIU,yes,d1baseball
+MTSU,C. Alderman,LHP,fri,Jacksonville State,yes,d1baseball
+MTSU,D. Horn,RHP,sat,Jacksonville State,yes,d1baseball
+MSU2,J. Schaaf,RHP,fri,Sam Houston,unconfirmed,d1baseball
+MSU2,O. Slater,RHP,sat,Sam Houston,unconfirmed,d1baseball
+MSU2,B. Lucas,RHP,sun,Sam Houston,unconfirmed,d1baseball
+NMSU,C. Sneddon,RHP,fri,Delaware,unconfirmed,d1baseball
+NMSU,J. Carvajal,RHP,sat,Delaware,unconfirmed,d1baseball
+NMSU,B. Barnes,LHP,sun,Delaware,unconfirmed,d1baseball
+SHSU,R. Peterson,RHP,fri,Missouri State,unconfirmed,d1baseball
+SHSU,T. Ryden,RHP,sat,Missouri State,unconfirmed,d1baseball
+WKU,Z. Serup,LHP,fri,Liberty,yes,d1baseball
+WKU,A. Robertson,LHP,sat,Liberty,yes,d1baseball
+WKU,G. Perry,RHP,sun,Liberty,yes,d1baseball
+ORUST,T. Morris,LHP,fri,Lamar,yes,d1baseball
+ORUST,D. Whitney,RHP,sat,Lamar,yes,d1baseball
+ORUST,E. Kleinschmit,LHP,sun,Lamar,yes,d1baseball
