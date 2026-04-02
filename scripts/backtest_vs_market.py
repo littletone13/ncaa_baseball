@@ -141,10 +141,21 @@ def parse_odds_log(
                                 if o.get("name") == "Over":
                                     total_lines.append(float(o["point"]))
                                     if o.get("price"):
-                                        over_prices.append(float(o["price"]))
+                                        p = float(o["price"])
+                                        # Valid American odds: large negative OR positive > 100
+                                        # Reject: -99 to +99 (corrupted/placeholder data)
+                                        # Reject: < -500 (unrealistic totals juice)
+                                        if p <= -100 and p >= -500:
+                                            over_prices.append(p)
+                                        elif p >= 100 and p <= 500:
+                                            over_prices.append(p)
                                 elif o.get("name") == "Under":
                                     if o.get("price"):
-                                        under_prices.append(float(o["price"]))
+                                        p = float(o["price"])
+                                        if p <= -100 and p >= -500:
+                                            under_prices.append(p)
+                                        elif p >= 100 and p <= 500:
+                                            under_prices.append(p)
 
             if not home_mls and not total_lines:
                 continue
@@ -168,8 +179,17 @@ def parse_odds_log(
                 rec["mkt_total"] = float(np.median(total_lines))
                 rec["n_books_total"] = len(total_lines)
                 # Store actual juice on over AND under
-                rec["raw_over_price"] = float(np.median(over_prices)) if over_prices else -110.0
-                rec["raw_under_price"] = float(np.median(under_prices)) if under_prices else -110.0
+                # Clamp to realistic range: if median is outside -130 to +120, default to -115
+                if over_prices:
+                    med = float(np.median(over_prices))
+                    rec["raw_over_price"] = med if (-130 <= med <= -100 or 100 <= med <= 120) else -115.0
+                else:
+                    rec["raw_over_price"] = -115.0
+                if under_prices:
+                    med = float(np.median(under_prices))
+                    rec["raw_under_price"] = med if (-130 <= med <= -100 or 100 <= med <= 120) else -115.0
+                else:
+                    rec["raw_under_price"] = -115.0
 
             # Always keep latest snapshot (overwrite earlier)
             game_odds[game_key] = rec
