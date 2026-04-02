@@ -202,6 +202,7 @@ def resolve_starters(
     weekend_rotations_csv: Path = Path("data/processed/weekend_rotations.csv"),
     d1b_rotations_csv: Path = Path("data/processed/d1baseball_rotations.csv"),
     canonical_csv: Path = Path("data/registries/canonical_teams_2026.csv"),
+    overrides_csv: Optional[Path] = None,
     date: str = "",
     out_csv: Optional[Path] = None,
 ) -> pd.DataFrame:
@@ -399,6 +400,25 @@ def resolve_starters(
     platoon = PlatoonLookup()
     print(platoon.summary(), file=sys.stderr)
 
+    # ── Load starter overrides (from StatBroadcast, Twitter, manual) ────────
+    # Format: game_num, side (home/away), pitcher_name, source
+    override_map: dict[tuple[str, str], str] = {}  # (game_num, side) → pitcher_name
+    if overrides_csv is None:
+        # Default location: data/daily/{date}/starter_overrides.csv
+        overrides_csv = Path(f"data/daily/{date}/starter_overrides.csv")
+    if overrides_csv.exists():
+        import csv as csv_mod
+        with open(overrides_csv) as f:
+            for row in csv_mod.DictReader(f):
+                gn = str(row.get("game_num", "")).strip()
+                side = str(row.get("side", "")).strip().lower()
+                name = str(row.get("pitcher_name", "")).strip()
+                if gn and side and name:
+                    override_map[(gn, side)] = name
+        if override_map:
+            print(f"  Loaded {len(override_map)} starter overrides from {overrides_csv}",
+                  file=sys.stderr)
+
     # ── Resolve each game ─────────────────────────────────────────────────────
     rows = []
     for _, game in schedule.iterrows():
@@ -409,6 +429,20 @@ def resolve_starters(
         # Get projected starters via StarterLookup
         hp_name, hp_id, hp_idx_raw = starter_lookup.get_starter(h_cid, date)
         ap_name, ap_id, ap_idx_raw = starter_lookup.get_starter(a_cid, date)
+
+        # Apply overrides — replace name and clear ID so pitcher_table re-resolves
+        hp_override = override_map.get((game_num, "home"))
+        ap_override = override_map.get((game_num, "away"))
+        if hp_override:
+            print(f"  OVERRIDE game {game_num} home: {hp_name} → {hp_override}", file=sys.stderr)
+            hp_name = hp_override
+            hp_id = ""
+            hp_idx_raw = 0
+        if ap_override:
+            print(f"  OVERRIDE game {game_num} away: {ap_name} → {ap_override}", file=sys.stderr)
+            ap_name = ap_override
+            ap_id = ""
+            ap_idx_raw = 0
 
         hp_idx = int(hp_idx_raw) if hp_idx_raw else 0
         ap_idx = int(ap_idx_raw) if ap_idx_raw else 0

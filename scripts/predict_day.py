@@ -154,6 +154,7 @@ def main() -> int:
     # ── Step 2: Starters ──
     print("Step 2/5: Resolving starters...", file=sys.stderr)
     starters_csv = daily_dir / "starters.csv"
+    overrides_csv = daily_dir / "starter_overrides.csv"
     resolve_starters(
         schedule_csv=schedule_csv,
         pitcher_table_csv=args.pitcher_table,
@@ -161,6 +162,7 @@ def main() -> int:
         appearances_csv=args.appearances,
         pitcher_registry_csv=args.pitcher_registry,
         canonical_csv=args.canonical,
+        overrides_csv=overrides_csv if overrides_csv.exists() else None,
         date=args.date,
         out_csv=starters_csv,
     )
