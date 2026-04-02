@@ -343,10 +343,31 @@ def build_team_table(
     else:
         base["conf_strength_adj"] = 0.0
 
-    # 7. n_games — not available yet, set to None
+    # 7. Batter handedness composition (for bilateral platoon model)
+    hand_csv = Path("data/processed/team_batter_handedness.csv")
+    if hand_csv.exists():
+        hand_df = pd.read_csv(hand_csv, dtype=str)
+        hand_df["pct_rhb"] = pd.to_numeric(hand_df["pct_rhb"], errors="coerce")
+        hand_df["pct_lhb"] = pd.to_numeric(hand_df["pct_lhb"], errors="coerce")
+        hand_df["effective_rhb_frac"] = pd.to_numeric(hand_df["effective_rhb_frac"], errors="coerce")
+        hand_keep = hand_df[["canonical_id", "pct_rhb", "pct_lhb", "effective_rhb_frac"]].copy()
+        base = base.merge(hand_keep, on="canonical_id", how="left")
+        # Default to league average for teams not in sidearm data
+        base["pct_rhb"] = base["pct_rhb"].fillna(0.682)
+        base["pct_lhb"] = base["pct_lhb"].fillna(0.290)
+        base["effective_rhb_frac"] = base["effective_rhb_frac"].fillna(0.696)
+        n_hand = (base["pct_rhb"] != 0.682).sum()
+        print(f"  Batter handedness: {n_hand} teams with team-specific data", file=sys.stderr)
+    else:
+        print(f"  WARNING: {hand_csv} not found — using league avg RHB for all teams", file=sys.stderr)
+        base["pct_rhb"] = 0.682
+        base["pct_lhb"] = 0.290
+        base["effective_rhb_frac"] = 0.696
+
+    # 8. n_games — not available yet, set to None
     base["n_games"] = np.nan
 
-    # 8. Final column ordering per spec
+    # 9. Final column ordering per spec
     output_cols = [
         "canonical_id",
         "team_idx",
@@ -360,6 +381,9 @@ def build_team_table(
         "conf_strength_adj",
         "batting_fb_pct",
         "batting_fb_factor",
+        "pct_rhb",
+        "pct_lhb",
+        "effective_rhb_frac",
         "n_games",
     ]
     # Only include columns that exist

@@ -44,7 +44,9 @@ SIMULATE_SCORING_CALIBRATION = SCORING_CALIBRATION
 assert_scoring_calibration_parity("simulate.py", SIMULATE_SCORING_CALIBRATION)
 
 # LHP platoon adjustment (log-rate): positive = teams score more runs facing LHP.
-# RHB-heavy lineups have platoon advantage vs LHP; baseline assumes ~75% RHB.
+# LHP platoon adjustment (log-rate): positive = teams score more runs facing LHP.
+# This is the AVERAGE effect across all teams. Individual teams are scaled by
+# their actual RHB fraction relative to the league average.
 from platoon_adjustment import DEFAULT_LHP_ADJ as _PLATOON_CHECK
 PLATOON_LHP_ADJ = 0.03
 assert abs(PLATOON_LHP_ADJ - _PLATOON_CHECK) < 1e-12, (
@@ -54,6 +56,10 @@ assert abs(PLATOON_LHP_ADJ - _PLATOON_CHECK) < 1e-12, (
 
 # Default bullpen LHP fraction when team data unavailable (~NCAA average).
 PLATOON_NCAA_BP_LHP_FRAC = 0.30
+
+# League average effective RHB fraction (from sidearm rosters).
+# Used to scale team-specific platoon: team_adj = LHP_ADJ * (team_rhb / LEAGUE_RHB)
+LEAGUE_AVG_EFFECTIVE_RHB = 0.696
 
 # ── Utility ──────────────────────────────────────────────────────────────────
 
@@ -350,10 +356,21 @@ def simulate_games(
         # hp_hand/ap_hand already read above from starters.csv hp_throws/ap_throws.
         away_bp_lhp = _safe_float(st, "away_bp_lhp_frac", PLATOON_NCAA_BP_LHP_FRAC)
         home_bp_lhp = _safe_float(st, "home_bp_lhp_frac", PLATOON_NCAA_BP_LHP_FRAC)
-        ap_starter_plat = PLATOON_LHP_ADJ if ap_hand == "L" else 0.0
-        hp_starter_plat = PLATOON_LHP_ADJ if hp_hand == "L" else 0.0
-        ap_bp_plat = PLATOON_LHP_ADJ * away_bp_lhp
-        hp_bp_plat = PLATOON_LHP_ADJ * home_bp_lhp
+        # Bilateral platoon: scale LHP effect by batting team's actual RHB composition.
+        # Teams with more RHB get a bigger platoon boost vs LHP (and vice versa).
+        # team_rhb_scale = team_effective_rhb / league_avg_rhb
+        h_pct_rhb = _safe_float(st, "home_pct_rhb", LEAGUE_AVG_EFFECTIVE_RHB)
+        a_pct_rhb = _safe_float(st, "away_pct_rhb", LEAGUE_AVG_EFFECTIVE_RHB)
+        h_rhb_scale = h_pct_rhb / LEAGUE_AVG_EFFECTIVE_RHB  # >1 if more RHB than avg
+        a_rhb_scale = a_pct_rhb / LEAGUE_AVG_EFFECTIVE_RHB
+        # Starter platoon: base LHP_ADJ scaled by batting team's RHB composition
+        # platoon_h = effect on HOME runs when facing AWAY pitcher
+        # Home batters face away pitcher → scale by HOME team's RHB%
+        ap_starter_plat = (PLATOON_LHP_ADJ * h_rhb_scale) if ap_hand == "L" else 0.0
+        hp_starter_plat = (PLATOON_LHP_ADJ * a_rhb_scale) if hp_hand == "L" else 0.0
+        # Bullpen platoon: also scaled by batting team's RHB composition
+        ap_bp_plat = PLATOON_LHP_ADJ * away_bp_lhp * h_rhb_scale
+        hp_bp_plat = PLATOON_LHP_ADJ * home_bp_lhp * a_rhb_scale
         platoon_h = ap_starter_plat * ap_starter_ip_frac + ap_bp_plat * ap_bullpen_ip_frac
         platoon_a = hp_starter_plat * hp_starter_ip_frac + hp_bp_plat * hp_bullpen_ip_frac
         # Bullpen-only platoon for extra innings (starter is out, only BP LHP frac matters)

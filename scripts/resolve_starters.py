@@ -346,9 +346,11 @@ def resolve_starters(
                 # Positive = opponent scores more (key relievers are unavailable)
                 bp_avail_adj_by_team[str(cid)] = round(frac_unavail * BP_AVAIL_MAX_PENALTY, 4)
 
-    # ── Load team_table for wRC+ offense adjustment + batting FB factor ──────
+    # ── Load team_table for wRC+ offense adjustment + batting FB factor + handedness ──
     wrc_adj_by_team: dict[str, float] = {}  # canonical_id → wRC+ offense adj (all teams)
     batting_fb_by_team: dict[str, float] = {}  # canonical_id → FB factor (for wind model)
+    pct_rhb_by_team: dict[str, float] = {}  # canonical_id → effective RHB fraction (for platoon)
+    LEAGUE_AVG_RHB = 0.696  # league average effective RHB fraction
     team_idx_by_cid: dict[str, int] = {}
     # Scaling: teams WITH posteriors get partial wRC+ (posterior already captures
     # some offense); teams WITHOUT posteriors get full wRC+ weight.
@@ -359,6 +361,7 @@ def resolve_starters(
         tt["team_idx"] = pd.to_numeric(tt["team_idx"], errors="coerce").fillna(0).astype(int)
         tt["wrc_offense_adj"] = pd.to_numeric(tt["wrc_offense_adj"], errors="coerce").fillna(0.0)
         tt["batting_fb_factor"] = pd.to_numeric(tt.get("batting_fb_factor"), errors="coerce").fillna(1.0)
+        tt["effective_rhb_frac"] = pd.to_numeric(tt.get("effective_rhb_frac"), errors="coerce").fillna(LEAGUE_AVG_RHB)
         for _, row in tt.iterrows():
             cid = str(row.get("canonical_id", "")).strip()
             if not cid:
@@ -367,6 +370,8 @@ def resolve_starters(
             team_idx_by_cid[cid] = tidx
             # Batting FB factor for wind scaling (all teams)
             batting_fb_by_team[cid] = float(row["batting_fb_factor"])
+            # Batter handedness for bilateral platoon
+            pct_rhb_by_team[cid] = float(row["effective_rhb_frac"])
             # Apply wRC+ adj to ALL teams, scaled by posterior presence
             adj = float(row["wrc_offense_adj"])
             if adj != 0.0:
@@ -466,6 +471,10 @@ def resolve_starters(
         home_batting_fb = batting_fb_by_team.get(h_cid, 1.0)
         away_batting_fb = batting_fb_by_team.get(a_cid, 1.0)
 
+        # Batter handedness for bilateral platoon
+        home_pct_rhb = pct_rhb_by_team.get(h_cid, LEAGUE_AVG_RHB)
+        away_pct_rhb = pct_rhb_by_team.get(a_cid, LEAGUE_AVG_RHB)
+
         print(
             f"  Game {game_num}: {a_cid} @ {h_cid} | "
             f"HP={hp_name} (idx={hp_idx_final}, throws={hp_info['throws'] or '?'}, "
@@ -505,6 +514,8 @@ def resolve_starters(
             "away_wrc_adj": away_wrc_adj,
             "home_batting_fb": home_batting_fb,
             "away_batting_fb": away_batting_fb,
+            "home_pct_rhb": home_pct_rhb,
+            "away_pct_rhb": away_pct_rhb,
         })
         # Platoon: use pitcher_table throws first, fall back to D1B rotation lookup.
         # pitcher_table has 4,889 pitchers with throws; rotations only ~200.
