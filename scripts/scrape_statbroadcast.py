@@ -228,19 +228,40 @@ def write_overrides(
 
     sched = pd.read_csv(schedule_csv, dtype=str)
 
-    # Build lookup: (home_name_lower, away_name_lower) → game_num
-    # Use fuzzy matching since StatBroadcast team names may differ
-    game_lookup = {}
+    # Build lookup via canonical registry — exact match only, no fuzzy.
+    # StatBroadcast full team names → canonical_id → schedule game_num
+    canon_csv = Path("data/registries/canonical_teams_2026.csv")
+    # StatBroadcast name → canonical_id: exact match from all registry name columns.
+    # Also loads statbroadcast_names.csv for known aliases that differ from registry.
+    name_to_cid: dict[str, str] = {}
+    if canon_csv.exists():
+        canon = pd.read_csv(canon_csv, dtype=str)
+        for _, cr in canon.iterrows():
+            cid = str(cr.get("canonical_id", "")).strip()
+            for col in ("team_name", "odds_api_name", "espn_name"):
+                n = str(cr.get(col, "")).strip()
+                if n and n != "nan":
+                    name_to_cid[n.lower()] = cid
+
+    # Load StatBroadcast-specific aliases (for names that differ from canonical registry)
+    sb_names_csv = Path("data/registries/statbroadcast_names.csv")
+    if sb_names_csv.exists():
+        with open(sb_names_csv) as f:
+            for row in csv.DictReader(f):
+                sb_name = str(row.get("statbroadcast_name", "")).strip()
+                cid = str(row.get("canonical_id", "")).strip()
+                if sb_name and cid:
+                    name_to_cid[sb_name.lower()] = cid
+
+    # Schedule lookup: (home_cid, away_cid) → game_num
+    cid_to_game: dict[tuple[str, str], str] = {}
+    h_col = "home_cid" if "home_cid" in sched.columns else "home_canonical_id"
+    a_col = "away_cid" if "away_cid" in sched.columns else "away_canonical_id"
     for _, g in sched.iterrows():
-        h = str(g.get("home_name", "")).strip().lower()
-        a = str(g.get("away_name", "")).strip().lower()
+        hc = str(g[h_col]).strip()
+        ac = str(g[a_col]).strip()
         gn = str(g["game_num"])
-        game_lookup[(h, a)] = gn
-        # Also store partial names for fuzzy matching
-        h_short = h.split()[-1] if h else ""  # last word (e.g., "florida" from "Florida")
-        a_short = a.split()[-1] if a else ""
-        if h_short and a_short:
-            game_lookup[(h_short, a_short)] = gn
+        cid_to_game[(hc, ac)] = gn
 
     # Load existing overrides
     existing = {}
@@ -252,20 +273,26 @@ def write_overrides(
 
     new_count = 0
     for r in results:
-        h_name = r["home_team"].lower()
-        a_name = r["away_team"].lower()
+        h_name = r["home_team"].lower().strip()
+        a_name = r["away_team"].lower().strip()
 
-        # Try to match to game number
-        game_num = game_lookup.get((h_name, a_name))
-        if not game_num:
-            # Try partial match
-            for (hk, ak), gn in game_lookup.items():
-                if (h_name in hk or hk in h_name) and (a_name in ak or ak in a_name):
-                    game_num = gn
-                    break
+        # Resolve StatBroadcast team names → canonical_id via exact registry match
+        h_cid = name_to_cid.get(h_name, "")
+        a_cid = name_to_cid.get(a_name, "")
 
+        if not h_cid:
+            print(f"  WARNING: '{r['home_team']}' not in canonical registry — add mapping",
+                  file=sys.stderr)
+            continue
+        if not a_cid:
+            print(f"  WARNING: '{r['away_team']}' not in canonical registry — add mapping",
+                  file=sys.stderr)
+            continue
+
+        # Look up game_num from schedule via canonical_id pair
+        game_num = cid_to_game.get((h_cid, a_cid))
         if not game_num:
-            print(f"  WARNING: Could not match {a_name} @ {h_name} to schedule",
+            print(f"  WARNING: {a_cid} @ {h_cid} not in schedule for this date",
                   file=sys.stderr)
             continue
 
