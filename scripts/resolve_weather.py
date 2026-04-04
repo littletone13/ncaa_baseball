@@ -37,7 +37,10 @@ from pathlib import Path
 import pandas as pd
 
 import _bootstrap  # noqa: F401
-from weather_park_adjustment import get_weather_park_adj, load_stadium_data, get_stadium_info
+from weather_park_adjustment import (
+    get_weather_park_adj, load_stadium_data, get_stadium_info,
+    air_density_ratio, ALTITUDE_COEFF,
+)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -125,11 +128,14 @@ def resolve_weather(
         temp_f = 72.0
         wind_mph = 0.0
         wind_dir_deg = 0.0
+        wind_gusts_mph = 0.0
         rain_chance_pct = 0.0
+        humidity_pct = 50.0
         weather_mode = "current"
         weather_status = "ok_current"
         weather_error = ""
         elevation_ft = 0.0
+        is_dome = False
 
         if not home_cid:
             print(f"  Warning: no home_cid for game {game_num} — using neutral weather", file=sys.stderr)
@@ -141,6 +147,7 @@ def resolve_weather(
             weather_error = "no_stadium_data"
         else:
             elevation_ft = sinfo.get("elevation_ft", 0.0)
+            is_dome = sinfo.get("is_dome", False)
             try:
                 w = get_weather_park_adj(
                     canonical_id=home_cid,
@@ -158,9 +165,14 @@ def resolve_weather(
                     temp_f = w.get("temp_f", 72.0)
                     wind_mph = w.get("wind_speed_mph", 0.0)
                     wind_dir_deg = w.get("wind_dir_deg", 0.0)
+                    wind_gusts_mph = w.get("wind_gusts_mph", 0.0)
                     rain_chance_pct = w.get("precip_prob_pct", 0.0)
+                    humidity_pct = w.get("humidity_pct", 50.0)
                     weather_mode = w.get("weather_mode", "current")
-                    weather_status = "ok_hourly" if weather_mode == "hourly_avg" else "ok_current"
+                    if w.get("is_dome"):
+                        weather_status = "dome_bypass"
+                    else:
+                        weather_status = "ok_hourly" if weather_mode == "hourly_avg" else "ok_current"
                     elevation_ft = w.get("elevation_ft", elevation_ft)
                 else:
                     print(f"  Weather warning: {w['error']}", file=sys.stderr)
@@ -170,6 +182,15 @@ def resolve_weather(
                 print(f"  Weather failed for {home_cid}: {e}", file=sys.stderr)
                 weather_status = "exception"
                 weather_error = str(e)
+
+        # Altitude double-counting guard: park factors computed from game data
+        # already embed the altitude effect. Subtract expected altitude component
+        # to avoid counting it twice (once in park_factor, once in alt_adj).
+        # Only adjust for non-trivial elevations where the correction matters.
+        if park_factor != 0.0 and elevation_ft > 500:
+            density_r = air_density_ratio(elevation_ft)
+            expected_alt_in_pf = ALTITUDE_COEFF * (1.0 - density_r)
+            park_factor = park_factor - expected_alt_in_pf
 
         rows.append(
             {
@@ -185,11 +206,14 @@ def resolve_weather(
                 "temp_f": round(temp_f, 1),
                 "wind_mph": round(wind_mph, 1),
                 "wind_dir_deg": round(wind_dir_deg, 1),
+                "wind_gusts_mph": round(wind_gusts_mph, 1),
                 "rain_chance_pct": round(rain_chance_pct, 1),
+                "humidity_pct": round(humidity_pct, 1),
                 "weather_mode": weather_mode,
                 "weather_status": weather_status,
                 "weather_error": weather_error,
                 "elevation_ft": round(elevation_ft, 1),
+                "is_dome": is_dome,
             }
         )
 

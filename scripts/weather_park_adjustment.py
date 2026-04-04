@@ -60,11 +60,25 @@ TEMP_BASELINE_F = 72.0
 #   - 0.25 calibrated so Denver: 0.25 * 0.18 = 0.045 → exp(0.045) = +4.6% runs
 ALTITUDE_COEFF = 0.25
 
+# Rain effect: log-rate penalty per percentage point above threshold
+# 50% rain → -0.0375 → -3.7% runs; 75% rain → -0.075 → -7.2% runs
+RAIN_COEFF = -0.0015
+RAIN_THRESHOLD_PCT = 25.0
+RAIN_ADJ_FLOOR = -0.10  # cap penalty at ~10% run reduction
+
 # Default home plate bearing if not in stadium data (MLB rule: ENE ~67°)
 DEFAULT_HP_BEARING = 67.0
 
 # Wind speed below which direction is negligible
 CALM_WIND_MPH = 3.0
+
+# Cold-weather threshold: below this, temp adjustment is zeroed out
+# (NCAA pitchers lose command in cold, offsetting reduced ball carry)
+COLD_WEATHER_FLOOR_F = 55.0
+
+# Wind gust blending: fraction of gust speed mixed into effective wind
+# ~30% of fly balls experience gust-level winds at moment of contact
+GUST_BLEND = 0.30
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -101,6 +115,7 @@ def get_stadium_info(
         "rf_bearing": (cf_bearing + 45.0) % 360.0,
         "venue_name": str(r.get("venue_name", "")),
         "elevation_ft": float(r.get("elevation_ft", 0)),
+        "is_dome": bool(int(r.get("is_dome", 0))),
     }
 
 
@@ -117,7 +132,7 @@ def fetch_current_weather(lat: float, lon: float) -> dict | None:
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={lat}&longitude={lon}"
-        f"&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation"
+        f"&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation"
         f"&temperature_unit=fahrenheit"
         f"&wind_speed_unit=mph"
         f"&timezone=auto"
@@ -140,6 +155,7 @@ def fetch_current_weather(lat: float, lon: float) -> dict | None:
         "wind_direction_deg": float(current.get("wind_direction_10m", 0)),
         "temperature_f": float(current.get("temperature_2m", TEMP_BASELINE_F)),
         "wind_gusts_mph": float(current.get("wind_gusts_10m", 0)),
+        "humidity_pct": float(current.get("relative_humidity_2m", 50)),
         "precipitation_mm": precip_mm,
         "precip_prob_pct": precip_prob_pct,
     }
@@ -160,7 +176,7 @@ def fetch_hourly_weather(lat: float, lon: float, date: str) -> list[dict] | None
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={lat}&longitude={lon}"
-        f"&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability,precipitation"
+        f"&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability,precipitation"
         f"&temperature_unit=fahrenheit"
         f"&wind_speed_unit=mph"
         f"&timezone=auto"
@@ -187,6 +203,7 @@ def fetch_hourly_weather(lat: float, lon: float, date: str) -> list[dict] | None
             "wind_direction_deg": float(hourly.get("wind_direction_10m", [0])[i]),
             "temperature_f": float(hourly.get("temperature_2m", [TEMP_BASELINE_F])[i]),
             "wind_gusts_mph": float(hourly.get("wind_gusts_10m", [0])[i]),
+            "humidity_pct": float(hourly.get("relative_humidity_2m", [50])[i]),
             "precip_prob_pct": float(hourly.get("precipitation_probability", [0])[i]),
             "precipitation_mm": float(hourly.get("precipitation", [0])[i]),
         })
@@ -224,6 +241,7 @@ def average_weather(weather_list: list[dict]) -> dict:
             "wind_direction_deg": 0,
             "temperature_f": TEMP_BASELINE_F,
             "wind_gusts_mph": 0,
+            "humidity_pct": 50,
             "precip_prob_pct": 0,
             "precipitation_mm": 0,
         }
@@ -238,6 +256,7 @@ def average_weather(weather_list: list[dict]) -> dict:
         "wind_direction_deg": round(avg_dir, 1),
         "temperature_f": sum(w["temperature_f"] for w in weather_list) / n,
         "wind_gusts_mph": sum(w["wind_gusts_mph"] for w in weather_list) / n,
+        "humidity_pct": sum(float(w.get("humidity_pct", 50) or 50) for w in weather_list) / n,
         "precip_prob_pct": sum(float(w.get("precip_prob_pct", 0) or 0) for w in weather_list) / n,
         "precipitation_mm": sum(float(w.get("precipitation_mm", 0) or 0) for w in weather_list) / n,
     }
@@ -261,6 +280,23 @@ def air_density_ratio(elevation_ft: float) -> float:
     """
     elevation_m = elevation_ft * 0.3048
     return (1 - 2.25577e-5 * elevation_m) ** 5.25588
+
+
+def humidity_density_reduction(temp_f: float, rh_pct: float) -> float:
+    """
+    Fractional air density reduction from water vapor (moist vs dry air).
+
+    Humid air is less dense because H₂O (M=18) displaces N₂ (M=28) and O₂ (M=32).
+    Uses the relation: Δρ/ρ ≈ 0.378 × e / P, where e = actual vapor pressure.
+
+    At 90°F, 85% RH → ~1.5% density reduction → +0.38% runs (via ALTITUDE_COEFF).
+    At 72°F, 50% RH → ~0.5% density reduction → +0.13% runs.
+    """
+    tc = (temp_f - 32) * 5 / 9
+    # Saturation vapor pressure (Magnus formula, hPa)
+    e_sat = 6.1078 * 10 ** (7.5 * tc / (tc + 237.3))
+    e = e_sat * rh_pct / 100.0
+    return 0.378 * e / 1013.25
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -363,6 +399,10 @@ def compute_weather_adjustment(
     hp_bearing_deg: float,
     elevation_ft: float = 0.0,
     fb_sensitivity: float = 1.0,
+    humidity_pct: float = 50.0,
+    rain_pct: float = 0.0,
+    wind_gusts_mph: float = 0.0,
+    is_dome: bool = False,
 ) -> dict:
     """
     Compute log-scale park factor adjustment from current weather + altitude.
@@ -375,7 +415,7 @@ def compute_weather_adjustment(
     to the wind portion only:
 
       wind_adj_raw: log-rate from wind at league-avg FB sensitivity (unscaled)
-      non_wind_adj: log-rate from temp + altitude (not affected by FB%)
+      non_wind_adj: log-rate from temp + altitude + humidity + rain (not FB%)
       wind_adj: wind_adj_raw × fb_sensitivity (for backward compat / display)
       total_adj: wind_adj + non_wind_adj (combined, for backward compat)
 
@@ -385,22 +425,64 @@ def compute_weather_adjustment(
 
     Recommended usage in predict_day.py:
       - Use wind_adj_raw × pitcher_fb_sensitivity for per-pitcher wind scaling
-      - Add non_wind_adj unchanged (temp/altitude affect all batted balls)
+      - Add non_wind_adj unchanged (temp/altitude/humidity/rain affect all batted balls)
     """
+    # Altitude: lower air density → less drag → more carry (always applies, even domes)
+    density_ratio = air_density_ratio(elevation_ft)
+    alt_adj = ALTITUDE_COEFF * (1.0 - density_ratio)
+
+    # Dome bypass: only altitude matters inside a dome
+    if is_dome:
+        return {
+            "wind_out_mph": 0.0,
+            "wind_out_cf_mph": 0.0,
+            "wind_out_lf_mph": 0.0,
+            "wind_out_rf_mph": 0.0,
+            "lf_bearing": (hp_bearing_deg - 45.0) % 360.0,
+            "cf_bearing": hp_bearing_deg,
+            "rf_bearing": (hp_bearing_deg + 45.0) % 360.0,
+            "wind_adj": 0.0,
+            "wind_adj_raw": 0.0,
+            "non_wind_adj": round(alt_adj, 4),
+            "temp_adj": 0.0,
+            "alt_adj": round(alt_adj, 4),
+            "humid_adj": 0.0,
+            "rain_adj": 0.0,
+            "density_ratio": round(density_ratio, 4),
+            "elevation_ft": round(elevation_ft),
+            "fb_sensitivity": round(fb_sensitivity, 3),
+            "humidity_pct": round(humidity_pct, 1),
+            "total_adj": round(alt_adj, 4),
+            "is_dome": True,
+        }
+
+    # Wind: blend sustained speed with gusts (~30% of fly balls catch gusts)
+    # When gusts aren't available, fall back to sustained speed (no penalty)
+    gusts = wind_gusts_mph if wind_gusts_mph > 0 else wind_speed_mph
+    eff_wind_speed = wind_speed_mph * (1 - GUST_BLEND) + gusts * GUST_BLEND
+
     # Directional wind: weighted average across outfield arc
-    dir_wind = wind_out_directional(wind_direction_deg, wind_speed_mph, hp_bearing_deg)
+    dir_wind = wind_out_directional(wind_direction_deg, eff_wind_speed, hp_bearing_deg)
     w_out_eff = dir_wind["wind_out_eff"]
     w_out_cf = dir_wind["wind_out_cf"]  # legacy CF-only for display
 
     wind_adj_raw = WIND_OUT_COEFF * w_out_eff
     wind_adj = wind_adj_raw * fb_sensitivity
-    temp_adj = TEMP_COEFF * (temperature_f - TEMP_BASELINE_F)
 
-    # Altitude: lower air density → less drag → more carry
-    density_ratio = air_density_ratio(elevation_ft)
-    alt_adj = ALTITUDE_COEFF * (1.0 - density_ratio)
+    # Temperature: zeroed below cold-weather floor (reduced carry offset by
+    # worse pitcher command in cold — backtest shows no net scoring change)
+    if temperature_f < COLD_WEATHER_FLOOR_F:
+        temp_adj = 0.0
+    else:
+        temp_adj = TEMP_COEFF * (temperature_f - TEMP_BASELINE_F)
 
-    non_wind_adj = temp_adj + alt_adj
+    # Humidity: moist air is less dense → balls carry farther
+    humid_adj = ALTITUDE_COEFF * humidity_density_reduction(temperature_f, humidity_pct)
+
+    # Rain: wet balls, delays, shortened games, cautious play
+    rain_adj = max(RAIN_ADJ_FLOOR, RAIN_COEFF * max(0.0, rain_pct - RAIN_THRESHOLD_PCT))
+
+    non_wind_adj = temp_adj + alt_adj + humid_adj + rain_adj
 
     return {
         "wind_out_mph": round(w_out_eff, 1),    # effective (arc-weighted)
@@ -415,10 +497,14 @@ def compute_weather_adjustment(
         "non_wind_adj": round(non_wind_adj, 4),
         "temp_adj": round(temp_adj, 4),
         "alt_adj": round(alt_adj, 4),
+        "humid_adj": round(humid_adj, 4),
+        "rain_adj": round(rain_adj, 4),
         "density_ratio": round(density_ratio, 4),
         "elevation_ft": round(elevation_ft),
         "fb_sensitivity": round(fb_sensitivity, 3),
+        "humidity_pct": round(humidity_pct, 1),
         "total_adj": round(wind_adj + non_wind_adj, 4),
+        "is_dome": False,
     }
 
 
@@ -443,6 +529,7 @@ def get_weather_park_adj(
     """
     venue_name = ""
     elevation_ft = 0.0
+    is_dome = False
     if canonical_id and (lat is None or lon is None):
         sdf = load_stadium_data(stadium_csv)
         info = get_stadium_info(canonical_id, sdf)
@@ -453,6 +540,7 @@ def get_weather_park_adj(
         hp_bearing = hp_bearing or info["hp_bearing"]
         venue_name = info["venue_name"]
         elevation_ft = info.get("elevation_ft", 0.0)
+        is_dome = info.get("is_dome", False)
 
     if lat is None or lon is None:
         return {"error": "No lat/lon provided", "total_adj": 0.0}
@@ -501,6 +589,10 @@ def get_weather_park_adj(
         hp_bearing,
         elevation_ft=elevation_ft,
         fb_sensitivity=fb_sensitivity,
+        humidity_pct=float(weather.get("humidity_pct", 50)),
+        rain_pct=float(weather.get("precip_prob_pct", 0)),
+        wind_gusts_mph=float(weather.get("wind_gusts_mph", 0)),
+        is_dome=is_dome,
     )
     adj.update({
         "wind_speed_mph": weather["wind_speed_mph"],
@@ -564,8 +656,13 @@ def main() -> int:
         print(f"Wind out (directional): LF={w_lf:+.1f}  CF={w_cf:+.1f}  RF={w_rf:+.1f}  → eff={w_eff:+.1f} mph")
         print(f"Elevation: {result.get('elevation_ft', 0):.0f} ft "
               f"(air density ratio: {result.get('density_ratio', 1.0):.3f})")
+        print(f"Humidity: {result.get('humidity_pct', 50):.0f}%")
+        if result.get("is_dome"):
+            print(f"  *** DOME: wind/temp/humidity/rain bypassed ***")
         print(f"Wind adjustment:     {result['wind_adj']:+.4f} (log-rate)")
         print(f"Temp adjustment:     {result['temp_adj']:+.4f} (log-rate)")
+        print(f"Humidity adjustment: {result.get('humid_adj', 0):+.4f} (log-rate)")
+        print(f"Rain adjustment:     {result.get('rain_adj', 0):+.4f} (log-rate)")
         print(f"Altitude adjustment: {result.get('alt_adj', 0):+.4f} (log-rate)")
         print(f"TOTAL adjustment:    {result['total_adj']:+.4f} (log-rate)")
         total_exp = math.exp(result['total_adj'])

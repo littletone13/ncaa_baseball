@@ -235,16 +235,33 @@ def scrape_game_pbp(page, game_id: str) -> dict | None:
     url = f"https://stats.statbroadcast.com/broadcast/?id={game_id}"
 
     try:
-        page.goto(url, wait_until="domcontentloaded", timeout=15000)
-        time.sleep(6)  # proof-of-work challenge
+        page.goto(url, wait_until="domcontentloaded", timeout=20000)
+        time.sleep(8)  # proof-of-work challenge — needs 8+ seconds
 
         title = page.title()
+        # If still showing the challenge page, wait longer and retry
+        if "StatBroadcast Live" in title or "statbroadcast" in title.lower():
+            time.sleep(8)
+            title = page.title()
+
         if "403" in title or "Forbidden" in title:
             print(f"  {game_id}: 403 blocked", file=sys.stderr)
             return None
 
-        if "Final" not in title and "final" not in title.lower():
-            # Game not completed yet
+        if "StatBroadcast Live" in title or "statbroadcast" in title.lower():
+            print(f"  {game_id}: challenge timeout (try again)", file=sys.stderr)
+            return None
+
+        # Check for completed game — look for score pattern or "Final"
+        has_score = bool(re.search(r"\d+.*\d+", title))
+        is_final = "final" in title.lower()
+        is_pregame = "pregame" in title.lower()
+
+        if is_pregame:
+            print(f"  {game_id}: {title} (pregame)", file=sys.stderr)
+            return None
+
+        if not is_final and not has_score:
             print(f"  {game_id}: {title} (not final)", file=sys.stderr)
             return None
 
