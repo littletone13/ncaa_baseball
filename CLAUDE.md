@@ -21,13 +21,22 @@ pitcher_appearances + D1B stats + Stan indices → build_pitcher_table.py → pi
 canonical_teams + Stan indices + bullpen/wRC+ → build_team_table.py → team_table.csv
 
 ── PREDICT PHASE (daily, orchestrated by predict_day.py) ──
-predict_day.py calls 5 modules in sequence:
-  1. resolve_schedule.py  → data/daily/{date}/schedule.csv   (NCAA + ESPN + Odds APIs)
-  2. resolve_starters.py  → data/daily/{date}/starters.csv   (StarterLookup + pitcher_table)
-  3. resolve_weather.py   → data/daily/{date}/weather.csv    (Open-Meteo + park factors)
-  3b. bullpen_fatigue.py  → data/daily/{date}/fatigue.csv    (Rolling 3-day reliever IP)
-  4. simulate.py          → predictions CSV                   (Monte Carlo, 5000 draws)
-  5. build_calibration_report.py → calibration CSV + markdown (market coherence checks)
+predict_day.py calls 7 steps in sequence:
+  0. pull_odds.py         → odds_latest.jsonl                 (auto-pull for market anchor)
+  1. resolve_schedule.py  → data/daily/{date}/schedule.csv    (NCAA + ESPN + Odds APIs)
+  2. resolve_starters.py  → data/daily/{date}/starters.csv    (StarterLookup + pitcher_table + overrides)
+  2b. starter QA report   → starter_qa.csv                    (confidence assessment)
+  3. resolve_weather.py   → data/daily/{date}/weather.csv     (Open-Meteo + park + humidity + rain + gusts)
+  3b. bullpen_fatigue.py  → data/daily/{date}/fatigue.csv     (Rolling 3-day reliever IP + arm availability)
+  3c. compute_game_context.py → data/daily/{date}/context.csv (7 layers: rest, day/night, surface, travel, form, catcher, conf)
+  4. simulate.py          → predictions CSV                    (Monte Carlo, 5000 draws, bilateral platoon)
+  5. calibration report   → calibration CSV + markdown         (market coherence checks)
+  6. upload_projections_to_syndicate() → Supabase public.projections (direct, no adapter)
+
+── STARTER CONFIRMATION (pre-game, ~90 min before first pitch) ──
+scrape_statbroadcast.py → starter_overrides.csv → re-run predict_day.py
+  StatBroadcast pages have confirmed lineups + SP before game time
+  Overrides replace projected starters and re-resolve pitcher indices
 
 pull_odds.py → odds JSONL → compare model vs market (ML, totals, spreads)
 ```
@@ -73,13 +82,25 @@ pull_odds.py → odds JSONL → compare model vs market (ML, totals, spreads)
 | `scripts/lookup_starters.py` | Starting pitcher inference (StarterLookup class) |
 | `scripts/bullpen_fatigue.py` | Rolling 3-day reliever IP tracker (fatigue_z + fatigue_adj) |
 | `scripts/backtest.py` | Systematic backtesting: Brier score, log-loss, total MAE, calibration |
-| `scripts/scrape_pregame_starters.py` | ESPN pregame + manual override starter updates |
-| `scripts/scrape_d1b_starters.py` | D1Baseball rotation page scraper (Playwright, subscription required) |
+| `scripts/scrape_statbroadcast.py` | Pre-game lineup scraper — confirmed starters from StatBroadcast (Playwright) |
+| `scripts/scrape_statbroadcast_pbp.py` | Post-game PBP/run_events with pitcher attribution from StatBroadcast |
+| `scripts/scrape_sidearm_boxscores.py` | Sidearm box score scraper — pitcher stats, lineups, umpires (308 teams) |
+| `scripts/parse_d1b_rotations_html.py` | D1B weekly rotation article parser → d1baseball_rotations.csv |
+| `scripts/compute_game_context.py` | 7-layer context engine (rest, day/night, surface, travel, form, catcher, conf) |
+| `scripts/build_team_batter_composition.py` | Per-team batter handedness from sidearm rosters (bilateral platoon) |
+| `scripts/backtest_vs_market.py` | Corrected backtest — raw market odds for payout, tests ML + totals + spreads |
 | `scripts/integrate_ncaa_boxscores.py` | Merge NCAA boxscores into pitcher_appearances (100% coverage) |
-| `scripts/platoon_adjustment.py` | LHP/RHP platoon lookup (currently disabled) |
+| `scripts/platoon_adjustment.py` | LHP/RHP platoon lookup (bilateral model, DEFAULT_LHP_ADJ = 0.03) |
 | `data/registries/canonical_teams_2026.csv` | Team registry with odds_api_name + espn_name mappings |
 | `data/registries/stadium_orientations.csv` | Stadium lat/lon + HP→CF bearings |
 | `data/registries/d1baseball_crosswalk.csv` | D1Baseball team name → canonical_id (308 entries) |
+| `data/registries/sidearm_urls.csv` | 308 team athletic site URLs for Sidearm scraping |
+| `data/registries/statbroadcast_names.csv` | StatBroadcast abbreviation → canonical_id aliases |
+| `data/registries/twitter_ncaa_baseball.csv` | 194 Twitter/X accounts (147 teams, 26 beat reporters) |
+| `data/registries/surface_types.csv` | 38 turf stadiums with brand attribution |
+| `data/registries/catcher_quality.csv` | D1B Top 50 catchers with composite quality score |
+| `data/processed/team_batter_handedness.csv` | Per-team RHB/LHB/switch composition (207 teams) |
+| `data/processed/d1baseball_rotations.csv` | Weekly rotation starters with canonical_id (must have canonical_id column) |
 | `Makefile` | Pipeline DAG (extract → indices → tables → model → predict) |
 
 ## Environment Setup
@@ -135,14 +156,17 @@ pull_odds.py → odds JSONL → compare model vs market (ML, totals, spreads)
 ### Weather & Altitude Model
 - **Directional wind**: 5-point arc-weighted sampling across 90° outfield arc
   - LF foul pole (0.10) → LF power alley (0.25) → CF (0.30) → RF power alley (0.25) → RF foul pole (0.10)
-  - LF bearing = CF bearing − 45°, RF bearing = CF bearing + 45°
   - `wind_out_directional()` in `weather_park_adjustment.py` computes weighted effective wind
-- Wind: ~0.008 log-rate/mph → 10 mph tailwind ≈ +8% runs/game (validated vs Nathan's +4%/5mph)
-- Temperature: ~0.002 log-rate/°F above 72°F baseline
+  - **Wind gusts**: blends 0.7 × sustained + 0.3 × gusts for effective wind speed
+- Wind: ~0.008 log-rate/mph → 10 mph tailwind ≈ +8% runs/game
+- Temperature: ~0.002 log-rate/°F above 72°F baseline, **cold floor at 55°F** (no penalty below)
 - Altitude: 0.25 × (1 − air_density_ratio) → Air Force (6686 ft) = +5.6% runs
+- **Humidity**: fetches relative_humidity_2m from Open-Meteo, density reduction via Magnus formula
+- **Rain**: -0.15% per pct above 25% threshold, capped at -10%
+- **Dome bypass**: `is_dome` flag zeros all weather adjustments except altitude
+- **Altitude double-counting guard**: subtracts expected altitude component from park_factor
 - Negative wind_out = wind blowing IN (suppresses scoring)
-- Crosswind correctly produces near-zero effective wind (symmetric arc cancels)
-- `elevation_ft` column in `stadium_orientations.csv` sourced from Open-Meteo elevation API
+- `elevation_ft` + `is_dome` columns in `stadium_orientations.csv`
 
 ## Daily Pipeline Commands
 
@@ -185,7 +209,9 @@ make all        # Full rebuild + predict
 - Expected runs: `exp_home`, `exp_away`, `exp_total` (not `mean_*`)
 - Win probability: `home_win_prob`, `away_win_prob`; moneylines: `ml_home`, `ml_away`
 - Pitcher handedness: `hp_throws`, `ap_throws` (may be blank if unknown)
-- Platoon: `platoon_adj_home`, `platoon_adj_away` (currently 0.0, disabled)
+- Platoon: `platoon_adj_home`, `platoon_adj_away` (bilateral model, IP-weighted starter + bullpen)
+- Confirmed starters: `hp_confirmed`, `ap_confirmed` (1 = StatBroadcast/D1B rotation confirmed)
+- Context: `home_context_adj`, `away_context_adj` (combined 7-layer adjustment)
 - D1B pitcher fallback: `hp_d1b_adj`, `ap_d1b_adj` (FIP/SIERA/ERA ability estimate), `hp_d1b_src`, `ap_d1b_src`
 - D1B team offense: `home_wrc_adj`, `away_wrc_adj` (wRC+-based att adjustment for non-model teams)
 
@@ -210,12 +236,40 @@ make all        # Full rebuild + predict
 - Fills ~3,800 pitcher slots that would otherwise be empty (linescore events + ESPN score-only games)
 - **Critical**: without this step, pitcher index drops from ~3,900 to ~1,700 and most pitchers lose posteriors
 
-### Platoon Splits (LHP/RHP)
-- `scripts/platoon_adjustment.py` tracks pitcher handedness via D1B rotation data
-- Rate adjustment disabled (`DEFAULT_LHP_ADJ = 0.0`) — sign uncertain, double-counts with `pitcher_ability`
-- Stage 2 plan: add `platoon_effect` parameter to Stan model to learn sign/magnitude from data
-- Batter handedness available on D1Baseball player pages (`BAT/THRW` field, e.g. `R/R`)
-- D1Baseball lineup pages (`/team/{slug}/lineup/`) show game-by-game batting orders (free, no login)
+### Bilateral Platoon Model
+- `DEFAULT_LHP_ADJ = 0.03` (+3% runs vs LHP, applied when pitcher hand known)
+- **IP-weighted**: starter platoon × starter_ip_frac + bullpen LHP frac × bullpen_ip_frac
+- **Bilateral**: scales by batting team's actual RHB composition (not blanket 75% assumption)
+  - `team_platoon = LHP_ADJ × (team_effective_rhb / LEAGUE_AVG_RHB)`
+  - Ole Miss (41% RHB) gets -40% weaker platoon vs LHP; Yale (93% RHB) gets +33% stronger
+- Per-team batter handedness from `sidearm_rosters.csv` → `team_batter_handedness.csv` (207 teams, 99% coverage)
+- Bullpen LHP fraction: Bayesian shrinkage toward 0.30 prior with 5 pseudo-observations
+- Parity check: PLATOON_LHP_ADJ validated against platoon_adjustment.py at import time
+
+### 7-Layer Game Context Engine (`compute_game_context.py`)
+- **Rest/schedule density**: -2.5% per game beyond 3-in-4-days, +1.2% for 2+ days rest
+- **Day/night**: -1.5% afternoon games, +0.8% evening (reads start_local_hour from schedule)
+- **Surface**: +1.8% on turf fields (38 stadiums registered in surface_types.csv)
+- **Conference strength**: non-conf opponents from weaker conferences get offense penalty
+- **Travel distance**: -0.8% per 500mi beyond 500 for away team (haversine from stadium lat/lon)
+- **Recent form**: 7-day scoring rate vs season avg, regressed 50% toward mean, ±4% cap
+- **Catcher quality**: D1B Top 50 catchers suppress opponent runs (-2.0% for top 10, -1.2% top 25)
+
+### Starter Confirmation Pipeline
+- **StatBroadcast** (`scrape_statbroadcast.py`): lineups available ~30-90 min pre-game, Playwright non-headless
+- **D1B rotations** (`parse_d1b_rotations_html.py`): weekly press conference starters, must have `canonical_id` column
+- **Overrides CSV** (`data/daily/{date}/starter_overrides.csv`): game_num,side,pitcher_name,source
+- `resolve_starters.py` reads overrides, clears pitcher_id so pitcher_table re-resolves correct index
+- `hp_confirmed`/`ap_confirmed` flags: 1 = from StatBroadcast or D1B rotation, 0 = appearance history guess
+- **D1B rotation gotcha**: `d1baseball_rotations.csv` must have `canonical_id` column (not just `team_abbr`)
+- **Thu-Sat series**: D1B labels Gm1/2/3 as fri/sat/sun but actual days shift — check which teams played Thursday
+
+### Supabase Integration
+- Direct upload via `upload_projections_to_syndicate()` in `load_baseball_to_postgres.py`
+- Upserts on `(sport, game_id, model_version)` — model_version = `stan_v2_5000sim`
+- Game ID format: `bsb_{YYYYMMDD}_{away_slug}_{home_slug}`
+- Data blob includes starters (with hp_confirmed/ap_confirmed), weather, bullpen, rl_cover
+- Project ref: `otfybzwvockuwdldfoed`, password in `SUPABASE_DB_PASSWORD` env var or `.env`
 
 ### Model Refit Pipeline
 When run_events data or team/pitcher indices change, the Stan model must be refit:
@@ -231,7 +285,7 @@ make rebuild
 .venv/bin/python3 scripts/build_run_event_indices.py
 
 # 3. Refit Stan model (~15-20 min on M-series Mac)
-#    Current: 308 teams, 4874 pitchers, 7505+ games, 32K draws
+#    Current: 308 teams, 5907 pitchers, 4709 run_events, 32K draws
 .venv/bin/python3 scripts/fit_run_event_model.py
 
 # 4. Rebuild unified lookup tables
@@ -245,9 +299,9 @@ python3 -c "import pandas as pd; d=pd.read_csv('data/processed/run_event_posteri
 ## Model Calibration & Validation
 
 ### Scoring Calibration (SCORING_CALIBRATION)
-- Located in `simulate.py`, currently `0.083`
-- Calibrated from **7,898 actual game outcomes**: actual avg total = 13.13, model base = 12.09
-- Formula: `C = log(actual_avg / model_base)` = `log(13.13 / 12.09)` = 0.083
+- Located in `src/ncaa_baseball/model_runtime.py`, currently `0.034`
+- Calibrated from **2,618 actual 2026 game outcomes**: actual avg total = 13.02
+- Formula: `C = log(actual_avg / model_base)`
 - Applied uniformly to all 4 intercepts in the posterior (additive log-rate shift)
 - Recalibrate after every Stan refit by running `backtest.py --tune-calibration`
 
@@ -272,11 +326,23 @@ python3 -c "import pandas as pd; d=pd.read_csv('data/processed/run_event_posteri
 - Data source: D1Baseball batted ball leaderboard TSVs
 
 ### Backtest Framework
-- `scripts/backtest.py` compares predictions against actual outcomes
-- Metrics: Brier score, log-loss, total MAE/bias/correlation, calibration bins
-- Run: `.venv/bin/python3 scripts/backtest.py --out data/processed/backtest_results.csv`
+- `scripts/backtest_vs_market.py` — corrected backtest using RAW market odds for payout
+- Uses best US book price (DK, FD, MGM, Caesars) for ML payout, not devigged fair odds
+- Tests ALL markets: ML home, ML away, overs, unders, spreads
+- Validates American odds (rejects -99 to +99 as corrupt), defaults to -115 for totals
+- Snapshot merge logic: updates fields per snapshot, doesn't overwrite with missing data
+- `scripts/backtest.py` — model-vs-actuals calibration (Brier, log-loss, MAE, bias)
+- **Backtest results (111 games, corrected)**: Overs 1.0+ edge: 57.3% W, +5.3% ROI at -115 juice
+- **Known totals inflation**: model avg ~13 vs market avg ~10.5 on bettable games — pitcher ability compression (70% idx=0)
 
 ## Common Pitfalls
+- **Do NOT use fuzzy matching** for team names anywhere — use exact match against canonical registry
+- **StatBroadcast proof-of-work**: pages require 8+ seconds to load; headless Playwright gets 403'd; use non-headless with `--disable-blink-features=AutomationControlled`
+- **D1B rotation `canonical_id` column**: `d1baseball_rotations.csv` MUST have `canonical_id` column, not just `team_abbr` — StarterLookup matches on canonical_id
+- **Thu-Sat vs Fri-Sun series**: D1B labels columns Gm1/2/3 as fri/sat/sun regardless of actual start day. Check which teams played Thursday before mapping game numbers.
+- **Starter overrides clear pitcher_id**: when override fires, hp_id is set to "" so pitcher_table re-resolves the correct index. Don't just change the name without clearing the ID.
+- **Odds pull log American format**: prices are American (-200, +150), NOT decimal. The `price_to_implied()` function auto-detects but totals prices between -99 and +99 are corrupt (usually spread points leaking into price field).
+- **Scoring calibration**: `SCORING_CALIBRATION` in `model_runtime.py` must match `SIMULATE_SCORING_CALIBRATION` in `simulate.py` — parity check asserts at import time
 - Overpass API rate limits: Use 4-5s between queries, retry on 429/504 with exponential backoff
 - `bookmaker_lines` not `bookmakers` in odds JSONL
 - Stadium default 67° will produce wrong wind calculations — always verify bearing source
