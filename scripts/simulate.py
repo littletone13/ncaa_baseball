@@ -498,18 +498,18 @@ def simulate_games(
             total_shift = 0.0
             side_shift = 0.0
             if mkt_total_line is not None and pilot_total and pilot_total > 0:
-                # Anchor toward market total — stronger caps to let market pull harder
+                # Anchor toward market total
                 total_shift = _clamp(
                     mkt_anchor_weight * np.log(max(0.01, float(mkt_total_line)) / pilot_total) / 2.0,
-                    -0.40,
-                    0.40,
+                    -0.60,
+                    0.60,
                 )
             if mkt_home_win_prob is not None:
-                # Anchor toward market side — stronger caps for more market influence
+                # Anchor toward market side
                 side_shift = _clamp(
                     mkt_anchor_weight * (_logit(float(mkt_home_win_prob)) - _logit(pilot_home_prob or 0.5)) / 2.0,
-                    -0.50,
-                    0.50,
+                    -0.60,
+                    0.60,
                 )
             anchor_home_shift = total_shift + side_shift
             anchor_away_shift = total_shift - side_shift

@@ -435,15 +435,15 @@ def resolve_schedule(
                 # Time-aware blending: trust model early, lean market closer to game.
                 # Morning lines are soft — market sharpens 30-60 min pre-game.
                 if tmin <= 0:
-                    mkt_anchor_weight = 0.50  # live/started: lean market
+                    mkt_anchor_weight = 0.65  # live/started: heavy market
                 elif tmin <= 60:
-                    mkt_anchor_weight = 0.40  # <1h: market is sharpest
+                    mkt_anchor_weight = 0.55  # <1h: market is sharpest
                 elif tmin <= 180:
-                    mkt_anchor_weight = 0.25  # 1-3h: moderate blend
+                    mkt_anchor_weight = 0.40  # 1-3h: strong blend
                 elif tmin <= 720:
-                    mkt_anchor_weight = 0.15  # 3-12h: light blend
+                    mkt_anchor_weight = 0.30  # 3-12h: moderate blend
                 else:
-                    mkt_anchor_weight = 0.10  # >12h: trust model
+                    mkt_anchor_weight = 0.20  # >12h: light blend
             except Exception:
                 pass
 
