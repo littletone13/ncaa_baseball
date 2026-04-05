@@ -215,10 +215,13 @@ make all        # Full rebuild + predict
 - D1B pitcher fallback: `hp_d1b_adj`, `ap_d1b_adj` (FIP/SIERA/ERA ability estimate), `hp_d1b_src`, `ap_d1b_src`
 - D1B team offense: `home_wrc_adj`, `away_wrc_adj` (wRC+-based att adjustment for non-model teams)
 
-### NCAA Boxscore Integration
-- `scripts/integrate_ncaa_boxscores.py` merges NCAA API boxscores into pitcher_appearances
-- NCAA API (`ncaa-api.henrygd.me`) has 100% D1 coverage (vs ESPN's ~15%)
-- Result: 36,484 appearances (19,057 ESPN + 17,427 novel NCAA)
+### Post-Game Data Collection (Sidearm > NCAA API)
+- **Primary source**: `scripts/scrape_sidearm_boxscores.py` — real-time, same-day data
+  - Pitcher stats (IP, H, R, ER, BB, K, PC), lineups, umpires, weather
+  - 308 team URLs in `data/registries/sidearm_urls.csv`
+  - `--team BSB_TEXAS --after 2026-04-02` for recent games
+- **Fallback**: `scripts/integrate_ncaa_boxscores.py` — NCAA API, 1-2 day lag
+- **Direct book odds**: `scripts/betmgm_scraper.py`, `scripts/betrivers_scraper.py`, `scripts/draftkings_scraper.py`, `scripts/fanduel_scraper.py` — supplements the-odds-api for games without coverage
 - Deduplication: prefers ESPN data when both sources have same (date, team, pitcher_name, starter)
 - NCAA boxscores provide starter flags, IP, hits, runs, ERs, Ks, BBs for all teams
 - Used to improve pitcher crosswalk: 59% of games have pitcher_idx > 0 (was 47%)
